@@ -12,8 +12,6 @@ OPENSSH_CPE_ID_UPDATE = $(OPENSSH_VERSION_MINOR)
 OPENSSH_SITE = http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable
 OPENSSH_LICENSE = BSD-3-Clause, BSD-2-Clause, Public Domain
 OPENSSH_LICENSE_FILES = LICENCE
-
-# 0001-better-detection-of-broken-fzero-call-used-regs.patch
 OPENSSH_AUTORECONF = YES
 
 OPENSSH_CONF_ENV = \
