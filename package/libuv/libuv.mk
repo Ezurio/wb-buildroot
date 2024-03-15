@@ -15,6 +15,9 @@ LIBUV_LICENSE = BSD-2-Clause, BSD-3-Clause, ISC, MIT
 LIBUV_LICENSE_FILES = LICENSE
 LIBUV_CPE_ID_VENDOR = libuv
 
+# 0001-Fix-CVE-2024-24806.patch
+LIBUV_IGNORE_CVES += CVE-2024-24806
+
 # Upstream needs tests to be run sequentially. This is the default in
 # automake 1.11 and before, but not starting in 1.12. To maintain
 # sequentiality in 1.12 and later, the automake option 'serial-tests'
