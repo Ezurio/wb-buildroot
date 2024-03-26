@@ -1,5 +1,6 @@
 config BR2_PACKAGE_LIBUBOOTENV
 	bool "libubootenv"
+	select BR2_PACKAGE_LIBYAML
 	help
 	  libubootenv is a library that provides a hardware independent
 	  way to access to U-Boot environment.

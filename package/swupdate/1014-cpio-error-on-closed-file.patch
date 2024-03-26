@@ -1,6 +1,6 @@
 --- a/core/cpio_utils.c
 +++ b/core/cpio_utils.c
-@@ -73,7 +73,7 @@
+@@ -75,7 +75,7 @@
  			return -EFAULT;
  		}
  		if (len == 0) {

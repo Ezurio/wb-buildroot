@@ -1,6 +1,6 @@
 --- a/handlers/ubivol_handler.c
 +++ b/handlers/ubivol_handler.c
-@@ -221,6 +221,12 @@
+@@ -259,6 +259,12 @@
  	return err;
  }
  
@@ -13,7 +13,7 @@
  static int resize_volume(struct img_type *cfg, long long size)
  {
  	struct flash_description *nandubi = get_flash_info();
-@@ -324,6 +330,7 @@
+@@ -362,6 +368,7 @@
  		req.alignment = 1;
  		req.bytes = size;
  		req.name = cfg->volname;

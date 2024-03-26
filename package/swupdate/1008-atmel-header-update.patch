@@ -2,7 +2,7 @@ diff --git a/include/swupdate.h b/include/swupdate.h
 index fb54ace55c..d1d3517daf 100644
 --- a/include/swupdate_image.h
 +++ b/include/swupdate_image.h
-@@ -47,6 +47,7 @@ struct img_type {
+@@ -46,6 +46,7 @@ struct img_type {
  	char device[MAX_VOLNAME];	/* device associated with image if any */
  	char path[MAX_IMAGE_FNAME];	/* Path where image must be installed */
  	char mtdname[MAX_IMAGE_FNAME];	/* MTD device where image must be installed */
@@ -14,14 +14,14 @@ diff --git a/parser/parser.c b/parser/parser.c
 index f9da567a0c..d934a3678e 100644
 --- a/parser/parser.c
 +++ b/parser/parser.c
-@@ -396,6 +396,7 @@ static int parse_common_attributes(parsertype p, void *elem, struct img_type *im
+@@ -412,6 +412,7 @@ static int parse_common_attributes(parsertype p, void *elem, struct img_type *im
  	GET_FIELD_STRING(p, elem, "volume", image->volname);
  	GET_FIELD_STRING(p, elem, "device", image->device);
  	GET_FIELD_STRING(p, elem, "mtdname", image->mtdname);
 +	GET_FIELD_STRING(p, elem, "transform", image->transform);
  	GET_FIELD_STRING(p, elem, "filesystem", image->filesystem);
  	GET_FIELD_STRING(p, elem, "type", image->type);
-	get_field(p, elem, "offset", &offset);
+ 	GET_FIELD_STRING(p, elem, "data", image->type_data);
 diff --git a/handlers/flash_handler.c b/handlers/flash_handler.c
 index dc829bab02..2f65c905f2 100644
 --- a/handlers/flash_handler.c

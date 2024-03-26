@@ -2,7 +2,7 @@ diff --git a/lib/mgmt.h b/lib/mgmt.h
 index 922a243..07abf06 100644
 --- a/lib/mgmt.h
 +++ b/lib/mgmt.h
-@@ -819,6 +819,7 @@ struct mgmt_ev_device_connected {
+@@ -859,6 +859,7 @@ struct mgmt_ev_device_connected {
  #define MGMT_DEV_DISCONN_TIMEOUT	0x01
  #define MGMT_DEV_DISCONN_LOCAL_HOST	0x02
  #define MGMT_DEV_DISCONN_REMOTE		0x03
@@ -22,7 +22,7 @@ index 3992f9a..a596091 100644
  #include "src/shared/util.h"
  #include "src/shared/att.h"
  #include "src/shared/queue.h"
-@@ -229,6 +230,8 @@ struct btd_device {
+@@ -244,6 +245,8 @@ struct btd_device {
  	GSList		*disconnects;		/* disconnects message */
  	DBusMessage	*connect;		/* connect message */
  	DBusMessage	*disconnect;		/* disconnect message */
@@ -31,7 +31,7 @@ index 3992f9a..a596091 100644
  	GAttrib		*attrib;
  
  	struct bt_att *att;			/* The new ATT transport */
-@@ -261,6 +264,7 @@ struct btd_device {
+@@ -277,6 +280,7 @@ struct btd_device {
  	gboolean	blocked;
  	gboolean	auto_connect;
  	gboolean	disable_auto_connect;
@@ -39,7 +39,7 @@ index 3992f9a..a596091 100644
  	gboolean	general_connect;
  
  	bool		legacy;
-@@ -273,6 +277,8 @@ struct btd_device {
+@@ -289,6 +293,8 @@ struct btd_device {
  	time_t		name_resolve_failed_time;
  
  	int8_t		volume;
@@ -48,7 +48,7 @@ index 3992f9a..a596091 100644
  };
  
  static const uint16_t uuid_list[] = {
-@@ -282,6 +288,8 @@ static const uint16_t uuid_list[] = {
+@@ -298,6 +204,8 @@ static const uint16_t uuid_list[] = {
  	0
  };
  
@@ -57,15 +57,15 @@ index 3992f9a..a596091 100644
  static int device_browse_gatt(struct btd_device *device, DBusMessage *msg);
  static int device_browse_sdp(struct btd_device *device, DBusMessage *msg);
  
-@@ -804,6 +812,7 @@ static void device_free(gpointer user_data)
- 	if (device->eir_uuids)
- 		g_slist_free_full(device->eir_uuids, g_free);
+@@ -852,6 +860,7 @@ static void device_free(gpointer user_data)
+ 
+ 	queue_destroy(device->sirks, free);
  
 +	mgmt_unref(device->mgmt);
  	g_free(device->local_csrk);
  	g_free(device->remote_csrk);
- 	g_free(device->path);
-@@ -1268,6 +1277,47 @@ static gboolean dev_property_get_connected(const GDBusPropertyTable *property,
+ 	free(device->ltk);
+@@ -1317,6 +1326,47 @@ static gboolean dev_property_get_connected(const GDBusPropertyTable *property,
  	return TRUE;
  }
  
@@ -113,7 +113,7 @@ index 3992f9a..a596091 100644
  static gboolean dev_property_get_uuids(const GDBusPropertyTable *property,
  					DBusMessageIter *iter, void *data)
  {
-@@ -1851,6 +1901,144 @@ static DBusMessage *dev_disconnect(DBusConnection *conn, DBusMessage *msg,
+@@ -2065,6 +2115,144 @@ static DBusMessage *dev_disconnect(DBusConnection *conn, DBusMessage *msg,
  	return NULL;
  }
  
@@ -258,7 +258,7 @@ index 3992f9a..a596091 100644
  static int connect_next(struct btd_device *dev)
  {
  	struct btd_service *service;
-@@ -2947,6 +3135,7 @@ static DBusMessage *cancel_pairing(DBusConnection *conn, DBusMessage *msg,
+@@ -3164,6 +3352,7 @@ static DBusMessage *cancel_pairing(DBusConnection *conn, DBusMessage *msg,
  }
  
  static const GDBusMethodTable device_methods[] = {
@@ -266,7 +266,7 @@ index 3992f9a..a596091 100644
  	{ GDBUS_ASYNC_METHOD("Disconnect", NULL, NULL, dev_disconnect) },
  	{ GDBUS_ASYNC_METHOD("Connect", NULL, NULL, dev_connect) },
  	{ GDBUS_ASYNC_METHOD("ConnectProfile", GDBUS_ARGS({ "UUID", "s" }),
-@@ -2959,6 +3148,8 @@ static const GDBusMethodTable device_methods[] = {
+@@ -3176,6 +3365,8 @@ static const GDBusMethodTable device_methods[] = {
  };
  
  static const GDBusPropertyTable device_properties[] = {
@@ -275,7 +275,7 @@ index 3992f9a..a596091 100644
  	{ "Address", "s", dev_property_get_address },
  	{ "AddressType", "s", property_get_address_type },
  	{ "Name", "s", dev_property_get_name, NULL, dev_property_exists_name },
-@@ -3125,6 +3316,7 @@ static const GDBusPropertyTable device_properties[] = {
+@@ -3193,6 +3384,7 @@ static const GDBusPropertyTable device_properties[] = {
  	{ "LegacyPairing", "b", dev_property_get_legacy },
  	{ "RSSI", "n", dev_property_get_rssi, NULL, dev_property_exists_rssi },
  	{ "Connected", "b", dev_property_get_connected },
@@ -283,7 +283,7 @@ index 3992f9a..a596091 100644
  	{ "UUIDs", "as", dev_property_get_uuids },
  	{ "Modalias", "s", dev_property_get_modalias, NULL,
  						dev_property_exists_modalias },
-@@ -4383,6 +4575,7 @@ static struct btd_device *device_new(struct btd_adapter *adapter,
+@@ -4234,6 +4426,7 @@ static struct btd_device *device_new(struct btd_adapter *adapter,
  					gatt_service_removed, device, NULL);
  
  	device->refresh_discovery = btd_opts.refresh_discovery;
@@ -291,7 +291,7 @@ index 3992f9a..a596091 100644
  
  	return btd_device_ref(device);
  }
-@@ -5821,6 +6014,18 @@ done:
+@@ -5712,6 +5905,18 @@ done:
  	}
  }
  
@@ -310,7 +310,7 @@ index 3992f9a..a596091 100644
  int device_connect_le(struct btd_device *dev)
  {
  	struct btd_adapter *adapter = dev->adapter;
-@@ -7296,9 +7501,41 @@ void btd_device_init(void)
+@@ -7218,11 +7423,43 @@ void btd_device_init(void)
  	dbus_conn = btd_get_dbus_connection();
  	service_state_cb_id = btd_service_add_state_cb(
  						service_state_changed, NULL);
@@ -353,16 +353,4 @@ index 3992f9a..a596091 100644
 +	mgmt_primary = NULL;
  }
  
- 
- }
- 
-+{
-+
-+	}
-+
-+
-+
-+
-+}
-+
- {
+ void btd_device_set_volume(struct btd_device *device, int8_t volume)

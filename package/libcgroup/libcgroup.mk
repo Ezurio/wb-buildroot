@@ -4,12 +4,11 @@
 #
 ################################################################################
 
-LIBCGROUP_VERSION = 0.42.2
-LIBCGROUP_SOURCE = libcgroup-$(LIBCGROUP_VERSION).tar.bz2
+LIBCGROUP_VERSION = 2.0.3
 LIBCGROUP_SITE = https://github.com/libcgroup/libcgroup/releases/download/v$(LIBCGROUP_VERSION)
 LIBCGROUP_LICENSE = LGPL-2.1
 LIBCGROUP_LICENSE_FILES = COPYING
-LIBCGROUP_CPE_ID_VENDOR = libcgroup_project
+LIBCGROUP_CPE_ID_VALID = YES
 LIBCGROUP_DEPENDENCIES = host-bison host-flex
 LIBCGROUP_INSTALL_STAGING = YES
 
@@ -35,6 +34,10 @@ LIBCGROUP_DEPENDENCIES += linux-pam
 LIBCGROUP_CONF_OPTS += --enable-pam
 else
 LIBCGROUP_CONF_OPTS += --disable-pam
+endif
+
+ifeq ($(BR2_TOOLCHAIN_USES_GLIBC),)
+LIBCGROUP_DEPENDENCIES += musl-fts
 endif
 
 $(eval $(autotools-package))

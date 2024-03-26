@@ -5,7 +5,7 @@
 ################################################################################
 
 # _VERSION, _SOURCE and _SITE must be kept empty to avoid downloading anything
-NODEJS_COMMON_VERSION = 18.18.0
+NODEJS_COMMON_VERSION = 20.11.1
 NODEJS_COMMON_SOURCE = node-v$(NODEJS_COMMON_VERSION).tar.xz
 NODEJS_COMMON_SITE = http://nodejs.org/dist/v$(NODEJS_COMMON_VERSION)
 
@@ -17,10 +17,10 @@ NODEJS_CPE_ID_PRODUCT = node.js
 NODEJS_BIN_ENV = $(TARGET_CONFIGURE_OPTS) \
 	LDFLAGS="$(NODEJS_LDFLAGS)" \
 	LD="$(TARGET_CXX)" \
-	npm_config_arch=$(NODEJS_BIN_ARCH) \
-	npm_config_target_arch=$(NODEJS_SRC_CPU) \
+	npm_config_arch=$(NODEJS_CPU) \
+	npm_config_target_arch=$(NODEJS_CPU) \
 	npm_config_build_from_source=true \
-	npm_config_nodedir=$(BUILD_DIR)/nodejs-src-$(NODEJS_BIN_VERSION) \
+	npm_config_nodedir=$(STAGING_DIR)/usr \
 	npm_config_prefix=$(TARGET_DIR)/usr \
 	npm_config_cache=$(BUILD_DIR)/.npm-cache
 

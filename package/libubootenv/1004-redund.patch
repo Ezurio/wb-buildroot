@@ -1,6 +1,6 @@
 --- a/src/uboot_env.c
 +++ b/src/uboot_env.c
-@@ -930,18 +930,23 @@ int libuboot_env_store(struct uboot_ctx *ctx)
+@@ -1203,18 +1203,23 @@ int libuboot_env_store(struct uboot_ctx *ctx)
  
  	copy = ctx->redundant ? (ctx->current ? 0 : 1) : 0;
  	ret = devwrite(ctx, copy, image);
@@ -31,7 +31,7 @@
  
  	return ret;
  }
-@@ -985,8 +990,8 @@ static int libuboot_load(struct uboot_ctx *ctx)
+@@ -1258,8 +1263,8 @@ static int libuboot_load(struct uboot_ctx *ctx)
  		dev = &ctx->envdevs[i];
  		ret = devread(ctx, i, buf[i]);
  		if (ret != ctx->size) {
@@ -41,4 +41,4 @@
 +			continue;
  		}
  		crc = *(uint32_t *)(buf[i] + offsetcrc);
- 		dev->crc = crc32(0, (uint8_t *)data, ctx->size - offsetdata);
+ 		dev->crc = crc32(0, (uint8_t *)data, usable_envsize);

@@ -1,8 +1,6 @@
-diff --git a/src/shared/mount-util.h b/src/shared/mount-util.h
-index 8b07611ec8..d665d21e3a 100644
---- a/src/shared/mount-util.h
-+++ b/src/shared/mount-util.h
-@@ -27,8 +27,9 @@
+--- a/src/basic/mountpoint-util.h
++++ b/src/basic/mountpoint-util.h
+@@ -21,8 +21,9 @@
  #define TMPFS_LIMITS_SYS_FS_CGROUP   TMPFS_LIMITS_EMPTY_OR_ALMOST
  
  /* On an extremely small device with only 256MB of RAM, 20% of RAM should be enough for the re-execution of

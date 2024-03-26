@@ -1,6 +1,6 @@
 diff -Naur a/suricatta/common.c b/suricatta/common.c
---- a/suricatta/common.c	2019-11-29 13:47:39.000000000 +0000
-+++ b/suricatta/common.c	2020-04-06 15:52:01.880000000 +0000
+--- a/corelib/server_utils.c	2019-11-29 13:47:39.000000000 +0000
++++ b/corelib/server_utils.c	2020-04-06 15:52:01.880000000 +0000
 @@ -23,6 +23,8 @@
  	get_field(LIBCFG_PARSER, elem, "retry",
  		&chan->retries);

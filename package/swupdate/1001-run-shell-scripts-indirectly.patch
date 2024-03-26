@@ -2,7 +2,7 @@ diff --git a/handlers/shell_scripthandler.c b/handlers/shell_scripthandler.c
 index 6d5e05e..f9637c5 100644
 --- a/handlers/shell_scripthandler.c
 +++ b/handlers/shell_scripthandler.c
-@@ -40,7 +40,7 @@ static int execute_shell_script(struct img_type *img, const char *fnname)
+@@ -39,7 +39,7 @@ static int execute_shell_script(struct img_type *img, const char *fnname)
  		return -1;
  	}
  	snprintf(shellscript, sizeof(shellscript),

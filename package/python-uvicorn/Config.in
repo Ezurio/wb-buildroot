@@ -3,6 +3,7 @@ config BR2_PACKAGE_PYTHON_UVICORN
 	select BR2_PACKAGE_PYTHON_CLICK # runtime
 	select BR2_PACKAGE_PYTHON_HTTPTOOLS # runtime
 	select BR2_PACKAGE_PYTHON3_ZLIB # runtime
+	select BR2_PACKAGE_PYTHON3_SSL # runtime
 	help
 	  The lightning-fast ASGI server.
 

@@ -1,6 +1,6 @@
 --- a/uvicorn/config.py	2020-02-01 19:00:00.000000000 -0500
 +++ b/uvicorn/config.py	2024-01-11 11:13:48.492675156 -0500
-@@ -271,6 +271,7 @@
+@@ -262,6 +262,7 @@
          self.callback_notify = callback_notify
          self.ssl_keyfile = ssl_keyfile
          self.ssl_certfile = ssl_certfile
@@ -8,7 +8,7 @@
          self.ssl_keyfile_password = ssl_keyfile_password
          self.ssl_version = ssl_version
          self.ssl_cert_reqs = ssl_cert_reqs
-@@ -436,6 +437,8 @@
+@@ -427,6 +428,8 @@
                  ca_certs=self.ssl_ca_certs,
                  ciphers=self.ssl_ciphers,
              )
@@ -19,7 +19,7 @@
  
 --- a/uvicorn/protocols/http/h11_impl.py	2020-02-01 19:00:00.000000000 -0500
 +++ b/uvicorn/protocols/http/h11_impl.py	2024-01-11 11:18:08.215795183 -0500
-@@ -38,6 +38,7 @@
+@@ -31,6 +31,7 @@
      get_local_addr,
      get_path_with_query_string,
      get_remote_addr,
@@ -27,15 +27,15 @@
      is_ssl,
  )
  from uvicorn.server import ServerState
-@@ -98,6 +99,7 @@
-         self.server: Optional[Tuple[str, int]] = None
-         self.client: Optional[Tuple[str, int]] = None
-         self.scheme: Optional[Literal["http", "https"]] = None
+@@ -91,6 +92,7 @@
+         self.server: tuple[str, int] | None = None
+         self.client: tuple[str, int] | None = None
+         self.scheme: Literal["http", "https"] | None = None
 +        self.tls: Optional[Dict] = None
  
          # Per-request state
          self.scope: HTTPScope = None  # type: ignore[assignment]
-@@ -116,6 +118,11 @@
+@@ -109,6 +111,11 @@
          self.client = get_remote_addr(transport)
          self.scheme = "https" if is_ssl(transport) else "http"
  
@@ -47,7 +47,7 @@
          if self.logger.level <= TRACE_LOG_LEVEL:
              prefix = "%s:%d - " % self.client if self.client else ""
              self.logger.log(TRACE_LOG_LEVEL, "%sHTTP connection made", prefix)
-@@ -222,8 +229,12 @@
+@@ -218,8 +225,12 @@
                      "query_string": query_string,
                      "headers": self.headers,
                      "state": self.app_state.copy(),
@@ -62,7 +62,7 @@
                      self.handle_websocket_upgrade(event)
 --- a/uvicorn/protocols/http/httptools_impl.py	2020-02-01 19:00:00.000000000 -0500
 +++ b/uvicorn/protocols/http/httptools_impl.py	2024-01-11 11:19:39.992806768 -0500
-@@ -43,6 +43,7 @@
+@@ -34,6 +34,7 @@
      get_local_addr,
      get_path_with_query_string,
      get_remote_addr,
@@ -70,15 +70,15 @@
      is_ssl,
  )
  from uvicorn.server import ServerState
-@@ -103,6 +104,7 @@
-         self.client: Optional[Tuple[str, int]] = None
-         self.scheme: Optional[Literal["http", "https"]] = None
-         self.pipeline: Deque[Tuple[RequestResponseCycle, ASGI3Application]] = deque()
+@@ -94,6 +95,7 @@
+         self.client: tuple[str, int] | None = None
+         self.scheme: Literal["http", "https"] | None = None
+         self.pipeline: Deque[tuple[RequestResponseCycle, ASGI3Application]] = deque()
 +        self.tls: Optional[Dict] = None
  
          # Per-request state
          self.scope: HTTPScope = None  # type: ignore[assignment]
-@@ -122,6 +124,11 @@
+@@ -113,6 +115,11 @@
          self.client = get_remote_addr(transport)
          self.scheme = "https" if is_ssl(transport) else "http"
  
@@ -90,7 +90,7 @@
          if self.logger.level <= TRACE_LOG_LEVEL:
              prefix = "%s:%d - " % self.client if self.client else ""
              self.logger.log(TRACE_LOG_LEVEL, "%sHTTP connection made", prefix)
-@@ -244,8 +251,12 @@
+@@ -235,8 +242,12 @@
              "root_path": self.root_path,
              "headers": self.headers,
              "state": self.app_state.copy(),
@@ -105,16 +105,16 @@
          self.url += url
 --- a/uvicorn/protocols/utils.py	2020-02-01 19:00:00.000000000 -0500
 +++ b/uvicorn/protocols/utils.py	2024-01-11 11:22:51.886814641 -0500
-@@ -1,9 +1,28 @@
+@@ -1,10 +1,29 @@
+ from __future__ import annotations
+ 
  import asyncio
 +import ssl
  import urllib.parse
--from typing import Optional, Tuple
-+from typing import Any, Dict, Optional, Tuple
  
  from uvicorn._types import WWWScope
  
-+RDNS_MAPPING: Dict[str, str] = {
++RDNS_MAPPING: dict[str, str] = {
 +    "commonName": "CN",
 +    "localityName": "L",
 +    "stateOrProvinceName": "ST",
@@ -126,21 +126,21 @@
 +    "userId": "UID",
 +}
 +
-+TLS_VERSION_MAP: Dict[str, int] = {
++TLS_VERSION_MAP: dict[str, int] = {
 +    "TLSv1": 0x0301,
 +    "TLSv1.1": 0x0302,
 +    "TLSv1.2": 0x0303,
 +    "TLSv1.3": 0x0304,
 +}
  
- def get_remote_addr(transport: asyncio.Transport) -> Optional[Tuple[str, int]]:
-     socket_info = transport.get_extra_info("socket")
-@@ -52,3 +71,54 @@
+ class ClientDisconnected(IOError):
+     ...
+@@ -57,3 +76,54 @@
              path_with_query_string, scope["query_string"].decode("ascii")
          )
      return path_with_query_string
 +
-+def get_tls_info(transport: asyncio.Transport) -> Optional[Dict]:
++def get_tls_info(transport: asyncio.Transport) -> dict | None:
 +
 +    ###
 +    # server_cert: Unable to set from transport information
@@ -151,7 +151,7 @@
 +    # cipher_suite: Too hard to convert without direct access to openssl
 +    ###
 +
-+    ssl_info: Dict[str, Any] = {
++    ssl_info: dict[str, list | None ] = {
 +        "server_cert": None,
 +        "client_cert_chain": [],
 +        "client_cert_name": None,

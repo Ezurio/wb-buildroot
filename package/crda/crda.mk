@@ -9,7 +9,6 @@ CRDA_SITE = https://git.kernel.org/pub/scm/linux/kernel/git/mcgrof/crda.git/snap
 CRDA_DEPENDENCIES = host-pkgconf host-python-pycryptodomex libnl libgcrypt
 CRDA_LICENSE = ISC
 CRDA_LICENSE_FILES = LICENSE
-CRDA_CPE_ID_VENDOR = kernel
 
 ifeq ($(BR2_PACKAGE_CRDA_NO_SIGN_CHECK),y)
 export CRDA_NO_SIGN_CHECK=y

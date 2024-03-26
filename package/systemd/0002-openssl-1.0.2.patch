@@ -1,6 +1,6 @@
 --- a/meson.build	2022-03-24 09:43:06.000000000 
 +++ b/meson.build	2022-03-24 09:29:57.000000000 
-@@ -1430,7 +1430,7 @@
+@@ -1516,7 +1516,7 @@
  want_openssl = get_option('openssl')
  if want_openssl != 'false' and not skip_deps
          libopenssl = dependency('openssl',

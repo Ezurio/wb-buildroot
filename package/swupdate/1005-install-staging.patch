@@ -8,7 +8,7 @@
  
  # Use LINUXINCLUDE when you must reference the include/ directory.
  # Needed to be compatible with the O= option
-@@ -468,23 +469,17 @@
+@@ -467,23 +468,17 @@
  	$(call cmd,strip)
  
  install: all
