@@ -40,8 +40,6 @@ NODEJS_SRC_CONF_OPTS = \
 	--shared-cares \
 	--shared-libuv \
 	--shared-nghttp2 \
-	--without-dtrace \
-	--without-etw \
 	--cross-compiling \
 	--dest-os=linux \
 	--ninja
