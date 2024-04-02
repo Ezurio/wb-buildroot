@@ -1,12 +1,7 @@
 diff -Naur a/drivers/atmodem/gprs.c b/drivers/atmodem/gprs.c
 --- a/drivers/atmodem/gprs.c	2021-05-05 05:06:20.000000000 -0400
 +++ b/drivers/atmodem/gprs.c	2023-12-13 11:44:30.369031228 -0500
-@@ -41,10 +41,12 @@
- 
- #include "atmodem.h"
- #include "vendor.h"
-+#include "common.h"
- 
+@@ -47,6 +47,7 @@
  #define MAX_CONTEXTS 255
  
  static const char *cgreg_prefix[] = { "+CGREG:", NULL };
@@ -14,7 +9,7 @@ diff -Naur a/drivers/atmodem/gprs.c b/drivers/atmodem/gprs.c
  static const char *cgerep_prefix[] = { "+CGEREP:", NULL };
  static const char *cgdcont_prefix[] = { "+CGDCONT:", NULL };
  static const char *cgact_prefix[] = { "+CGACT:", NULL };
-@@ -56,6 +58,9 @@
+@@ -58,6 +59,9 @@ struct gprs_data {
  	int last_auto_context_id;
  	gboolean telit_try_reattach;
  	int attached;
@@ -24,7 +19,7 @@ diff -Naur a/drivers/atmodem/gprs.c b/drivers/atmodem/gprs.c
  };
  
  struct list_contexts_data
-@@ -130,6 +135,49 @@
+@@ -132,6 +136,49 @@ static void at_gprs_set_attached(struct
  	CALLBACK_WITH_FAILURE(cb, data);
  }
  
@@ -74,7 +69,7 @@ diff -Naur a/drivers/atmodem/gprs.c b/drivers/atmodem/gprs.c
  static void at_cgreg_cb(gboolean ok, GAtResult *result, gpointer user_data)
  {
  	struct cb_data *cbd = user_data;
-@@ -148,10 +196,22 @@
+@@ -150,10 +197,22 @@ static void at_cgreg_cb(gboolean ok, GAt
  	if (at_util_parse_reg(result, "+CGREG:", NULL, &status,
  				NULL, NULL, NULL, gd->vendor) == FALSE) {
  		CALLBACK_WITH_FAILURE(cb, -1, cbd->data);
@@ -98,7 +93,7 @@ diff -Naur a/drivers/atmodem/gprs.c b/drivers/atmodem/gprs.c
  }
  
  static void at_gprs_registration_status(struct ofono_gprs *gprs,
-@@ -183,7 +243,7 @@
+@@ -185,7 +244,7 @@ static void at_gprs_registration_status(
  	}
  
  	if (g_at_chat_send(gd->chat, "AT+CGREG?", cgreg_prefix,
@@ -107,7 +102,7 @@ diff -Naur a/drivers/atmodem/gprs.c b/drivers/atmodem/gprs.c
  		return;
  
  	g_free(cbd);
-@@ -372,7 +432,24 @@
+@@ -374,7 +433,24 @@ static void cgreg_notify(GAtResult *resu
  		gd->telit_try_reattach = FALSE;
  	}
  
@@ -133,7 +128,7 @@ diff -Naur a/drivers/atmodem/gprs.c b/drivers/atmodem/gprs.c
  }
  
  static void cgev_notify(GAtResult *result, gpointer user_data)
-@@ -603,9 +680,14 @@
+@@ -653,9 +729,14 @@ static void gprs_initialized(gboolean ok
  	struct gprs_data *gd = ofono_gprs_get_data(gprs);
  
  	g_at_chat_register(gd->chat, "+CGEV:", cgev_notify, FALSE, gprs, NULL);
@@ -148,7 +143,7 @@ diff -Naur a/drivers/atmodem/gprs.c b/drivers/atmodem/gprs.c
  	switch (gd->vendor) {
  	case OFONO_VENDOR_HUAWEI:
  		g_at_chat_register(gd->chat, "^MODE:", huawei_mode_notify,
-@@ -818,6 +900,10 @@
+@@ -877,6 +958,10 @@ static void at_cgdcont_test_cb(gboolean
  	if (found == FALSE)
  		goto error;
  
@@ -159,7 +154,7 @@ diff -Naur a/drivers/atmodem/gprs.c b/drivers/atmodem/gprs.c
  	ofono_gprs_set_cid_range(gprs, min, max);
  
  	g_at_chat_send(gd->chat, "AT+CGREG=?", cgreg_prefix,
-@@ -830,6 +916,54 @@
+@@ -889,6 +974,54 @@ error:
  	ofono_gprs_remove(gprs);
  }
  
@@ -214,7 +209,7 @@ diff -Naur a/drivers/atmodem/gprs.c b/drivers/atmodem/gprs.c
  static int at_gprs_probe(struct ofono_gprs *gprs,
  					unsigned int vendor, void *data)
  {
-@@ -846,8 +980,8 @@
+@@ -905,8 +1038,8 @@ static int at_gprs_probe(struct ofono_gp
  
  	ofono_gprs_set_data(gprs, gd);
  
@@ -228,7 +223,7 @@ diff -Naur a/drivers/atmodem/gprs.c b/drivers/atmodem/gprs.c
 diff -Naur a/drivers/atmodem/network-registration.c b/drivers/atmodem/network-registration.c
 --- a/drivers/atmodem/network-registration.c	2021-05-05 05:06:20.000000000 -0400
 +++ b/drivers/atmodem/network-registration.c	2023-12-13 11:43:26.013913664 -0500
-@@ -1584,8 +1584,22 @@
+@@ -1581,8 +1581,22 @@
  				&lac, &ci, &tech, nd->vendor) == FALSE)
  		return;
  
@@ -267,7 +262,7 @@ diff -Naur a/drivers/atmodem/network-registration.h b/drivers/atmodem/network-re
 diff -Naur a/drivers/gemaltomodem/gprs-context.c b/drivers/gemaltomodem/gprs-context.c
 --- a/drivers/gemaltomodem/gprs-context.c	2023-12-13 11:41:35.983430581 -0500
 +++ b/drivers/gemaltomodem/gprs-context.c	2023-12-13 11:43:26.013913664 -0500
-@@ -564,6 +564,12 @@
+@@ -563,6 +563,12 @@
  	gcd->chat = g_at_chat_clone(chat);
  
  	ofono_gprs_context_set_data(gc, gcd);

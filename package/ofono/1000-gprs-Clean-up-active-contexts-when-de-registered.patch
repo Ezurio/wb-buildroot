@@ -15,7 +15,7 @@ diff --git a/src/gprs.c b/src/gprs.c
 index 950b40fc..475e49d9 100644
 --- a/src/gprs.c
 +++ b/src/gprs.c
-@@ -2608,6 +2608,7 @@ void ofono_gprs_detached_notify(struct ofono_gprs *gprs)
+@@ -2605,6 +2605,7 @@ void ofono_gprs_detached_notify(struct ofono_gprs *gprs)
  
  	gprs->driver_attached = FALSE;
  	gprs_attached_update(gprs);
