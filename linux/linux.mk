@@ -487,7 +487,8 @@ LINUX_APPEND_DTB += ; \
 	for dtb in $(LINUX_DTS_NAME); do \
 		$(MKIMAGE) -A $(MKIMAGE_ARCH) -O linux \
 			-T kernel -C none $${MKIMAGE_ARGS} \
-			-d $(LINUX_ARCH_PATH)/boot/zImage.$${dtb} $(LINUX_IMAGE_PATH).$${dtb}; \
+			-d $(LINUX_ARCH_PATH)/boot/zImage.$$(basename $${dtb}) \
+			$(LINUX_IMAGE_PATH).$$(basename $${dtb}); \
 	done
 endif
 endif
