@@ -72,7 +72,9 @@ if [ ${ENCRYPTED_TOOLKIT} -eq 0 ]; then
 	echo "# entering ${BINARIES_DIR} for the next command"
 	(cd ${BINARIES_DIR} && ${mkimage} -f kernel.its kernel.itb && ${mkimage} -f u-boot.its u-boot.itb) || exit 1
 	cat "${BINARIES_DIR}/u-boot-spl-nodtb.bin" "${BINARIES_DIR}/u-boot-spl.dtb" > "${BINARIES_DIR}/u-boot-spl.bin"
-	if [ ${SD} -eq 0 ]; then
+	if [ ${SD} -ne 0 ]; then
+		${mkimage} -T atmelimage -d ${BINARIES_DIR}/u-boot-spl.bin ${BINARIES_DIR}/boot.bin
+	else
 		test -x ${atmel_pmecc_params} || \
 			die "no atmel_pmecc_params found (uboot has not been built?)"
 
@@ -127,7 +129,7 @@ if [ ${SD} -eq 0 ]; then
 else
 	tar -C ${BINARIES_DIR} -chjf ${RELEASE_FILE}.bz2 \
 		--owner=0 --group=0 --numeric-owner \
-		u-boot-spl.bin u-boot.itb kernel.itb rootfs.tar mksdcard.sh mksdimg.sh
+		boot.bin u-boot.itb kernel.itb rootfs.tar mksdcard.sh mksdimg.sh
 fi
 
 echo "${BR2_LRD_PRODUCT^^} POST IMAGE script: done."
