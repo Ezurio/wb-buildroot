@@ -15,6 +15,10 @@ PYTHON_PYDANTIC_CPE_ID_PRODUCT = pydantic
 PYTHON_PYDANTIC_DEPENDENCIES = \
 	host-python-hatchling \
 	host-python-hatch-fancy-pypi-readme
+HOST_PYTHON_PYDANTIC_DEPENDENCIES = \
+	host-python-hatchling \
+	host-python-hatch-fancy-pypi-readme \
+	host-python-annotated-types
 
 $(eval $(python-package))
 $(eval $(host-python-package))
