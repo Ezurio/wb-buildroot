@@ -48,7 +48,7 @@ OFONO_CONF_OPTS += --disable-bluetooth
 endif
 
 # Use writeable data directory on secured builds (IG, encrypted toolkit)
-ifneq ($(BR2_PACKAGE_LRD_ENCRYPTED_STORAGE_TOOLKIT)$(BR2_PACKAGE_GGSUPPORT),)
+ifneq ($(BR2_PACKAGE_SUMMIT_ENCRYPTED_STORAGE_TOOLKIT)$(BR2_PACKAGE_GGSUPPORT),)
 OFONO_CONF_OPTS += --localstatedir=/data/public
 endif
 
