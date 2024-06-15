@@ -262,7 +262,7 @@ index 3992f9a..a596091 100644
  }
  
  static const GDBusMethodTable device_methods[] = {
-+	{ GDBUS_ASYNC_METHOD("GetConnInfo", NULL, NULL, dev_get_conn_info) },
++	{ GDBUS_ASYNC_METHOD("GetConnInfo", NULL, GDBUS_ARGS({ "rssi", "n" }, { "tx_power", "n" }, { "max_tx_power", "n" }), dev_get_conn_info) },
  	{ GDBUS_ASYNC_METHOD("Disconnect", NULL, NULL, dev_disconnect) },
  	{ GDBUS_ASYNC_METHOD("Connect", NULL, NULL, dev_connect) },
  	{ GDBUS_ASYNC_METHOD("ConnectProfile", GDBUS_ARGS({ "UUID", "s" }),
