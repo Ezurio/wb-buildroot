@@ -1,0 +1,65 @@
+From 06a412e9ec7900535909853df8da844cb856ea6b Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Tue, 25 Jun 2024 14:38:06 -0400
+Subject: [PATCH] Revert "linux: consider IFF_LOWER_UP and !IFF_DORMANT for
+ LINK_UP"
+
+This reverts commit 4f5c4999b690a0a95bcbf0c1bb5c12dd3618308f.
+---
+ src/if-linux.c | 23 +++--------------------
+ 1 file changed, 3 insertions(+), 20 deletions(-)
+
+diff --git a/src/if-linux.c b/src/if-linux.c
+index cbc3fb64..d5493b93 100644
+--- a/src/if-linux.c
++++ b/src/if-linux.c
+@@ -60,9 +60,6 @@
+ #include <linux/if_arp.h>
+ #endif
+ 
+-/* Inlcude this *after* net/if.h so we get IFF_DORMANT */
+-#include <linux/if.h>
+-
+ #include <dirent.h>
+ #include <errno.h>
+ #include <fcntl.h>
+@@ -535,25 +532,11 @@ if_setmac(struct interface *ifp, void *mac, uint8_t maclen)
+ 	return if_ioctl(ifp->ctx, SIOCSIFHWADDR, &ifr, sizeof(ifr));
+ }
+ 
+-static int if_carrier_from_flags(unsigned int flags)
+-{
+-
+-#ifdef IFF_LOWER_UP
+-	return ((flags & (IFF_LOWER_UP | IFF_RUNNING)) ==
+-		(IFF_LOWER_UP | IFF_RUNNING))
+-#ifdef IFF_DORMANT
+-		&& !(flags & IFF_DORMANT)
+-#endif
+-		? LINK_UP : LINK_DOWN;
+-#else
+-	return flags & IFF_RUNNING ? LINK_UP : LINK_DOWN;
+-#endif
+-}
+-
+ int
+ if_carrier(struct interface *ifp, __unused const void *ifadata)
+ {
+-	return if_carrier_from_flags(ifp->flags);
++
++	return ifp->flags & IFF_RUNNING ? LINK_UP : LINK_DOWN;
+ }
+ 
+ bool
+@@ -1078,7 +1061,7 @@ link_netlink(struct dhcpcd_ctx *ctx, void *arg, struct nlmsghdr *nlm)
+ 	}
+ 
+ 	dhcpcd_handlecarrier(ifp,
+-	    if_carrier_from_flags(ifi->ifi_flags),
++	    ifi->ifi_flags & IFF_RUNNING ? LINK_UP : LINK_DOWN,
+ 	    ifi->ifi_flags);
+ 	return 0;
+ }
+-- 
+2.45.2
+
