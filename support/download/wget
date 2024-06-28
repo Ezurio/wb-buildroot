@@ -47,4 +47,6 @@ _plain_wget() {
 # mirror
 [ -n "${encode}" ] && filename=${filename//\?/%3F}
 
-_wget ${quiet} "${@}" -O "'${output}'" "'${url}/${filename}'"
+[ "${url%@*}" = "${url}" ] || wget_opts="--auth-no-challenge"
+
+_wget ${quiet} "${@}" ${wget_opts} -O "'${output}'" "'${url}/${filename}'"
