@@ -1,0 +1,285 @@
+From 128ecaf125795e33191616492aa9d8b6ae8b2b92 Mon Sep 17 00:00:00 2001
+From: Oleksandr Suvorov <oleksandr.suvorov@foundries.io>
+Date: Sun, 5 Feb 2023 18:46:32 +0200
+Subject: [PATCH 1/2] build: add initial support for building
+
+Enable the project building and running in non-interactive mode
+with BSD-3-Clause licensed library libedit instead of GPLv3+ licensed
+library readline.
+
+Upstream-Status: Pending
+Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@foundries.io>
+---
+
+ Makefile.am                   |  2 +-
+ Makefile.tools                | 18 +++++++++---------
+ attrib/interactive.c          | 10 ++++++++++
+ client/display.c              | 15 +++++++++++++++
+ configure.ac                  |  2 ++
+ src/shared/shell.c            | 26 ++++++++++++++++++++++++++
+ tools/mesh-gatt/onoff-model.c |  6 ++++++
+ tools/mesh-gatt/prov.c        |  5 +++++
+ tools/obex-client-tool.c      |  4 ++++
+ 9 files changed, 78 insertions(+), 10 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 1ad6398e1..6d9a87acc 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -25,7 +25,7 @@ pkgincludedir = $(includedir)/bluetooth
+ pkginclude_HEADERS =
+ 
+ AM_CFLAGS = $(MISC_CFLAGS) $(WARNING_CFLAGS) $(UDEV_CFLAGS) $(LIBEBOOK_CFLAGS) \
+-				$(LIBEDATASERVER_CFLAGS) $(ell_cflags)
++				$(LIBEDATASERVER_CFLAGS) $(READLINE_CFLAGS) $(ell_cflags)
+ AM_LDFLAGS = $(MISC_LDFLAGS)
+ 
+ confdir = $(sysconfdir)/bluetooth
+diff --git a/Makefile.tools b/Makefile.tools
+index 9412aed36..34fcc8156 100644
+--- a/Makefile.tools
++++ b/Makefile.tools
+@@ -16,7 +16,7 @@ client_bluetoothctl_SOURCES = client/main.c \
+ 					client/mgmt.h client/mgmt.c
+ client_bluetoothctl_LDADD = lib/libbluetooth-internal.la \
+ 			gdbus/libgdbus-internal.la src/libshared-glib.la \
+-			$(GLIB_LIBS) $(DBUS_LIBS) -lreadline
++			$(GLIB_LIBS) $(DBUS_LIBS) $(READLINE_LIBS)
+ endif
+ 
+ if ZSH_COMPLETIONS
+@@ -388,7 +388,7 @@ tools_meshctl_SOURCES = tools/meshctl.c \
+ 				tools/mesh-gatt/onoff-model.c
+ tools_meshctl_LDADD = gdbus/libgdbus-internal.la src/libshared-glib.la \
+ 				lib/libbluetooth-internal.la \
+-				$(GLIB_LIBS) $(DBUS_LIBS) -ljson-c -lreadline
++				$(GLIB_LIBS) $(DBUS_LIBS) -ljson-c $(READLINE_LIBS)
+ 
+ EXTRA_DIST += tools/mesh-gatt/local_node.json tools/mesh-gatt/prov_db.json
+ endif
+@@ -407,7 +407,7 @@ tools_mesh_cfgclient_SOURCES = tools/mesh-cfgclient.c \
+ 				mesh/crypto.h mesh/crypto.c
+ 
+ tools_mesh_cfgclient_LDADD = lib/libbluetooth-internal.la src/libshared-ell.la \
+-						$(ell_ldadd) -ljson-c -lreadline
++						$(ell_ldadd) -ljson-c $(READLINE_LIBS)
+ 
+ bin_PROGRAMS +=  tools/mesh-cfgtest
+ 
+@@ -513,7 +513,7 @@ noinst_PROGRAMS += tools/btmgmt tools/obex-client-tool tools/obex-server-tool \
+ tools_obex_client_tool_SOURCES = $(gobex_sources) $(btio_sources) \
+ 						tools/obex-client-tool.c
+ tools_obex_client_tool_LDADD = lib/libbluetooth-internal.la \
+-			       src/libshared-glib.la $(GLIB_LIBS) -lreadline
++			       src/libshared-glib.la $(GLIB_LIBS) $(READLINE_LIBS)
+ 
+ tools_obex_server_tool_SOURCES = $(gobex_sources) $(btio_sources) \
+ 						tools/obex-server-tool.c
+@@ -524,16 +524,16 @@ tools_obex_server_tool_LDADD = lib/libbluetooth-internal.la \
+ 				client/player.c
+ tools_bluetooth_player_LDADD = gdbus/libgdbus-internal.la \
+ 				src/libshared-glib.la \
+-				$(GLIB_LIBS) $(DBUS_LIBS) -lreadline
++				$(GLIB_LIBS) $(DBUS_LIBS) $(READLINE_LIBS)
+ 
+ tools_obexctl_SOURCES = tools/obexctl.c
+ tools_obexctl_LDADD = gdbus/libgdbus-internal.la src/libshared-glib.la \
+-			$(GLIB_LIBS) $(DBUS_LIBS) -lreadline
++			$(GLIB_LIBS) $(DBUS_LIBS) $(READLINE_LIBS)
+ 
+ tools_btmgmt_SOURCES = tools/btmgmt.c src/uuid-helper.c client/display.c \
+ 			client/mgmt.c
+ tools_btmgmt_LDADD = lib/libbluetooth-internal.la src/libshared-mainloop.la \
+-				-lreadline
++				$(READLINE_LIBS)
+ if DEPRECATED
+ noinst_PROGRAMS += attrib/gatttool
+ 
+@@ -543,7 +543,7 @@ attrib_gatttool_SOURCES = attrib/gatttool.c attrib/att.c attrib/gatt.c \
+ 				attrib/utils.c src/log.c client/display.c \
+ 				client/display.h
+ attrib_gatttool_LDADD = lib/libbluetooth-internal.la \
+-			src/libshared-glib.la $(GLIB_LIBS) -lreadline
++			src/libshared-glib.la $(GLIB_LIBS) $(READLINE_LIBS)
+ 
+ endif
+ endif
+@@ -589,5 +589,5 @@ tools/btpclient.$(OBJEXT): src/libshared-ell.la ell/internal
+ 
+ tools_btpclientctl_SOURCES = tools/btpclientctl.c client/display.c
+ tools_btpclientctl_LDADD = src/libshared-mainloop.la src/libshared-glib.la \
+-				lib/libbluetooth-internal.la -lreadline
++				lib/libbluetooth-internal.la $(READLINE_LIBS)
+ endif
+diff --git a/attrib/interactive.c b/attrib/interactive.c
+index 171b95738..fe4f228f5 100644
+--- a/attrib/interactive.c
++++ b/attrib/interactive.c
+@@ -23,8 +23,12 @@
+ #include <sys/signalfd.h>
+ #include <glib.h>
+ 
++#ifdef HAVE_EDITLINE_READLINE
++#include <editline/readline.h>
++#else
+ #include <readline/readline.h>
+ #include <readline/history.h>
++#endif
+ 
+ #include "lib/bluetooth.h"
+ #include "lib/sdp.h"
+diff --git a/client/display.c b/client/display.c
+index a590a1388..05930e48d 100644
+--- a/client/display.c
++++ b/client/display.c
+@@ -18,7 +18,13 @@
+ #include <stdarg.h>
+ #include <stdbool.h>
+ #include <ctype.h>
++
++#ifdef HAVE_EDITLINE_READLINE
++#include <string.h>
++#include <editline/readline.h>
++#else
+ #include <readline/readline.h>
++#endif
+ 
+ #include "display.h"
+ 
+diff --git a/configure.ac b/configure.ac
+index 91fd19411..26cd04f3b 100644
+@@ -318,11 +318,56 @@ AC_ARG_ENABLE(client, AS_HELP_STRING([--disable-client],
+ 		[disable command line client]), [enable_client=${enableval}])
+ AM_CONDITIONAL(CLIENT, test "${enable_client}" != "no")
+ 
+-if (test "${enable_client}" != "no" || test "${enable_mesh}" = "yes"); then
+-        AC_CHECK_HEADERS(readline/readline.h, enable_readline=yes,
+-                AC_MSG_ERROR(readline header files are required))
++AC_ARG_WITH(readline,
++            AS_HELP_STRING([--with-readline=auto|readline|libedit|none], [use readline or libedit as readline library]),
++            [], [with_readline=auto])
++
++if (test "${with_readline}" != "none" &&
++    test "${with_readline}" != "auto" &&
++    test "${with_readline}" != "readline" &&
++    test "${with_readline}" != "libedit"); then
++        AC_MSG_ERROR([invalid --with-readline option])
+ fi
+-AM_CONDITIONAL(READLINE, test "${enable_readline}" = "yes")
++
++if (test "${enable_client}" != "no" ||
++    test "${enable_mesh}" = "yes"); then
++    if (test "${with_readline}" = "none"); then
++        AC_MSG_ERROR([--with-readline should not be "none" if client and/or mesh enabled])
++    fi
++else
++    if (test "${with_readline}" = "auto"); then
++        with_readline=none
++    fi
++fi
++
++if (test "${with_readline}" != "none"); then
++    if (test "${with_readline}" = "auto"); then
++        PKG_CHECK_MODULES(READLINE, readline >= 8.1,
++            with_readline=readline,
++            PKG_CHECK_MODULES(READLINE, libedit >= 3.1,
++                with_readline=libedit,
++                found_readline=no))
++    else if (test "${with_readline}" = "readline"); then
++        PKG_CHECK_MODULES(READLINE, readline >= 8.1,
++            with_readline=readline,
++            found_readline=no)
++        else
++            PKG_CHECK_MODULES(READLINE, libedit >= 3.1,
++                with_readline=libedit,
++                found_readline=no)
++        fi
++    fi
++
++    if (test "${found_readline}" = "no"); then
++        AC_MSG_ERROR(library not found for --with-readline=$with_readline)
++    fi
++    AC_SUBST(READLINE_LIBS)
++    if (test "${with_readline}" = "libedit"); then
++        AC_DEFINE(HAVE_EDITLINE_READLINE, 1,
++                  [Explicitly set to 1 if libedit is used])
++    fi
++fi
++AM_CONDITIONAL(READLINE, test "${with_readline}" != "none")
+ 
+ AC_ARG_ENABLE(systemd, AS_HELP_STRING([--disable-systemd],
+ 		[disable systemd integration]), [enable_systemd=${enableval}])
+diff --git a/src/shared/shell.c b/src/shared/shell.c
+index dfda8128a..f66c592d0 100644
+--- a/src/shared/shell.c
++++ b/src/shared/shell.c
+@@ -26,8 +26,12 @@
+ #include <getopt.h>
+ #include <fcntl.h>
+ 
++#ifdef HAVE_EDITLINE_READLINE
++#include <editline/readline.h>
++#else
+ #include <readline/readline.h>
+ #include <readline/history.h>
++#endif
+ 
+ #include "src/shared/mainloop.h"
+ #include "src/shared/timeout.h"
+diff --git a/tools/mesh-gatt/onoff-model.c b/tools/mesh-gatt/onoff-model.c
+index 9dfedd85a..46350a3d6 100644
+--- a/tools/mesh-gatt/onoff-model.c
++++ b/tools/mesh-gatt/onoff-model.c
+@@ -21,8 +21,14 @@
+ #include <stdbool.h>
+ #include <sys/uio.h>
+ #include <wordexp.h>
++
++#ifdef HAVE_EDITLINE_READLINE
++#include <editline/readline.h>
++#else
+ #include <readline/readline.h>
+ #include <readline/history.h>
++#endif
++
+ #include <glib.h>
+ 
+ #include "src/shared/shell.h"
+diff --git a/tools/mesh-gatt/prov.c b/tools/mesh-gatt/prov.c
+index 1f3f62dfd..796de33ef 100644
+--- a/tools/mesh-gatt/prov.c
++++ b/tools/mesh-gatt/prov.c
+@@ -19,8 +19,13 @@
+ #include <sys/uio.h>
+ #include <wordexp.h>
+ 
++#ifdef HAVE_EDITLINE_READLINE
++#include <editline/readline.h>
++#else
+ #include <readline/readline.h>
+ #include <readline/history.h>
++#endif
++
+ #include <glib.h>
+ 
+ #include "src/shared/util.h"
+diff --git a/tools/obex-client-tool.c b/tools/obex-client-tool.c
+index cb0e41247..f129a6d44 100644
+--- a/tools/obex-client-tool.c
++++ b/tools/obex-client-tool.c
+@@ -22,8 +22,12 @@
+ #include <errno.h>
+ #include <stdio.h>
+ 
++#ifdef HAVE_EDITLINE_READLINE
++#include <editline/readline.h>
++#else
+ #include <readline/readline.h>
+ #include <readline/history.h>
++#endif
+ 
+ #include "gobex/gobex.h"
+ #include "btio/btio.h"
+-- 
+2.39.1
+
