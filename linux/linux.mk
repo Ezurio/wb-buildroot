@@ -195,7 +195,13 @@ LINUX_DTS_NAME += $(call qstrip,$(BR2_LINUX_KERNEL_INTREE_DTS_NAME))
 # and .dtsi files in BR2_LINUX_KERNEL_CUSTOM_DTS_PATH. Both will be
 # copied to arch/<arch>/boot/dts, but only the .dts files will
 # actually be generated as .dtb.
-LINUX_DTS_NAME += $(basename $(filter %.dts,$(notdir $(call qstrip,$(BR2_LINUX_KERNEL_CUSTOM_DTS_PATH)))))
+LINUX_DTS_NAME += $(basename $(filter %.dts,$(notdir $(call wildcard,$(call qstrip,$(BR2_LINUX_KERNEL_CUSTOM_DTS_PATH))))))
+
+.PHONY: linux-show-dts
+
+linux-show-dts:
+	@:
+	$(info $(LINUX_DTS_NAME))
 
 LINUX_DTBS = $(addsuffix .dtb,$(LINUX_DTS_NAME))
 
