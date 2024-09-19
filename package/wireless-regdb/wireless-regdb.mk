@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-WIRELESS_REGDB_VERSION = 2023.09.01
+WIRELESS_REGDB_VERSION = 2024.07.04
 WIRELESS_REGDB_SOURCE = wireless-regdb-$(WIRELESS_REGDB_VERSION).tar.xz
 WIRELESS_REGDB_SITE = $(BR2_KERNEL_MIRROR)/software/network/wireless-regdb
 WIRELESS_REGDB_LICENSE = ISC
@@ -16,8 +16,8 @@ define WIRELESS_REGDB_INSTALL_CRDA_TARGET_CMDS
 		$(TARGET_DIR)/usr/lib/crda/regulatory_default.bin
 	ln -rfs $(TARGET_DIR)/usr/lib/crda/regulatory_default.bin \
 		$(TARGET_DIR)/usr/lib/crda/regulatory.bin
-	$(INSTALL) -m 644 -D -T $(@D)/sforshee.key.pub.pem \
-		$(TARGET_DIR)/etc/wireless-regdb/pubkeys/sforshee.key.pub.pem
+	$(INSTALL) -m 644 -D -T $(@D)/wens.key.pub.pem \
+		$(TARGET_DIR)/etc/wireless-regdb/pubkeys/wens.key.pub.pem
 endef
 endif
 

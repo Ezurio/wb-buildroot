@@ -164,6 +164,10 @@ define BUSYBOX_SET_MDEV
 endef
 endif
 
+ifeq ($(BR2_PACKAGE_LIBXCRYPT),y)
+BUSYBOX_DEPENDENCIES += libxcrypt
+endif
+
 # sha passwords need USE_BB_CRYPT_SHA
 ifeq ($(BR2_TARGET_GENERIC_PASSWD_SHA256)$(BR2_TARGET_GENERIC_PASSWD_SHA512),y)
 define BUSYBOX_SET_CRYPT_SHA
@@ -312,6 +316,29 @@ define BUSYBOX_INSTALL_SYSCTL_SCRIPT
 endef
 endif
 
+# Only install our crond script if no other package does it.
+ifeq ($(BR2_PACKAGE_DCRON),)
+define BUSYBOX_INSTALL_CROND_SCRIPT
+	if grep -q CONFIG_CROND=y $(@D)/.config; \
+	then \
+		mkdir -p $(TARGET_DIR)/etc/cron/crontabs ; \
+		$(INSTALL) -m 0755 -D package/busybox/S50crond \
+			$(TARGET_DIR)/etc/init.d/S50crond; \
+	fi;
+endef
+endif
+
+# Only install our ifplugd script if no other package does it.
+ifeq ($(BR2_PACKAGE_IFPLUGD),)
+define BUSYBOX_INSTALL_IFPLUGD_SCRIPT
+	if grep -q CONFIG_IFPLUGD=y $(@D)/.config; \
+	then \
+		$(INSTALL) -m 0755 -D package/busybox/S41ifplugd \
+			$(TARGET_DIR)/etc/init.d/S41ifplugd; \
+	fi;
+endef
+endif
+
 ifeq ($(BR2_INIT_BUSYBOX),y)
 define BUSYBOX_INSTALL_INITTAB
 	if test ! -e $(TARGET_DIR)/etc/inittab; then \
@@ -407,6 +434,8 @@ define BUSYBOX_INSTALL_INIT_OPENRC
 	$(BUSYBOX_INSTALL_MDEV_SCRIPT)
 	$(BUSYBOX_INSTALL_LOGGING_SCRIPT)
 	$(BUSYBOX_INSTALL_WATCHDOG_SCRIPT)
+	$(BUSYBOX_INSTALL_IFPLUGD_SCRIPT)
+	$(BUSYBOX_INSTALL_CROND_SCRIPT)
 	$(BUSYBOX_INSTALL_TELNET_SCRIPT)
 endef
 
@@ -419,6 +448,8 @@ define BUSYBOX_INSTALL_INIT_SYSV
 	$(BUSYBOX_INSTALL_LOGGING_SCRIPT)
 	$(BUSYBOX_INSTALL_WATCHDOG_SCRIPT)
 	$(BUSYBOX_INSTALL_SYSCTL_SCRIPT)
+	$(BUSYBOX_INSTALL_IFPLUGD_SCRIPT)
+	$(BUSYBOX_INSTALL_CROND_SCRIPT)
 	$(BUSYBOX_INSTALL_TELNET_SCRIPT)
 endef
 
