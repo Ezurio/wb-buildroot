@@ -33,7 +33,7 @@ comment "OBEX support needs a toolchain w/ C++"
 
 config BR2_PACKAGE_BLUEZ5_UTILS_CLIENT
 	bool "build CLI client"
-	select BR2_PACKAGE_LIBEDIT
+	select BR2_PACKAGE_READLINE
 	help
 	  Build the command line client "bluetoothctl".
 
@@ -101,7 +101,7 @@ config BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_MESH
 	depends on BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_12 # ell
 	select BR2_PACKAGE_ELL
 	select BR2_PACKAGE_JSON_C
-	select BR2_PACKAGE_LIBEDIT
+	select BR2_PACKAGE_READLINE
 	help
 	  Build plugin for Mesh support.
 

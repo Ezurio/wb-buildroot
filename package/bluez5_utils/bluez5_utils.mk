@@ -39,7 +39,7 @@ endif
 
 ifeq ($(BR2_PACKAGE_BLUEZ5_UTILS_CLIENT),y)
 BLUEZ5_UTILS_CONF_OPTS += --enable-client
-BLUEZ5_UTILS_DEPENDENCIES += libedit
+BLUEZ5_UTILS_DEPENDENCIES += readline
 else
 BLUEZ5_UTILS_CONF_OPTS += --disable-client
 endif
@@ -104,7 +104,7 @@ endif
 # enable mesh profile
 ifeq ($(BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_MESH),y)
 BLUEZ5_UTILS_CONF_OPTS += --enable-external-ell --enable-mesh
-BLUEZ5_UTILS_DEPENDENCIES += ell json-c libedit
+BLUEZ5_UTILS_DEPENDENCIES += ell json-c readline
 else
 BLUEZ5_UTILS_CONF_OPTS += --disable-external-ell --disable-mesh
 endif
@@ -147,7 +147,7 @@ endif
 
 ifeq ($(BR2_PACKAGE_BLUEZ5_UTILS_DEPRECATED),y)
 # install gatttool (For some reason upstream choose not to do it by default)
-# gattool depends on the client for libedit
+# gattool depends on the client for readline
 ifeq ($(BR2_PACKAGE_BLUEZ5_UTILS_CLIENT),y)
 define BLUEZ5_UTILS_INSTALL_GATTTOOL
 	$(INSTALL) -D -m 0755 $(@D)/attrib/gatttool $(TARGET_DIR)/usr/bin/gatttool
