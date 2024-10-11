@@ -269,8 +269,6 @@ else
 SYSTEMD_CONF_OPTS += -Dlibcurl=disabled
 endif
 
-SYSTEMD_CONF_OPTS += -Dgcrypt=true
-SYSTEMD_CONF_OPTS += -Dgcrypt=false
 ifeq ($(BR2_PACKAGE_P11_KIT),y)
 SYSTEMD_DEPENDENCIES += p11-kit
 SYSTEMD_CONF_OPTS += -Dp11kit=enabled
@@ -599,10 +597,19 @@ SYSTEMD_CONF_OPTS += \
 	-Ddns-over-tls=openssl \
 	-Ddefault-dns-over-tls=opportunistic \
 	-Dcryptolib=openssl \
-	-Dgcrypt=false \
+	-Dgcrypt=disabled \
 	-Ddefault-dnssec=allow-downgrade
 SYSTEMD_DEPENDENCIES += openssl
-else ifeq ($(BR2_PACKAGE_GNUTLS),y)
+else
+
+ifeq ($(BR2_PACKAGE_LIBGCRYPT),y)
+SYSTEMD_DEPENDENCIES += libgcrypt
+SYSTEMD_CONF_OPTS += -Ddefault-dnssec=allow-downgrade -Dgcrypt=enabled
+else
+SYSTEMD_CONF_OPTS += -Ddefault-dnssec=no -Dgcrypt=disabled
+endif
+
+ifeq ($(BR2_PACKAGE_GNUTLS),y)
 SYSTEMD_CONF_OPTS += \
 	-Dgnutls=enabled \
 	-Dopenssl=disabled \
@@ -617,6 +624,14 @@ SYSTEMD_CONF_OPTS += \
 	-Ddefault-dns-over-tls=no
 endif
 
+endif
+
+else
+SYSTEMD_CONF_OPTS += \
+	-Dgnutls=disabled \
+	-Dopenssl=disabled \
+	-Dgcrypt=disabled
+endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_TIMESYNCD),y)
 SYSTEMD_CONF_OPTS += -Dtimesyncd=true
@@ -846,6 +861,7 @@ SYSTEMD_ROOTFS_PRE_CMD_HOOKS += SYSTEMD_PRESET_ALL
 SYSTEMD_CONF_ENV = $(HOST_UTF8_LOCALE_ENV)
 SYSTEMD_NINJA_ENV = $(HOST_UTF8_LOCALE_ENV)
 
+ifeq (0,1)
 define SYSTEMD_LINUX_CONFIG_FIXUPS
 	$(call KCONFIG_ENABLE_OPT,CONFIG_DEVTMPFS)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_CGROUPS)
@@ -896,6 +912,7 @@ define SYSTEMD_LINUX_CONFIG_FIXUPS
 
 	$(SYSTEMD_OOMD_LINUX_CONFIG_FIXUPS)
 endef
+endif
 
 # We need a very minimal host variant, so we disable as much as possible.
 HOST_SYSTEMD_CONF_OPTS = \

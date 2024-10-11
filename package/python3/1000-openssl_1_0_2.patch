@@ -1,16 +1,10 @@
 --- a/Modules/_hashopenssl.c	2022-01-13 14:52:14.000000000 
 +++ b/Modules/_hashopenssl.c	2022-04-04 10:11:05.000000000 
-@@ -45,10 +45,42 @@
+@@ -44,6 +44,37 @@
  
  #define MUNCH_SIZE INT_MAX
  
-+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
- #define PY_OPENSSL_HAS_SCRYPT 1
- #define PY_OPENSSL_HAS_SHA3 1
- #define PY_OPENSSL_HAS_SHAKE 1
- #define PY_OPENSSL_HAS_BLAKE2 1
-+#else
-+/* OpenSSL < 1.1.0 */
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
 +#define EVP_MD_CTX_new EVP_MD_CTX_create
 +#define EVP_MD_CTX_free EVP_MD_CTX_destroy
 +
@@ -40,36 +34,11 @@
 +    return ctx->md;
 +}
 +#endif
- 
- #if OPENSSL_VERSION_NUMBER >= 0x30000000L
- #define PY_EVP_MD EVP_MD
-@@ -119,6 +151,7 @@
-     PY_HASH_ENTRY(Py_hash_sha256, "SHA256", SN_sha256, NID_sha256),
-     PY_HASH_ENTRY(Py_hash_sha384, "SHA384", SN_sha384, NID_sha384),
-     PY_HASH_ENTRY(Py_hash_sha512, "SHA512", SN_sha512, NID_sha512),
-+#ifdef PY_OPENSSL_HAS_SHA3
-     /* truncated sha2 */
-     PY_HASH_ENTRY(Py_hash_sha512_224, "SHA512_224", SN_sha512_224, NID_sha512_224),
-     PY_HASH_ENTRY(Py_hash_sha512_256, "SHA512_256", SN_sha512_256, NID_sha512_256),
-@@ -127,12 +160,17 @@
-     PY_HASH_ENTRY(Py_hash_sha3_256, NULL, SN_sha3_256, NID_sha3_256),
-     PY_HASH_ENTRY(Py_hash_sha3_384, NULL, SN_sha3_384, NID_sha3_384),
-     PY_HASH_ENTRY(Py_hash_sha3_512, NULL, SN_sha3_512, NID_sha3_512),
-+#endif
-+#ifdef PY_OPENSSL_HAS_SHAKE
-     /* sha3 shake */
-     PY_HASH_ENTRY(Py_hash_shake_128, NULL, SN_shake128, NID_shake128),
-     PY_HASH_ENTRY(Py_hash_shake_256, NULL, SN_shake256, NID_shake256),
-+#endif
-+#ifdef PY_OPENSSL_HAS_BLAKE2
-     /* blake2 digest */
-     PY_HASH_ENTRY(Py_hash_blake2s, "blake2s256", SN_blake2s256, NID_blake2s256),
-     PY_HASH_ENTRY(Py_hash_blake2b, "blake2b512", SN_blake2b512, NID_blake2b512),
-+#endif
-     PY_HASH_ENTRY(NULL, NULL, NULL, 0),
- };
- 
-@@ -873,11 +911,15 @@
++
+ #define PY_OPENSSL_HAS_SCRYPT 1
+ #if defined(NID_sha3_224) && defined(NID_sha3_256) && defined(NID_sha3_384) && defined(NID_sha3_512)
+ #define PY_OPENSSL_HAS_SHA3 1
+@@ -922,11 +953,15 @@
          goto exit;
      }
  
@@ -85,11 +54,10 @@
  
      self = newEVPobject(type);
      if (self == NULL) {
-@@ -2118,6 +2160,17 @@
- }
+@@ -2170,6 +2205,17 @@
  
  /* Py_mod_exec functions */
-+static int
+ static int
 +hashlib_openssl_legacy_init(PyObject *module)
 +{
 +#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
@@ -100,10 +68,11 @@
 +    return 0;
 +}
 +
- static int
++static int
  hashlib_init_hashtable(PyObject *module)
  {
-@@ -2258,6 +2311,8 @@
+     _hashlibstate *state = get_hashlib_state(module);
+@@ -2309,6 +2355,8 @@
  
  
  static PyModuleDef_Slot hashlib_slots[] = {
@@ -114,7 +83,7 @@
      {Py_mod_exec, hashlib_init_evpxoftype},
 --- a/Modules/_ssl.c	2022-01-13 13:52:14.000000000 -0500
 +++ b/Modules/_ssl.c	2022-04-04 13:44:31.808447316 -0400
-@@ -34,9 +34,9 @@
+@@ -38,9 +38,9 @@
  #define _PySSL_FIX_ERRNO
  
  #define PySSL_BEGIN_ALLOW_THREADS_S(save) \
@@ -126,9 +95,9 @@
  #define PySSL_BEGIN_ALLOW_THREADS { \
              PyThreadState *_save = NULL;  \
              PySSL_BEGIN_ALLOW_THREADS_S(_save);
-@@ -141,9 +141,86 @@
- /* OpenSSL 1.1 does not have SSL 2.0 */
- #define OPENSSL_NO_SSL2
+@@ -144,6 +144,82 @@
+ #define INVALID_SOCKET (-1)
+ #endif
  
 +#if OPENSSL_VERSION_NUMBER < 0x10100000L
 +
@@ -200,20 +169,16 @@
 +    return s->tlsext_tick_lifetime_hint;
 +}
 +
++#define SSL_OP_NO_TLSv1_3 0
++
++#undef PY_SSL_DEFAULT_CIPHERS
++#define PY_SSL_DEFAULT_CIPHERS 2
 +#endif
 +
  /* Default cipher suites */
  #ifndef PY_SSL_DEFAULT_CIPHERS
  #define PY_SSL_DEFAULT_CIPHERS 1
-+#endif
-+
-+#if OPENSSL_VERSION_NUMBER < 0x10100000 && PY_SSL_DEFAULT_CIPHERS == 1
-+#undef PY_SSL_DEFAULT_CIPHERS
-+#define PY_SSL_DEFAULT_CIPHERS 2
- #endif
- 
- #if PY_SSL_DEFAULT_CIPHERS == 0
-@@ -263,6 +340,11 @@
+@@ -266,6 +342,11 @@
  #endif
  };
  
@@ -225,7 +190,7 @@
  /* SSL socket object */
  
  #define X509_NAME_MAXLEN 256
-@@ -1836,6 +1918,7 @@
+@@ -1840,6 +1921,7 @@
      return result;
  }
  
@@ -233,7 +198,7 @@
  /*[clinic input]
  _ssl._SSLSocket.get_verified_chain
  
-@@ -1845,6 +1928,7 @@
+@@ -1856,6 +1938,7 @@
      }
      return _PySSL_CertificateFromX509Stack(self->ctx->state, chain, 1);
  }
@@ -241,7 +206,7 @@
  
  /*[clinic input]
  _ssl._SSLSocket.get_unverified_chain
-@@ -1950,8 +2034,10 @@
+@@ -1951,8 +2034,10 @@
      unsigned long cipher_id;
      int alg_bits, strength_bits, len;
      char buf[512] = {0};
@@ -252,7 +217,7 @@
  
      /* can be NULL */
      cipher_name = SSL_CIPHER_get_name(cipher);
-@@ -1964,6 +2050,7 @@
+@@ -1965,6 +2050,7 @@
          buf[len-1] = '\0';
      strength_bits = SSL_CIPHER_get_bits(cipher, &alg_bits);
  
@@ -260,7 +225,7 @@
      aead = SSL_CIPHER_is_aead(cipher);
      nid = SSL_CIPHER_get_cipher_nid(cipher);
      skcipher = nid != NID_undef ? OBJ_nid2ln(nid) : NULL;
-@@ -1973,10 +2060,13 @@
+@@ -1974,10 +2060,13 @@
      kx = nid != NID_undef ? OBJ_nid2ln(nid) : NULL;
      nid = SSL_CIPHER_get_auth_nid(cipher);
      auth = nid != NID_undef ? OBJ_nid2ln(nid) : NULL;
@@ -274,7 +239,7 @@
          "}",
          "id", cipher_id,
          "name", cipher_name,
-@@ -1984,11 +2074,13 @@
+@@ -1985,11 +2074,13 @@
          "description", buf,
          "strength_bits", strength_bits,
          "alg_bits", alg_bits
@@ -288,7 +253,7 @@
         );
  }
  
-@@ -2010,6 +2010,27 @@
+@@ -2001,6 +2092,27 @@
  _ssl__SSLSocket_shared_ciphers_impl(PySSLSocket *self)
  /*[clinic end generated code: output=3d174ead2e42c4fd input=0bfe149da8fe6306]*/
  {
@@ -316,7 +281,7 @@
      STACK_OF(SSL_CIPHER) *server_ciphers;
      STACK_OF(SSL_CIPHER) *client_ciphers;
      int i, len;
-@@ -2049,6 +2070,7 @@
+@@ -2040,6 +2152,7 @@
      }
      Py_SET_SIZE(res, len);
      return res;
@@ -324,7 +289,7 @@
  }
  
  /*[clinic input]
-@@ -2354,8 +2446,15 @@
+@@ -2367,8 +2480,15 @@
  
      do {
          PySSL_BEGIN_ALLOW_THREADS
@@ -340,7 +305,7 @@
          PySSL_END_ALLOW_THREADS
          self->err = err;
  
-@@ -2507,8 +2605,15 @@
+@@ -2520,8 +2640,15 @@
  
      do {
          PySSL_BEGIN_ALLOW_THREADS
@@ -356,7 +321,7 @@
          PySSL_END_ALLOW_THREADS
          self->err = err;
  
-@@ -3128,6 +3232,8 @@
+@@ -3148,6 +3275,8 @@
                          "No cipher can be selected.");
          goto error;
      }
@@ -365,18 +330,16 @@
  #ifdef PY_SSL_MIN_PROTOCOL
      switch(proto_version) {
      case PY_SSL_VERSION_TLS:
-@@ -3144,6 +3250,7 @@
-     default:
+@@ -3165,10 +3294,28 @@
          break;
      }
-+#endif
  #endif
++#endif
  
      /* Set SSL_MODE_RELEASE_BUFFERS. This potentially greatly reduces memory
-@@ -3162,6 +3162,23 @@
         usage for no cost at all. */
      SSL_CTX_set_mode(self->ctx, SSL_MODE_RELEASE_BUFFERS);
- 
++
 +
 +#if !defined(OPENSSL_NO_ECDH) && (OPENSSL_VERSION_NUMBER < 0x10100000L)
 +    /* Allow automatic ECDH curve selection (on OpenSSL 1.0.2+), or use
@@ -393,11 +356,10 @@
 +    }
 +#endif
 +#endif
-+
+ 
  #define SID_CTX "Python"
      SSL_CTX_set_session_id_context(self->ctx, (const unsigned char *) SID_CTX,
-                                    sizeof(SID_CTX));
-@@ -3416,6 +3523,7 @@
+@@ -3436,6 +3583,7 @@
      return 0;
  }
  
@@ -405,7 +367,7 @@
  /* Getter and setter for protocol version */
  static int
  set_min_max_proto_version(PySSLContext *self, PyObject *arg, int what)
-@@ -3534,6 +3642,7 @@
+@@ -3554,6 +3702,7 @@
  {
      return set_min_max_proto_version(self, arg, 1);
  }
@@ -413,7 +375,7 @@
  
  #ifdef TLS1_3_VERSION
  static PyObject *
-@@ -3568,12 +3677,14 @@
+@@ -3588,12 +3737,14 @@
  "Control the number of TLSv1.3 session tickets");
  #endif /* TLS1_3_VERSION */
  
@@ -428,19 +390,7 @@
  
  static PyObject *
  get_options(PySSLContext *self, void *c)
-@@ -3587,7 +3698,11 @@
-     long new_opts, opts, set, clear;
-     long opt_no = (
-         SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 |
-+#if OPENSSL_VERSION_NUMBER >= 0x10101000L
-         SSL_OP_NO_TLSv1_1 | SSL_OP_NO_TLSv1_2 | SSL_OP_NO_TLSv1_3
-+#else
-+        SSL_OP_NO_TLSv1_1 | SSL_OP_NO_TLSv1_2
-+#endif
-     );
- 
-     if (!PyArg_Parse(arg, "l", &new_opts))
-@@ -4599,12 +4714,14 @@
+@@ -4696,12 +4847,14 @@
                         (setter) set_check_hostname, NULL},
      {"_host_flags", (getter) get_host_flags,
                      (setter) set_host_flags, NULL},
@@ -455,7 +405,7 @@
      {"_msg_callback", (getter) _PySSLContext_get_msg_callback,
                        (setter) _PySSLContext_set_msg_callback, NULL},
      {"sni_callback", (getter) get_sni_callback,
-@@ -4628,8 +4745,10 @@
+@@ -4725,8 +4878,10 @@
                       (setter) set_verify_flags, NULL},
      {"verify_mode", (getter) get_verify_mode,
                      (setter) set_verify_mode, NULL},
@@ -466,7 +416,7 @@
      {NULL},            /* sentinel */
  };
  
-@@ -5631,6 +5750,77 @@
+@@ -5708,6 +5863,77 @@
      {NULL,                  NULL}            /* Sentinel */
  };
  
@@ -544,7 +494,7 @@
  
  PyDoc_STRVAR(module_doc,
  "Implementation module for SSL socket operations.  See the socket module\n\
-@@ -6141,6 +6331,27 @@
+@@ -6257,6 +6483,27 @@
      return 0;
  }
  
@@ -572,17 +522,17 @@
  static PyModuleDef_Slot sslmodule_slots[] = {
      {Py_mod_exec, sslmodule_init_types},
      {Py_mod_exec, sslmodule_init_exceptions},
-@@ -6148,6 +6359,7 @@
-     {Py_mod_exec, sslmodule_init_constants},
-     {Py_mod_exec, sslmodule_init_versioninfo},
+@@ -6267,6 +6514,7 @@
      {Py_mod_exec, sslmodule_init_strings},
+     {Py_mod_exec, sslmodule_init_lock},
+     {Py_mod_multiple_interpreters, Py_MOD_PER_INTERPRETER_GIL_SUPPORTED},
 +    {Py_mod_exec, sslmodule_legacy},
      {0, NULL}
  };
  
 --- a/Modules/clinic/_ssl.c.h	2022-01-13 13:52:14.000000000 -0500
 +++ b/Modules/clinic/_ssl.c.h	2022-04-04 13:12:36.000000000 -0400
-@@ -88,6 +88,7 @@
+@@ -94,6 +94,7 @@
      return return_value;
  }
  
@@ -590,7 +540,7 @@
  PyDoc_STRVAR(_ssl__SSLSocket_get_verified_chain__doc__,
  "get_verified_chain($self, /)\n"
  "--\n"
-@@ -104,6 +105,7 @@
+@@ -110,6 +111,7 @@
  {
      return _ssl__SSLSocket_get_verified_chain_impl(self);
  }
@@ -598,7 +548,7 @@
  
  PyDoc_STRVAR(_ssl__SSLSocket_get_unverified_chain__doc__,
  "get_unverified_chain($self, /)\n"
-@@ -1354,6 +1356,10 @@
+@@ -1535,6 +1537,10 @@
  
  #endif /* defined(_MSC_VER) */
  
@@ -611,7 +561,7 @@
  #endif /* !defined(_SSL_ENUM_CERTIFICATES_METHODDEF) */
 --- a/Modules/_ssl/debughelpers.c	2022-01-13 13:52:14.000000000 -0500
 +++ b/Modules/_ssl/debughelpers.c	2022-04-04 13:43:37.140734302 -0400
-@@ -114,6 +114,9 @@
+@@ -112,6 +112,9 @@
      return 0;
  }
  
@@ -621,7 +571,7 @@
  static void
  _PySSL_keylog_callback(const SSL *ssl, const char *line)
  {
-@@ -217,3 +220,5 @@
+@@ -204,3 +207,5 @@
      SSL_CTX_set_keylog_callback(self->ctx, _PySSL_keylog_callback);
      return 0;
  }
@@ -643,7 +593,7 @@
  
 --- a/configure	2023-06-06 18:00:27.000000000 -0400
 +++ b/configure	2023-07-31 14:27:20.057216009 -0400
-@@ -25957,8 +25957,17 @@
+@@ -28255,8 +28255,17 @@
  
        #include <openssl/opensslv.h>
        #include <openssl/ssl.h>
@@ -663,7 +613,7 @@
        #endif
        static void keylog_cb(const SSL *ssl, const char *line) {}
  
-@@ -26020,9 +26029,6 @@
+@@ -28318,9 +28327,6 @@
  
        #include <openssl/opensslv.h>
        #include <openssl/evp.h>
@@ -673,7 +623,7 @@
  
  int
  main (void)
-@@ -26030,9 +26036,11 @@
+@@ -28328,9 +28334,11 @@
  
        OBJ_nid2sn(NID_md5);
        OBJ_nid2sn(NID_sha1);
@@ -687,7 +637,7 @@
    return 0;
 --- a/configure.ac	2023-06-06 18:00:27.000000000 -0400
 +++ b/configure.ac	2023-07-31 14:23:49.307277969 -0400
-@@ -6685,8 +6685,17 @@
+@@ -7154,8 +7154,17 @@
      AC_LINK_IFELSE([AC_LANG_PROGRAM([
        #include <openssl/opensslv.h>
        #include <openssl/ssl.h>
@@ -707,7 +657,7 @@
        #endif
        static void keylog_cb(const SSL *ssl, const char *line) {}
      ], [
-@@ -6710,15 +6719,14 @@
+@@ -7179,15 +7188,14 @@
      AC_LINK_IFELSE([AC_LANG_PROGRAM([
        #include <openssl/opensslv.h>
        #include <openssl/evp.h>

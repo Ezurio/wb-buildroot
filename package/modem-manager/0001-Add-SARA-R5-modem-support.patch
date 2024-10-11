@@ -12,10 +12,10 @@ Subject: [PATCH 1/2] Add SARA R5 modem support
  src/mm-port-serial.c                     |   3 +
  6 files changed, 348 insertions(+), 5 deletions(-)
 
-diff --git a/plugins/ublox/mm-broadband-modem-ublox.c b/plugins/ublox/mm-broadband-modem-ublox.c
+diff --git a/src/plugins/ublox/mm-broadband-modem-ublox.c b/src/plugins/ublox/mm-broadband-modem-ublox.c
 index 0af2e93d..b036f183 100644
---- a/plugins/ublox/mm-broadband-modem-ublox.c
-+++ b/plugins/ublox/mm-broadband-modem-ublox.c
+--- a/src/plugins/ublox/mm-broadband-modem-ublox.c
++++ b/src/plugins/ublox/mm-broadband-modem-ublox.c
 @@ -26,6 +26,7 @@
  #include "mm-iface-modem.h"
  #include "mm-iface-modem-3gpp.h"
@@ -41,7 +41,7 @@ index 0af2e93d..b036f183 100644
  
  
  struct _MMBroadbandModemUbloxPrivate {
-@@ -2043,6 +2047,10 @@ iface_modem_init (MMIfaceModem *iface)
+@@ -2045,6 +2049,10 @@ iface_modem_init (MMIfaceModem *iface)
      iface->setup_sim_hot_swap = modem_setup_sim_hot_swap;
      iface->setup_sim_hot_swap_finish = modem_setup_sim_hot_swap_finish;
      iface->cleanup_sim_hot_swap = modem_cleanup_sim_hot_swap;
@@ -52,7 +52,7 @@ index 0af2e93d..b036f183 100644
  }
  
  static void
-@@ -2064,6 +2072,255 @@ iface_modem_voice_init (MMIfaceModemVoice *iface)
+@@ -2066,6 +2074,255 @@ iface_modem_voice_init (MMIfaceModemVoice *iface)
      iface->create_call = create_call;
  }
  
@@ -308,20 +308,11 @@ index 0af2e93d..b036f183 100644
  static void
  finalize (GObject *object)
  {
-diff --git a/plugins/ublox/mm-modem-helpers-ublox.c b/plugins/ublox/mm-modem-helpers-ublox.c
+diff --git a/src/plugins/ublox/mm-modem-helpers-ublox.c b/src/plugins/ublox/mm-modem-helpers-ublox.c
 index ca3039a6..db50fe45 100644
---- a/plugins/ublox/mm-modem-helpers-ublox.c
-+++ b/plugins/ublox/mm-modem-helpers-ublox.c
-@@ -452,7 +452,7 @@ typedef struct {
-     MMModemMode           mode;
-     MMModemBand           bands_2g[4];
-     MMModemBand           bands_3g[6];
--    MMModemBand           bands_4g[12];
-+    MMModemBand           bands_4g[14];
- } BandConfiguration;
- 
- static const BandConfiguration band_configuration[] = {
-@@ -896,6 +896,18 @@ static const BandConfiguration band_configuration[] = {
+--- a/src/plugins/ublox/mm-modem-helpers-ublox.c
++++ b/src/plugins/ublox/mm-modem-helpers-ublox.c
+@@ -928,6 +928,18 @@ static const BandConfiguration band_configuration[] = {
                        MM_MODEM_BAND_EUTRAN_12, MM_MODEM_BAND_EUTRAN_13, MM_MODEM_BAND_EUTRAN_19,
                        MM_MODEM_BAND_EUTRAN_20, MM_MODEM_BAND_EUTRAN_28 }
      },
@@ -340,13 +331,13 @@ index ca3039a6..db50fe45 100644
  };
  
  gboolean
-diff --git a/plugins/ublox/mm-plugin-ublox.c b/plugins/ublox/mm-plugin-ublox.c
+diff --git a/src/plugins/ublox/mm-plugin-ublox.c b/src/plugins/ublox/mm-plugin-ublox.c
 index 569054b9..eba91002 100644
---- a/plugins/ublox/mm-plugin-ublox.c
-+++ b/plugins/ublox/mm-plugin-ublox.c
+--- a/src/plugins/ublox/mm-plugin-ublox.c
++++ b/src/plugins/ublox/mm-plugin-ublox.c
 @@ -29,6 +29,61 @@ G_DEFINE_TYPE (MMPluginUblox, mm_plugin_ublox, MM_TYPE_PLUGIN)
- MM_PLUGIN_DEFINE_MAJOR_VERSION
- MM_PLUGIN_DEFINE_MINOR_VERSION
+ #define MM_TYPE_PLUGIN_UBLOX mm_plugin_ublox_get_type ()
+ MM_DEFINE_PLUGIN (UBLOX, ublox, Ublox)
  
 +/*****************************************************************************/
 +gboolean
@@ -406,7 +397,7 @@ index 569054b9..eba91002 100644
  /*****************************************************************************/
  
  static MMBaseModem *
-@@ -235,6 +290,7 @@ mm_plugin_create (void)
+@@ -236,6 +291,7 @@ mm_plugin_create (void)
      static const gchar *subsystems[] = { "tty", "net", NULL };
      static const guint16 vendor_ids[] = { 0x1546, 0 };
      static const gchar *vendor_strings[] = { "u-blox", NULL };
@@ -414,7 +405,7 @@ index 569054b9..eba91002 100644
      static const MMAsyncMethod custom_init = {
          .async  = G_CALLBACK (ublox_custom_init),
          .finish = G_CALLBACK (ublox_custom_init_finish),
-@@ -245,6 +301,7 @@ mm_plugin_create (void)
+@@ -246,6 +302,7 @@ mm_plugin_create (void)
                                      MM_PLUGIN_ALLOWED_SUBSYSTEMS,     subsystems,
                                      MM_PLUGIN_ALLOWED_VENDOR_IDS,     vendor_ids,
                                      MM_PLUGIN_ALLOWED_VENDOR_STRINGS, vendor_strings,
@@ -422,7 +413,7 @@ index 569054b9..eba91002 100644
                                      MM_PLUGIN_ALLOWED_AT,             TRUE,
                                      MM_PLUGIN_SEND_DELAY,             (guint64) 0,
                                      MM_PLUGIN_CUSTOM_INIT,            &custom_init,
-@@ -262,4 +319,5 @@ mm_plugin_ublox_class_init (MMPluginUbloxClass *klass)
+@@ -263,4 +320,5 @@ mm_plugin_ublox_class_init (MMPluginUbloxClass *klass)
      MMPluginClass *plugin_class = MM_PLUGIN_CLASS (klass);
  
      plugin_class->create_modem = create_modem;
@@ -453,7 +444,7 @@ diff --git a/src/mm-modem-helpers.c b/src/mm-modem-helpers.c
 index 26b55f71..67613397 100644
 --- a/src/mm-modem-helpers.c
 +++ b/src/mm-modem-helpers.c
-@@ -3522,8 +3522,9 @@ mm_3gpp_parse_cind_read_response (const gchar *reply,
+@@ -3546,8 +3546,9 @@ mm_3gpp_parse_cind_read_response (const gchar *reply,
          guint             val = 0;
  
          str = g_match_info_fetch (match_info, 1);
@@ -469,7 +460,7 @@ diff --git a/src/mm-port-serial.c b/src/mm-port-serial.c
 index b4ba6533..40e08d0a 100644
 --- a/src/mm-port-serial.c
 +++ b/src/mm-port-serial.c
-@@ -276,6 +276,9 @@ parse_baudrate (guint  baudrate_num,
+@@ -261,6 +261,9 @@ parse_baudrate (guint  baudrate_num,
      case 921600:
          speed = B921600;
          break;

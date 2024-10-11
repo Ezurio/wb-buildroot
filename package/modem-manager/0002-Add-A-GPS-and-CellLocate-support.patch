@@ -20,10 +20,10 @@ index 7f1be95a..329f1b05 100644
  } MMModemLocationAssistanceDataType;
  
  /**
-diff --git a/plugins/ublox/mm-broadband-modem-ublox.c b/plugins/ublox/mm-broadband-modem-ublox.c
+diff --git a/src/plugins/ublox/mm-broadband-modem-ublox.c b/src/plugins/ublox/mm-broadband-modem-ublox.c
 index b036f183..d1568bc8 100644
---- a/plugins/ublox/mm-broadband-modem-ublox.c
-+++ b/plugins/ublox/mm-broadband-modem-ublox.c
+--- a/src/plugins/ublox/mm-broadband-modem-ublox.c
++++ b/src/plugins/ublox/mm-broadband-modem-ublox.c
 @@ -27,6 +27,7 @@
  #include "mm-iface-modem-3gpp.h"
  #include "mm-iface-modem-voice.h"

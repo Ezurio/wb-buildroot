@@ -4,7 +4,7 @@
  		}
  		version = (version << 16) | fld;
  	}
--	if (count >= 4) {
+-	if (count > 4) {
 +	if (*ver != NULL && count >= 4) {
  		DEBUG("Version %s had more than 4 numbers, trailing numbers will be ignored",
  		      version_string);

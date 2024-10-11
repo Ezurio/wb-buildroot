@@ -1,7 +1,7 @@
 --- a/configure.ac
 +++ b/configure.ac
 @@ -242,6 +242,24 @@
-         AC_MSG_ERROR([*** gperf not found])
+ 	AC_MSG_ERROR([*** gperf not found])
  fi
  
 +AC_ARG_WITH(firmware-path,

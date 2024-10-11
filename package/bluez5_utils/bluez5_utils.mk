@@ -205,6 +205,7 @@ endef
 
 ifeq ($(BR2_PACKAGE_BLUEZ5_UTILS_CLIENT),y)
 define BLUEZ5_UTILS_INSTALL_MAIN_CONF
+	[ ! -d $(TARGET_DIR)/etc/bluetooth ] || chmod +w $(TARGET_DIR)/etc/bluetooth
 	$(INSTALL) -D -m 0644 $(@D)/src/main.conf $(TARGET_DIR)/etc/bluetooth/main.conf
 endef
 

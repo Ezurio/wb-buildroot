@@ -1,6 +1,6 @@
 --- a/uvicorn/config.py	2020-02-01 19:00:00.000000000 -0500
 +++ b/uvicorn/config.py	2024-01-11 11:13:48.492675156 -0500
-@@ -262,6 +262,7 @@
+@@ -259,6 +259,7 @@
          self.callback_notify = callback_notify
          self.ssl_keyfile = ssl_keyfile
          self.ssl_certfile = ssl_certfile
@@ -8,7 +8,7 @@
          self.ssl_keyfile_password = ssl_keyfile_password
          self.ssl_version = ssl_version
          self.ssl_cert_reqs = ssl_cert_reqs
-@@ -427,6 +428,8 @@
+@@ -406,6 +407,8 @@
                  ca_certs=self.ssl_ca_certs,
                  ciphers=self.ssl_ciphers,
              )
@@ -19,23 +19,24 @@
  
 --- a/uvicorn/protocols/http/h11_impl.py	2020-02-01 19:00:00.000000000 -0500
 +++ b/uvicorn/protocols/http/h11_impl.py	2024-01-11 11:18:08.215795183 -0500
-@@ -31,6 +31,7 @@
-     get_local_addr,
-     get_path_with_query_string,
-     get_remote_addr,
-+    get_tls_info,
-     is_ssl,
- )
+@@ -21,7 +21,7 @@
+ from uvicorn.config import Config
+ from uvicorn.logging import TRACE_LOG_LEVEL
+ from uvicorn.protocols.http.flow_control import CLOSE_HEADER, HIGH_WATER_LIMIT, FlowControl, service_unavailable
+-from uvicorn.protocols.utils import get_client_addr, get_local_addr, get_path_with_query_string, get_remote_addr, is_ssl
++from uvicorn.protocols.utils import get_client_addr, get_local_addr, get_path_with_query_string, get_remote_addr, is_ssl, get_tls_info
  from uvicorn.server import ServerState
-@@ -91,6 +92,7 @@
+ 
+
+@@ -78,6 +78,7 @@
          self.server: tuple[str, int] | None = None
          self.client: tuple[str, int] | None = None
          self.scheme: Literal["http", "https"] | None = None
-+        self.tls: Optional[Dict] = None
++        self.tls:    Dict | None = None
  
          # Per-request state
          self.scope: HTTPScope = None  # type: ignore[assignment]
-@@ -109,6 +111,11 @@
+@@ -96,6 +97,11 @@
          self.client = get_remote_addr(transport)
          self.scheme = "https" if is_ssl(transport) else "http"
  
@@ -47,13 +48,13 @@
          if self.logger.level <= TRACE_LOG_LEVEL:
              prefix = "%s:%d - " % self.client if self.client else ""
              self.logger.log(TRACE_LOG_LEVEL, "%sHTTP connection made", prefix)
-@@ -218,8 +225,12 @@
+@@ -205,8 +217,12 @@
                      "query_string": query_string,
                      "headers": self.headers,
                      "state": self.app_state.copy(),
 +                    "extensions": {},
                  }
- 
+
 +                if self.config.is_ssl:
 +                    self.scope["extensions"]["tls"] = self.tls  # type: ignore[index, assignment] # noqa: E501
 +
@@ -62,23 +63,24 @@
                      self.handle_websocket_upgrade(event)
 --- a/uvicorn/protocols/http/httptools_impl.py	2020-02-01 19:00:00.000000000 -0500
 +++ b/uvicorn/protocols/http/httptools_impl.py	2024-01-11 11:19:39.992806768 -0500
-@@ -34,6 +34,7 @@
-     get_local_addr,
-     get_path_with_query_string,
-     get_remote_addr,
-+    get_tls_info,
-     is_ssl,
- )
+@@ -22,7 +22,7 @@
+ from uvicorn.config import Config
+ from uvicorn.logging import TRACE_LOG_LEVEL
+ from uvicorn.protocols.http.flow_control import CLOSE_HEADER, HIGH_WATER_LIMIT, FlowControl, service_unavailable
+-from uvicorn.protocols.utils import get_client_addr, get_local_addr, get_path_with_query_string, get_remote_addr, is_ssl
++from uvicorn.protocols.utils import get_client_addr, get_local_addr, get_path_with_query_string, get_remote_addr, is_ssl, get_tls_info
  from uvicorn.server import ServerState
-@@ -94,6 +95,7 @@
+ 
+ HEADER_RE = re.compile(b'[\x00-\x1f\x7f()<>@,;:[]={} \t\\"]')
+@@ -79,6 +79,7 @@
          self.client: tuple[str, int] | None = None
          self.scheme: Literal["http", "https"] | None = None
-         self.pipeline: Deque[tuple[RequestResponseCycle, ASGI3Application]] = deque()
-+        self.tls: Optional[Dict] = None
+         self.pipeline: deque[tuple[RequestResponseCycle, ASGI3Application]] = deque()
++        self.tls: Dict | None = None
  
          # Per-request state
          self.scope: HTTPScope = None  # type: ignore[assignment]
-@@ -113,6 +115,11 @@
+@@ -98,6 +99,11 @@
          self.client = get_remote_addr(transport)
          self.scheme = "https" if is_ssl(transport) else "http"
  
@@ -90,7 +92,7 @@
          if self.logger.level <= TRACE_LOG_LEVEL:
              prefix = "%s:%d - " % self.client if self.client else ""
              self.logger.log(TRACE_LOG_LEVEL, "%sHTTP connection made", prefix)
-@@ -235,8 +242,12 @@
+@@ -220,8 +226,12 @@
              "root_path": self.root_path,
              "headers": self.headers,
              "state": self.app_state.copy(),
@@ -105,16 +107,15 @@
          self.url += url
 --- a/uvicorn/protocols/utils.py	2020-02-01 19:00:00.000000000 -0500
 +++ b/uvicorn/protocols/utils.py	2024-01-11 11:22:51.886814641 -0500
-@@ -1,10 +1,29 @@
- from __future__ import annotations
- 
- import asyncio
-+import ssl
+@@ -4,6 +4,28 @@
  import urllib.parse
  
  from uvicorn._types import WWWScope
- 
-+RDNS_MAPPING: dict[str, str] = {
++
++import ssl
++from typing import Any, Dict
++
++RDNS_MAPPING: Dict[str, str] = {
 +    "commonName": "CN",
 +    "localityName": "L",
 +    "stateOrProvinceName": "ST",
@@ -126,21 +127,21 @@
 +    "userId": "UID",
 +}
 +
-+TLS_VERSION_MAP: dict[str, int] = {
++TLS_VERSION_MAP: Dict[str, int] = {
 +    "TLSv1": 0x0301,
 +    "TLSv1.1": 0x0302,
 +    "TLSv1.2": 0x0303,
 +    "TLSv1.3": 0x0304,
 +}
  
- class ClientDisconnected(IOError):
-     ...
-@@ -57,3 +76,54 @@
-             path_with_query_string, scope["query_string"].decode("ascii")
-         )
+ 
+ class ClientDisconnected(OSError): ...
+@@ -54,3 +76,54 @@
+     if scope["query_string"]:
+         path_with_query_string = "{}?{}".format(path_with_query_string, scope["query_string"].decode("ascii"))
      return path_with_query_string
 +
-+def get_tls_info(transport: asyncio.Transport) -> dict | None:
++def get_tls_info(transport: asyncio.Transport) -> Optional[Dict]:
 +
 +    ###
 +    # server_cert: Unable to set from transport information
@@ -151,7 +152,7 @@
 +    # cipher_suite: Too hard to convert without direct access to openssl
 +    ###
 +
-+    ssl_info: dict[str, list | None ] = {
++    ssl_info: Dict[str, Any] = {
 +        "server_cert": None,
 +        "client_cert_chain": [],
 +        "client_cert_name": None,

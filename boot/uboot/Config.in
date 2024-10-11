@@ -460,11 +460,6 @@ config BR2_TARGET_UBOOT_BUILD_FORMAT_STM32_LEGACY
 	  format.
 endif
 
-config BR2_TARGET_UBOOT_FORMAT_INITIAL_ENV
-	bool "u-boot-initial-env"
-	help
-	  Generate u-boot inital enironment file
-
 config BR2_TARGET_UBOOT_FORMAT_CUSTOM
 	bool "Custom (specify below)"
 	help

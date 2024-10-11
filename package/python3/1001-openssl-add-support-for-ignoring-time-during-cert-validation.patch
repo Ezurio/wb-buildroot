@@ -10,7 +10,7 @@
  };
  
  enum py_ssl_version {
-@@ -3049,6 +3050,20 @@
+@@ -3085,6 +3086,20 @@
   * _SSLContext objects
   */
  
@@ -31,7 +31,7 @@
  static int
  _set_verify_mode(PySSLContext *self, enum py_ssl_cert_requirements n)
  {
-@@ -3065,6 +3080,10 @@
+@@ -3101,6 +3116,10 @@
      case PY_SSL_CERT_REQUIRED:
          mode = SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
          break;
