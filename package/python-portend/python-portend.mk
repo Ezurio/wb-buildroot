@@ -10,5 +10,6 @@ PYTHON_PORTEND_SITE = https://files.pythonhosted.org/packages/8f/fc/bcfc768996b4
 PYTHON_PORTEND_LICENSE = MIT
 PYTHON_PORTEND_LICENSE_FILES = LICENSE
 PYTHON_PORTEND_SETUP_TYPE = setuptools
+PYTHON_PORTEND_DEPENDENCIES = host-python-setuptools-scm
 
 $(eval $(python-package))

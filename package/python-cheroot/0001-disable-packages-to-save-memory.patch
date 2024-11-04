@@ -15,4 +15,4 @@ diff --git a/setup.cfg b/setup.cfg
 +packages = cheroot
  include_package_data = True
  setup_requires = 
- 	setuptools_scm>=1.15.0
+ 	setuptools_scm >= 7.0.0
