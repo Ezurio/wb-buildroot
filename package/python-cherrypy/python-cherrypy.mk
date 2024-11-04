@@ -10,8 +10,6 @@ PYTHON_CHERRYPY_SITE = https://files.pythonhosted.org/packages/bd/5f/e265a49883b
 PYTHON_CHERRYPY_LICENSE = BSD-3-Clause
 PYTHON_CHERRYPY_LICENSE_FILES = LICENSE.md
 PYTHON_CHERRYPY_SETUP_TYPE = setuptools
-PYTHON_CHERRYPY_DEPENDENCIES = \
-	host-python-setuptools-scm \
-	host-python-setuptools-scm-git-archive
+PYTHON_CHERRYPY_DEPENDENCIES = host-python-setuptools-scm
 
 $(eval $(python-package))

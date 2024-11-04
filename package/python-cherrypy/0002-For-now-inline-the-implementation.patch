@@ -22,7 +22,7 @@ index 0458e543..cb8591ac 100644
  import cherrypy
  from cherrypy._cpcompat import ntob, ntou
  
-@@ -387,7 +385,68 @@ def parse_query_string(query_string, keep_blank_values=True, encoding='utf-8'):
+@@ -387,7 +385,68 @@
      return pm
  
  
@@ -96,7 +96,7 @@ diff --git a/setup.py b/setup.py
 index bd989b4e..87ae3489 100755
 --- a/setup.py
 +++ b/setup.py
-@@ -64,7 +64,6 @@
+@@ -67,7 +67,6 @@
          'portend>=2.1.1',
          'more_itertools',
          'zc.lockfile',

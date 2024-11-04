@@ -60,9 +60,9 @@ diff --git a/setup.cfg b/setup.cfg
 index 54d04fd..798e138 100644
 --- a/setup.cfg
 +++ b/setup.cfg
-@@ -21,7 +21,6 @@ py_modules = portend
+@@ -18,7 +18,6 @@ py_modules = portend
  include_package_data = true
- python_requires = >=3.7
+ python_requires = >=3.8
  install_requires = 
 -	tempora>=1.8
  

@@ -1,0 +1,23 @@
+From e1e316d041bcb20afc30a726725bb338418380ea Mon Sep 17 00:00:00 2001
+From: Marcel Telka <marcel@telka.sk>
+Date: Thu, 14 Dec 2023 13:07:35 +0100
+Subject: [PATCH] Drop dependency on obsolete setuptools_scm_git_archive
+
+---
+ pyproject.toml | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/pyproject.toml b/pyproject.toml
+index a29ffa3b7..2c3a7cff5 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -4,8 +4,7 @@ requires = [
+     "setuptools >= 45",
+ 
+     # Plugins
+-    "setuptools_scm[toml] >= 3.5",
+-    "setuptools_scm_git_archive >= 1.1",
++    "setuptools_scm[toml] >= 7.0.0",
+ ]
+ build-backend = "setuptools.build_meta"
+ 
