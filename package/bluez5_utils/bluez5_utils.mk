@@ -26,7 +26,6 @@ BLUEZ5_UTILS_DEPENDENCIES = \
 BLUEZ5_UTILS_CONF_OPTS = \
 	--enable-library \
 	--disable-cups \
-	--disable-datafiles \
 	--disable-manpages \
 	--disable-asan \
 	--disable-lsan \
@@ -203,13 +202,16 @@ define BLUEZ5_UTILS_INSTALL_INIT_SYSV
 		$(TARGET_DIR)/etc/init.d/S40bluetoothd
 endef
 
-ifeq ($(BR2_PACKAGE_BLUEZ5_UTILS_CLIENT),y)
-define BLUEZ5_UTILS_INSTALL_MAIN_CONF
-	[ ! -d $(TARGET_DIR)/etc/bluetooth ] || chmod +w $(TARGET_DIR)/etc/bluetooth
-	$(INSTALL) -D -m 0644 $(@D)/src/main.conf $(TARGET_DIR)/etc/bluetooth/main.conf
+define BLUEZ5_UTILS_STAGING_INSTALL_CONF
+	[ ! -d $(STAGING_DIR)/etc/bluetooth ] || chmod +w $(STAGING_DIR)/etc/bluetooth
 endef
 
-BLUEZ5_UTILS_POST_INSTALL_TARGET_HOOKS += BLUEZ5_UTILS_INSTALL_MAIN_CONF
-endif
+BLUEZ5_UTILS_POST_INSTALL_STAGING_HOOKS += BLUEZ5_UTILS_STAGING_INSTALL_CONF
+
+define BLUEZ5_UTILS_TARGET_INSTALL_CONF
+	[ ! -d $(TARGET_DIR)/etc/bluetooth ] || chmod +w $(TARGET_DIR)/etc/bluetooth
+endef
+
+BLUEZ5_UTILS_POST_INSTALL_TARGET_HOOKS += BLUEZ5_UTILS_TARGET_INSTALL_CONF
 
 $(eval $(autotools-package))
