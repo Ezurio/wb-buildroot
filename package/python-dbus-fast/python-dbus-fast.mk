@@ -12,6 +12,7 @@ PYTHON_DBUS_FAST_LICENSE = MIT
 PYTHON_DBUS_FAST_LICENSE_FILES = LICENSE
 PYTHON_DBUS_FAST_ENV = REQUIRE_CYTHON=1
 PYTHON_DBUS_FAST_DEPENDENCIES = host-python-cython
+HOST_PYTHON_DBUS_FAST_DEPENDENCIES = host-python-cython
 
 $(eval $(python-package))
 $(eval $(host-python-package))
