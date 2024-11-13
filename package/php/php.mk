@@ -376,13 +376,15 @@ HOST_PHP_CONF_OPTS = \
 	--enable-filter \
 	--enable-mbstring \
 	--enable-tokenizer \
-	--with-openssl=$(HOST_DIR)
+	--with-openssl=$(HOST_DIR) \
+	--with-zlib=$(HOST_DIR)
 
 HOST_PHP_DEPENDENCIES = \
 	host-oniguruma \
 	host-openssl \
 	host-pcre2 \
-	host-pkgconf
+	host-pkgconf \
+	host-zlib
 
 $(eval $(autotools-package))
 $(eval $(host-autotools-package))
