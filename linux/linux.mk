@@ -197,13 +197,18 @@ LINUX_DTS_NAME += $(call qstrip,$(BR2_LINUX_KERNEL_INTREE_DTS_NAME))
 # actually be generated as .dtb.
 LINUX_DTS_NAME += $(basename $(filter %.dts,$(notdir $(call wildcard,$(call qstrip,$(BR2_LINUX_KERNEL_CUSTOM_DTS_PATH))))))
 
-.PHONY: linux-show-dts
-
-linux-show-dts:
-	@:
-	$(info $(LINUX_DTS_NAME))
-
 LINUX_DTBS = $(addsuffix .dtb,$(LINUX_DTS_NAME))
+
+ifeq ($(BR2_LINUX_KERNEL_DTB_OVERLAY_SUPPORT),y)
+LINUX_DTSO_NAME += $(basename $(filter %.dtso,$(notdir $(call wildcard,$(call qstrip,$(BR2_LINUX_KERNEL_CUSTOM_DTS_PATH))))))
+LINUX_DTBS += $(addsuffix .dtbo,$(LINUX_DTSO_NAME))
+endif
+
+.PHONY: linux-show-dtb
+
+linux-show-dtb:
+	@:
+	$(info $(LINUX_DTBS))
 
 ifeq ($(BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM),y)
 LINUX_IMAGE_NAME = $(call qstrip,$(BR2_LINUX_KERNEL_IMAGE_NAME))
