@@ -13,5 +13,7 @@ PYTHON_UVICORN_LICENSE_FILES = LICENSE.md
 PYTHON_UVICORN_CPE_ID_VENDOR = encode
 PYTHON_UVICORN_CPE_ID_PRODUCT = uvicorn
 PYTHON_UVICORN_DEPENDENCIES = host-python-hatchling
+HOST_PYTHON_UVICORN_DEPENDENCIES = host-python-hatchling
 
 $(eval $(python-package))
+$(eval $(host-python-package))
