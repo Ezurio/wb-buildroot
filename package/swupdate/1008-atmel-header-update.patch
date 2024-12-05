@@ -2,7 +2,7 @@ diff --git a/include/swupdate.h b/include/swupdate.h
 index fb54ace55c..d1d3517daf 100644
 --- a/include/swupdate_image.h
 +++ b/include/swupdate_image.h
-@@ -46,6 +46,7 @@ struct img_type {
+@@ -47,6 +47,7 @@ struct img_type {
  	char device[MAX_VOLNAME];	/* device associated with image if any */
  	char path[MAX_IMAGE_FNAME];	/* Path where image must be installed */
  	char mtdname[MAX_IMAGE_FNAME];	/* MTD device where image must be installed */
@@ -14,7 +14,7 @@ diff --git a/parser/parser.c b/parser/parser.c
 index f9da567a0c..d934a3678e 100644
 --- a/parser/parser.c
 +++ b/parser/parser.c
-@@ -412,6 +412,7 @@ static int parse_common_attributes(parsertype p, void *elem, struct img_type *im
+@@ -417,6 +417,7 @@ static int parse_common_attributes(parsertype p, void *elem, struct img_type *im
  	GET_FIELD_STRING(p, elem, "volume", image->volname);
  	GET_FIELD_STRING(p, elem, "device", image->device);
  	GET_FIELD_STRING(p, elem, "mtdname", image->mtdname);
