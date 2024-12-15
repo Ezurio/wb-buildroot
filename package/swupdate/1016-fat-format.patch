@@ -8,9 +8,9 @@ index 9281ec8..ddd899a 100644
  			buf[BS_BootSig] = 0x29;						/* Extended boot signature */
 -			mem_cpy(buf + BS_VolLab, "NO NAME    " "FAT     ", 19);	/* Volume label, FAT signature */
 +			if (fsty == FS_FAT16) {
-+				memcpy(buf + BS_VolLab, "NO NAME    " "FAT16   ", 19);	/* Volume label, FAT signature */
++				mem_cpy(buf + BS_VolLab, "NO NAME    " "FAT16   ", 19);	/* Volume label, FAT signature */
 +			} else {
-+				memcpy(buf + BS_VolLab, "NO NAME    " "FAT12   ", 19);	/* Volume label, FAT signature */
++				mem_cpy(buf + BS_VolLab, "NO NAME    " "FAT12   ", 19);	/* Volume label, FAT signature */
 +			}
  		}
  		st_word(buf + BS_55AA, 0xAA55);					/* Signature (offset is fixed here regardless of sector size) */
