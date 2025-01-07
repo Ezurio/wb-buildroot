@@ -9,6 +9,23 @@ QT6BASE_SITE = $(QT6_SITE)
 QT6BASE_SOURCE = qtbase-$(QT6_SOURCE_TARBALL_PREFIX)-$(QT6BASE_VERSION).tar.xz
 QT6BASE_CPE_ID_VENDOR = qt
 QT6BASE_CPE_ID_PRODUCT = qt
+# 0001-QDnsLookup-Unix-make-sure-we-don-t-overflow-the-buff.patch
+QT6BASE_IGNORE_CVES += CVE-2023-33285
+# 0002-Hsts-match-header-names-case-insensitively.patch
+QT6BASE_IGNORE_CVES += CVE-2023-32762
+# 0005-Fix-specific-overflow-in-qtextlayout.patch
+QT6BASE_IGNORE_CVES += CVE-2023-32763
+# 0009-QXmlStreamReader-Raise-error-on-unexpected-tokens.patch
+QT6BASE_IGNORE_CVES += CVE-2023-38197
+# 0011-HPack-fix-incorrect-integer-overflow-check.patch
+QT6BASE_IGNORE_CVES += CVE-2023-38197
+# 0013-QXmlStreamReader-make-fastScanName-indicate-parsing-.patch
+QT6BASE_IGNORE_CVES += CVE-2023-37369
+# 0014-Schannel-Reject-certificate-not-signed-by-a-configur.patch
+# 0015-Ssl-Copy-the-on-demand-cert-loading-bool-from-defaul.patch
+QT6BASE_IGNORE_CVES += CVE-2023-34410
+# 0016-HTTP2-Delay-any-communication-until-encrypted-can-be.patch
+QT6BASE_IGNORE_CVES += CVE-2024-39936
 
 QT6BASE_CMAKE_BACKEND = ninja
 
@@ -42,7 +59,6 @@ QT6BASE_INSTALL_STAGING = YES
 
 QT6BASE_CONF_OPTS = \
 	-DQT_HOST_PATH=$(HOST_DIR) \
-	-DFEATURE_concurrent=OFF \
 	-DFEATURE_xml=OFF \
 	-DFEATURE_sql=OFF \
 	-DFEATURE_testlib=OFF \

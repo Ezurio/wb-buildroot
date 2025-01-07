@@ -1,9 +1,0 @@
---- a/src/basic/missing_magic.h
-+++ b/src/basic/missing_magic.h
-@@ -201,6 +201,4 @@
- /* Added in Linux commit e2f48c48090dea172c0c571101041de64634dae5. Remove when next sync'd */
- #ifndef BCACHEFS_SUPER_MAGIC
- #  define BCACHEFS_SUPER_MAGIC 0xca451a4e
--#else
--assert_cc(BCACHEFS_SUPER_MAGIC == 0xca451a4e)
- #endif

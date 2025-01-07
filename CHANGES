@@ -1,3 +1,103 @@
+2024.02.9, released December 8th, 2024
+
+	Important / security related fixes.
+
+	Updated/fixed packages: alsa-lib, android-tools, babeld,
+	bmap-tools, boost, ebtables, expat, fbv, foot, frr, gamin,
+	gnutls, intel-microcode, irssi, libcurl, libkrb5, libmodbus,
+	libvpl, linux-tools, lmbench, mbedtls, mosquitto, musl,
+	musl-compat-headers, nfs-utils, ntp, php, postgresql,
+	procps-ng, python-psycopg2, python-sip, qt6base, quagga,
+	rt-tests, sshguard, systemd, tiff, x11vnc
+
+	Issues resolved:
+	- procps-ng: builderror in 2024.08
+	  https://gitlab.com/buildroot.org/buildroot/-/issues/38
+	- fbv package download link is broken in long term support branch
+	  https://gitlab.com/buildroot.org/buildroot/-/issues/73
+
+2024.02.8, released November 14th, 2024
+
+	Important / security related fixes.
+
+	Updated/fixed packages: apache, asterisk, bind, bootgen, criu,
+	file, fluidsynth, ghostscript, heimdal, intel-microcode,
+	jailhouse, jsoncpp, libarchive, libcurl, libldns, liblinear,
+	libmdbx, libopenh264, ltrace, lightning, nghttp2, ntp, php,
+	postgresql, procps-ng, python-pyqt5, ruby, sysvinit, tor,
+	wpebackend-fdo
+
+	New packages: python-pyqt5-sip
+
+2024.02.7, released October 21th, 2024
+
+	Important / security related fixes.
+
+	Per-package-directories fixes for the .gdbinit file and RPATH
+	fixups for SDK.
+
+	utils/check-package: Also check for correct indentation of
+	help lines.
+
+	A large number of typo fixes.
+
+	Updated/fixed packages: aer-inject, armadillo, asterisk,
+	aumix, babeld, bind, botan, cache-calibrator, clamav,
+	comix-cursors, cryptsetup, cups, dovecot, dovecot-pigeonhole,
+	expat, fbset, genpart, glibc, gnu-efi, gnutls, go, grub2,
+	libarchive, libcuefile, libcurl, libglob, libgpg-error,
+	libilbc, libkcapi, libopenssl, libpcap, libuecc, linux-pam,
+	mosquitto, nginx, ntpsec, p910nd, php, postgresql, proftpd,
+	pure-ftpd, python-django, python-huepy, python-sqlparse,
+	python-unittest-xml-reporting, python3, qt6base, qt6svg,
+	rp-pppoe, sofia-sip, strongswan, szip, tllist, unbound,
+	wpebackend-fdo, wpewebkit, x264, xenomai, xserver_xorg-server,
+	zabbix
+
+	New packages: go-bootstrap-stage3
+
+	Issues resolved:
+	- procps-ng: build failure when linking to systemd
+	  https://gitlab.com/buildroot.org/buildroot/-/issues/28
+	- orange pi 2w does not boot
+	  https://gitlab.com/buildroot.org/buildroot/-/issues/36
+	- glibc configure fails on aarch64 with mathvec SVE ACLE error
+	  https://gitlab.com/buildroot.org/buildroot/-/issues/40
+	- Kernel Build from Custom Git Repo fails with hash-error
+	  https://gitlab.com/buildroot.org/buildroot/-/issues/46
+	- package/linux-pam: Remove unneeded flex dependency
+	  https://gitlab.com/buildroot.org/buildroot/-/issues/47
+
+2024.02.6, released September 9th, 2024
+
+	Important / security related fixes.
+
+        Added a large number of additional runtime tests.
+
+        Infrastructure:
+        - Be more robust against text files (for package hashes and
+          users) incorrectly missing a terminating newline.
+
+        - Fix various issues with the pkg-kconfig infrastructure and
+          per-package-directories builds
+          (BR2_PER_PACKAGE_DIRECTORIES).
+
+	Updated/fixed packages: aer-inject, am335x-pru-package,
+	apache, apr, apr-util, attr, boost, btrfs-progs, busybox,
+	cryptsetup, dropbear, elfutils, fetchmail, ffmpeg, fluidsynth,
+	freerdp, gcc, gdb, gnutls, gpsd, hiawatha, hostapd, htop,
+	intel-microcode, iperf3, ksmbd-tools, libcoap, libcurl,
+	libest, libgtk3, libpwquality, libressl, libupnp, libxml2,
+	libxslt, lrzsz, mdio-tools, micropython, mjpg-streamer, mpir,
+	ncftp, nginx, nodejs, open-iscsi, openldap, openvpn, pistache,
+	procps-ng, python-django, ruby, speex, swaybg, tinyssh,
+	uclibc, uclibc-ng-test, unbound, uuu, wpewebkit, zfs
+
+        Issues resolved:
+	- Toolchain (host-gcc-final-14.1.0) build failure with
+	  y2038/BR2_TIME_BITS_64 enabled
+	  https://gitlab.com/buildroot.org/buildroot/-/issues/16
+
 2024.02.5, released August 14th, 2024
 
 	Important / security related fixes.
