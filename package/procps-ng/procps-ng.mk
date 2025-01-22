@@ -54,6 +54,10 @@ else
 PROCPS_NG_CONF_OPTS += --enable-w
 endif
 
+ifeq ($(BR2_SUMMIT_FIPS_7),y)
+PROCPS_NG_CONF_OPTS += --disable-pidwait
+endif
+
 # Avoid installing S02sysctl, since openrc provides /etc/init.d/sysctl.
 define PROCPS_NG_INSTALL_INIT_OPENRC
 	@:
