@@ -14,3 +14,4 @@ PYTHON_PYOPENSSL_CPE_ID_PRODUCT = pyopenssl
 PYTHON_PYOPENSSL_SETUP_TYPE = setuptools
 
 $(eval $(python-package))
+$(eval $(host-python-package))

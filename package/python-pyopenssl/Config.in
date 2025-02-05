@@ -6,3 +6,12 @@ config BR2_PACKAGE_PYTHON_PYOPENSSL
 	  Python wrapper module around the OpenSSL library.
 
 	  https://github.com/pyca/pyopenssl
+
+config BR2_PACKAGE_HOST_PYTHON_PYOPENSSL
+	bool "host python-pyopenssl"
+	depends on BR2_PACKAGE_HOST_RUSTC_TARGET_ARCH_SUPPORTS # python-cryptography
+	select BR2_PACKAGE_HOST_PYTHON_CRYPTOGRAPHY # runtime
+	help
+	  Python wrapper module around the OpenSSL library for the host.
+
+	  https://github.com/pyca/pyopenssl
