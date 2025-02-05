@@ -8,3 +8,13 @@ config BR2_PACKAGE_PYTHON_CRYPTOGRAPHY
 	  primitives and recipes to Python developers.
 
 	  https://cryptography.io
+
+config BR2_PACKAGE_HOST_PYTHON_CRYPTOGRAPHY
+	bool "host python-cryptography"
+	depends on BR2_PACKAGE_HOST_RUSTC_TARGET_ARCH_SUPPORTS
+	help
+	  cryptography is a package designed to expose cryptographic
+	  primitives and recipes to Python developers.
+	  For the host.
+
+	  https://cryptography.io
