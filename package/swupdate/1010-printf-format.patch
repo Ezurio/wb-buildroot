@@ -1,0 +1,14 @@
+--- a/core/notifier.c	2022-12-13 12:36:58.000000000 
++++ b/core/notifier.c	2023-03-30 18:59:14.000000000 
+@@ -496,7 +496,11 @@
+ 	if (sd_booted() && getenv("JOURNAL_STREAM") != NULL) {
+ 		dev_t device;
+ 		ino_t inode;
++#ifdef __USE_FILE_OFFSET64
++		if (sscanf(getenv("JOURNAL_STREAM"), "%" SCNu64 ":%" PRIu64, &device, &inode) == 2) {
++#else
+		if (sscanf(getenv("JOURNAL_STREAM"), "%" SCNu64 ":%lu", &device, &inode) == 2) {
++#endif
+ 			struct stat statbuffer;
+ 			if (fstat(fileno(stderr), &statbuffer) == 0) {
+ 				if (inode == statbuffer.st_ino && device == statbuffer.st_dev) {

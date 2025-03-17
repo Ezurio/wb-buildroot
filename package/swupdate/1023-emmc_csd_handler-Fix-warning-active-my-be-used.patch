@@ -1,0 +1,30 @@
+From 8c1821662d5626fe8228802f51b3e341ae8d48a2 Mon Sep 17 00:00:00 2001
+From: Michael Glembotzki <m.glembo@gmail.com>
+Date: Thu, 12 Dec 2024 11:50:13 +0100
+Subject: [PATCH] emmc_csd_handler: Fix warning active my be used uninitialized
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+handlers/emmc_csd_handler.c:102:25: warning: ‘active’ may be used uninitialized [-Wmaybe-uninitialized]
+  102 |         if (active == 0 || active == 1) {
+      |             ~~~~~~~~~~~~^~~~~~~~~~~~~~
+
+Signed-off-by: Michael Glembotzki <Michael.Glembotzki@iris-sensing.com>
+---
+ handlers/emmc_csd_handler.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/handlers/emmc_csd_handler.c b/handlers/emmc_csd_handler.c
+index 485a0ece..803d10b1 100644
+--- a/handlers/emmc_csd_handler.c
++++ b/handlers/emmc_csd_handler.c
+@@ -43,7 +43,7 @@ void emmc_csd_toggle_handler(void);
+  */
+ static int emmc_csd_set(struct img_type *img, void *data, bool toggle)
+ {
+-	int active, ret;
++	int active = -1, ret;
+ 	struct script_handler_data *script_data = data;
+ 	char tmpdev[SWUPDATE_GENERAL_STRING_SIZE];
+ 
