@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PHP_VERSION = 8.3.10
+PHP_VERSION = 8.3.19
 PHP_SITE = https://www.php.net/distributions
 PHP_SOURCE = php-$(PHP_VERSION).tar.xz
 PHP_INSTALL_STAGING = YES
@@ -97,7 +97,7 @@ endif
 
 # php has some assembly function that is not present in Thumb mode:
 # Error: selected processor does not support `umlal r2,r1,r0,r3' in Thumb mode
-# so, we desactivate Thumb mode
+# so, we deactivate Thumb mode
 ifeq ($(BR2_ARM_INSTRUCTIONS_THUMB),y)
 PHP_CFLAGS += -marm
 endif
@@ -385,6 +385,13 @@ HOST_PHP_DEPENDENCIES = \
 	host-pcre2 \
 	host-pkgconf \
 	host-zlib
+
+# PHP can't be AUTORECONFed the standard way unfortunately
+HOST_PHP_DEPENDENCIES += host-autoconf host-automake host-libtool
+define HOST_PHP_BUILDCONF
+	cd $(@D) ; $(HOST_MAKE_ENV) ./buildconf --force
+endef
+HOST_PHP_PRE_CONFIGURE_HOOKS += HOST_PHP_BUILDCONF
 
 $(eval $(autotools-package))
 $(eval $(host-autotools-package))

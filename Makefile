@@ -92,9 +92,9 @@ all:
 .PHONY: all
 
 # Set and export the version string
-export BR2_VERSION := 2024.08
+export BR2_VERSION := 2025.02
 # Actual time the release is cut (for reproducible builds)
-BR2_VERSION_EPOCH = 1725627000
+BR2_VERSION_EPOCH = 1742234000
 
 # Save running make version since it's clobbered by the make package
 RUNNING_MAKE_VERSION := $(MAKE_VERSION)
@@ -597,14 +597,7 @@ world: target-post-image
 
 .PHONY: prepare-sdk
 prepare-sdk: world
-	@$(call MESSAGE,"Rendering the SDK relocatable")
-	PARALLEL_JOBS=$(PARALLEL_JOBS) \
-		PER_PACKAGE_DIR=$(PER_PACKAGE_DIR) \
-		$(TOPDIR)/support/scripts/fix-rpath host
-	PARALLEL_JOBS=$(PARALLEL_JOBS) \
-		PER_PACKAGE_DIR=$(PER_PACKAGE_DIR) \
-		$(TOPDIR)/support/scripts/fix-rpath staging
-	$(call ppd-fixup-paths,$(BASE_DIR))
+	@$(call MESSAGE,"Preparing the SDK")
 	$(INSTALL) -m 755 $(TOPDIR)/support/misc/relocate-sdk.sh $(HOST_DIR)/relocate-sdk.sh
 	mkdir -p $(HOST_DIR)/share/buildroot
 	echo $(HOST_DIR) > $(HOST_DIR)/share/buildroot/sdk-location
@@ -722,6 +715,13 @@ STAGING_DIR_FILES_LISTS = $(sort $(wildcard $(BUILD_DIR)/*/.files-list-staging.t
 host-finalize: $(PACKAGES) $(HOST_DIR) $(HOST_DIR_SYMLINK)
 	@$(call MESSAGE,"Finalizing host directory")
 	$(call per-package-rsync,$(sort $(PACKAGES)),host,$(HOST_DIR),copy)
+	$(Q)PARALLEL_JOBS=$(PARALLEL_JOBS) \
+		PER_PACKAGE_DIR=$(PER_PACKAGE_DIR) \
+		$(TOPDIR)/support/scripts/fix-rpath host
+	$(Q)PARALLEL_JOBS=$(PARALLEL_JOBS) \
+		PER_PACKAGE_DIR=$(PER_PACKAGE_DIR) \
+		$(TOPDIR)/support/scripts/fix-rpath staging
+	$(call ppd-fixup-paths,$(BASE_DIR))
 
 .PHONY: staging-finalize
 staging-finalize: $(STAGING_DIR_SYMLINK)

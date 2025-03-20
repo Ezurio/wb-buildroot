@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LINUX_FIRMWARE_VERSION = 20240709
+LINUX_FIRMWARE_VERSION = 20250211
 LINUX_FIRMWARE_SOURCE = linux-firmware-$(LINUX_FIRMWARE_VERSION).tar.xz
 LINUX_FIRMWARE_SITE = $(BR2_KERNEL_MIRROR)/linux/kernel/firmware
 LINUX_FIRMWARE_INSTALL_IMAGES = YES
@@ -79,8 +79,7 @@ endif
 ifeq ($(BR2_PACKAGE_LINUX_FIRMWARE_RTL_87XX_BT),y)
 LINUX_FIRMWARE_FILES += \
 	rtl_bt/rtl8723a_fw.bin rtl_bt/rtl8723b_fw.bin \
-	rtl_bt/rtl8723bs_config-OBDA8723.bin \
-	rtl_bt/rtl8723bs_fw.bin rtl_bt/rtl8723d_config.bin \
+	rtl_bt/rtl8723bs_config.bin rtl_bt/rtl8723bs_fw.bin \
 	rtl_bt/rtl8723d_fw.bin rtl_bt/rtl8761a_fw.bin \
 	rtl_bt/rtl8761b_fw.bin rtl_bt/rtl8761b_config.bin \
 	rtl_bt/rtl8761bu_fw.bin rtl_bt/rtl8761bu_config.bin
@@ -486,6 +485,15 @@ LINUX_FIRMWARE_FILES += \
 LINUX_FIRMWARE_ALL_LICENSE_FILES += LICENCE.ti-connectivity
 endif
 
+# cc33xx
+ifeq ($(BR2_PACKAGE_LINUX_FIRMWARE_TI_CC33XX),y)
+LINUX_FIRMWARE_FILES += \
+	ti-connectivity/cc33xx_2nd_loader.bin \
+	ti-connectivity/cc33xx_fw.bin \
+	ti-connectivity/cc33xx-conf.bin
+LINUX_FIRMWARE_ALL_LICENSE_FILES += LICENCE.ti-connectivity
+endif
+
 ifeq ($(BR2_PACKAGE_LINUX_FIRMWARE_QUALCOMM_WIL6210),y)
 LINUX_FIRMWARE_FILES += wil6210.*
 LINUX_FIRMWARE_ALL_LICENSE_FILES += LICENSE.QualcommAtheros_ath10k
@@ -636,6 +644,11 @@ endif
 
 ifeq ($(BR2_PACKAGE_LINUX_FIRMWARE_CXGB4_T5),y)
 LINUX_FIRMWARE_FILES += cxgb4/t5fw*.bin
+LINUX_FIRMWARE_ALL_LICENSE_FILES += LICENCE.chelsio_firmware
+endif
+
+ifeq ($(BR2_PACKAGE_LINUX_FIRMWARE_CXGB4_T6),y)
+LINUX_FIRMWARE_FILES += cxgb4/t6fw*.bin
 LINUX_FIRMWARE_ALL_LICENSE_FILES += LICENCE.chelsio_firmware
 endif
 
@@ -908,6 +921,10 @@ endif
 ifeq ($(BR2_PACKAGE_LINUX_FIRMWARE_ARM_MALI_CSF),y)
 LINUX_FIRMWARE_FILES += arm/mali/arch*/mali_csffw.bin
 LINUX_FIRMWARE_ALL_LICENSE_FILES += LICENCE.mali_csffw
+endif
+
+ifeq ($(BR2_PACKAGE_LINUX_FIRMWARE_RP2),y)
+LINUX_FIRMWARE_FILES += rp2.fw
 endif
 
 ifneq ($(LINUX_FIRMWARE_FILES)$(LINUX_FIRMWARE_DIRS),)

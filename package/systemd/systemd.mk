@@ -19,7 +19,7 @@
 # - Diff sysusers.d with the previous version
 # - Diff factory/etc/nsswitch.conf with the previous version
 #   (details are often sprinkled around in README and manpages)
-SYSTEMD_VERSION = 256.4
+SYSTEMD_VERSION = 256.7
 SYSTEMD_SITE = $(call github,systemd,systemd,v$(SYSTEMD_VERSION))
 SYSTEMD_LICENSE = \
 	LGPL-2.1+, \
@@ -109,11 +109,6 @@ SYSTEMD_CONF_OPTS += \
 SYSTEMD_CFLAGS = $(TARGET_CFLAGS)
 ifeq ($(BR2_OPTIMIZE_FAST),y)
 SYSTEMD_CFLAGS += -O3 -fno-finite-math-only
-endif
-
-ifeq ($(BR2_nios2),y)
-# Nios2 ld emits warnings, make warnings not to be treated as errors
-SYSTEMD_LDFLAGS = $(TARGET_LDFLAGS) -Wl,--no-fatal-warnings
 endif
 
 ifeq ($(BR2_TARGET_GENERIC_REMOUNT_ROOTFS_RW),y)
@@ -663,7 +658,7 @@ endif
 ifeq ($(BR2_PACKAGE_SYSTEMD_BOOT),y)
 SYSTEMD_INSTALL_IMAGES = YES
 SYSTEMD_DEPENDENCIES += gnu-efi host-python-pyelftools
-SYSTEMD_CONF_OPTS += -Defi=true -Dbootloader=enabled
+SYSTEMD_CONF_OPTS += -Dbootloader=enabled
 
 SYSTEMD_BOOT_EFI_ARCH = $(call qstrip,$(BR2_PACKAGE_SYSTEMD_BOOT_EFI_ARCH))
 define SYSTEMD_INSTALL_BOOT_FILES
@@ -676,8 +671,14 @@ define SYSTEMD_INSTALL_BOOT_FILES
 endef
 
 else
-SYSTEMD_CONF_OPTS += -Defi=false -Dbootloader=disabled
+SYSTEMD_CONF_OPTS += -Dbootloader=disabled
 endif # BR2_PACKAGE_SYSTEMD_BOOT == y
+
+ifeq ($(BR2_PACKAGE_SYSTEMD_EFI),y)
+SYSTEMD_CONF_OPTS += -Defi=true
+else
+SYSTEMD_CONF_OPTS += -Defi=false
+endif
 
 SYSTEMD_FALLBACK_HOSTNAME = $(call qstrip,$(BR2_TARGET_GENERIC_HOSTNAME))
 ifneq ($(SYSTEMD_FALLBACK_HOSTNAME),)
@@ -863,6 +864,7 @@ SYSTEMD_NINJA_ENV = $(HOST_UTF8_LOCALE_ENV)
 
 ifeq (0,1)
 define SYSTEMD_LINUX_CONFIG_FIXUPS
+	$(call KCONFIG_ENABLE_OPT,CONFIG_TMPFS)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_DEVTMPFS)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_CGROUPS)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_INOTIFY_USER)

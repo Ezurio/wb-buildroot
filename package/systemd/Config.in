@@ -8,7 +8,6 @@ config BR2_PACKAGE_SYSTEMD_ARCH_SUPPORTS
 	default y if BR2_m68k
 	default y if BR2_mips || BR2_mipsel || BR2_mips64 || BR2_mips64el
 	default y if BR2_powerpc || BR2_powerpc64 || BR2_powerpc64le
-	default y if BR2_nios2
 	default y if BR2_riscv
 	default y if BR2_sh4 || BR2_sh4eb || BR2_sh4a || BR2_sh4aeb
 	default y if BR2_sparc || BR2_sparc64
@@ -99,7 +98,7 @@ menuconfig BR2_PACKAGE_SYSTEMD
 
 	  Notice that systemd selects the fsck wrapper from util-linux
 	  but no particular fsck.<fstype> is selected. You must choose
-	  the apropriate ones (e.g. e2fsck, from the e2fsprogs
+	  the appropriate ones (e.g. e2fsck, from the e2fsprogs
 	  package) according to the system configuration.
 
 	  https://freedesktop.org/wiki/Software/systemd/
@@ -113,6 +112,7 @@ config BR2_PACKAGE_SYSTEMD_BOOT
 	bool "systemd-boot"
 	depends on BR2_i386 || BR2_x86_64
 	select BR2_PACKAGE_GNU_EFI
+	select BR2_PACKAGE_SYSTEMD_EFI
 	help
 	  systemd-boot is a simple UEFI boot manager which executes
 	  configured EFI images. The default entry is selected by a
@@ -160,6 +160,9 @@ config BR2_PACKAGE_SYSTEMD_BOOT_EFI_ARCH
 	default "ia32"  if BR2_i386
 	default "x64"   if BR2_x86_64
 	depends on BR2_PACKAGE_SYSTEMD_BOOT
+
+config BR2_PACKAGE_SYSTEMD_EFI
+	bool "enable EFI support"
 
 config BR2_PACKAGE_SYSTEMD_JOURNAL_REMOTE
 	bool "enable journal remote tools"
@@ -212,7 +215,7 @@ config BR2_PACKAGE_SYSTEMD_PSTORE
 	help
 	  When this features is enabled, additional tools and services
 	  are built to support archiving contents of the persistent
-	  storage filesytem.
+	  storage filesystem.
 
 	  https://www.freedesktop.org/software/systemd/man/systemd-pstore.html
 

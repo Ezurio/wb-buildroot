@@ -206,7 +206,7 @@ endif
 
 # Due to vendoring, it is pretty likely that not all licenses are
 # listed in <pkg>_LICENSE. If the license is unset, it is "unknown"
-# so adding unknowns to some unknown is still some other unkown,
+# so adding unknowns to some unknown is still some other unknown,
 # so don't append the blurb in that case.
 ifneq ($$($(2)_LICENSE),)
 $(2)_LICENSE += , vendored dependencies licenses probably not listed
@@ -279,6 +279,7 @@ define $(2)_INSTALL_TARGET_CMDS
 			--root $$(TARGET_DIR)/usr/ \
 			--bins \
 			--path ./ \
+			--no-track \
 			--force \
 			--locked \
 			-Z target-applies-to-host \
@@ -298,6 +299,7 @@ define $(2)_INSTALL_CMDS
 			--root $$(HOST_DIR) \
 			--bins \
 			--path ./ \
+			--no-track \
 			--force \
 			--locked \
 			$$($(2)_CARGO_INSTALL_OPTS)
