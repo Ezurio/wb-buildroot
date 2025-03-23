@@ -231,6 +231,12 @@ endif
 
 LINUX_DTBS = $(addsuffix .dtb,$(LINUX_DTS_NAME)) $(addsuffix .dtbo,$(LINUX_DTSO_NAMES))
 
+.PHONY: linux-show-dtb
+
+linux-show-dtb:
+	@:
+	$(info $(LINUX_DTBS))
+
 ifeq ($(BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM),y)
 LINUX_IMAGE_NAME = $(call qstrip,$(BR2_LINUX_KERNEL_IMAGE_NAME))
 LINUX_TARGET_NAME = $(call qstrip,$(BR2_LINUX_KERNEL_IMAGE_TARGET_NAME))
@@ -526,7 +532,8 @@ LINUX_APPEND_DTB += ; \
 	for dtb in $(LINUX_DTS_NAME); do \
 		$(MKIMAGE) -A $(MKIMAGE_ARCH) -O linux \
 			-T kernel -C none $${MKIMAGE_ARGS} \
-			-d $(LINUX_ARCH_PATH)/boot/zImage.$${dtb} $(LINUX_IMAGE_PATH).$${dtb}; \
+			-d $(LINUX_ARCH_PATH)/boot/zImage.$$(basename $${dtb}) \
+			$(LINUX_IMAGE_PATH).$$(basename $${dtb}); \
 	done
 endif
 endif

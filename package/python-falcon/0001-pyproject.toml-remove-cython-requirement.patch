@@ -1,10 +1,10 @@
 --- a/pyproject.toml	2023-12-05 01:19:13.000000000 -0500
 +++ b/pyproject.toml	2024-11-11 10:13:53.320092858 -0500
-@@ -3,7 +3,6 @@
-     requires = [
-         "setuptools>=47",
-         "wheel>=0.34",
--        "cython>=0.29.21; python_implementation == 'CPython'", # Skip cython when using pypy
-     ]
+@@ -2,7 +2,6 @@
+ build-backend = "setuptools.build_meta"
+ requires = [
+     "setuptools>=61",
+-    "cython>=3.0.8; python_implementation == 'CPython'", # Skip cython when using pypy
+ ]
  
- [tool.towncrier]
+ [project]
