@@ -1,14 +1,14 @@
 --- a/src/uboot_env.c	2022-03-28 18:27:35.000000000 
 +++ b/src/uboot_env.c	2022-03-29 01:29:24.000000000 
-@@ -32,7 +32,6 @@
+@@ -31,7 +31,6 @@
  #include <sys/stat.h>
  #include <sys/wait.h>
  #include <sys/ioctl.h>
 -#include <zlib.h>
- #include <yaml.h>
- #include <mtd/mtd-user.h>
- #include <mtd/ubi-user.h>
-@@ -1112,6 +1113,19 @@
+ 
+ #include "uboot_private.h"
+ #include "common.h"
+@@ -511,6 +510,19 @@
  	return &libinfo;
  }
  
@@ -30,15 +30,14 @@
  	struct var_entry *entry;
 --- a/src/CMakeLists.txt	2022-03-29 01:36:47.000000000 
 +++ b/src/CMakeLists.txt	2022-03-29 12:21:41.000000000 
-@@ -19,7 +19,7 @@
+@@ -23,7 +23,6 @@
  SET_TARGET_PROPERTIES(ubootenv PROPERTIES VERSION ${VERSION} SOVERSION ${SOVERSION})
  
  add_executable(fw_printenv fw_printenv.c)
--target_link_libraries(ubootenv z yaml)
-+target_link_libraries(ubootenv yaml)
- target_link_libraries(fw_printenv ubootenv)
- add_custom_target(fw_setenv ALL ${CMAKE_COMMAND} -E create_symlink fw_printenv fw_setenv)
- 
+-target_link_libraries(ubootenv z)
+ if (NOT NO_YML_SUPPORT)
+ target_link_libraries(ubootenv yaml)
+ endif(NOT NO_YML_SUPPORT)
 --- a/src/libubootenv.pc.in	2021-11-02 11:11:40.000000000 
 +++ b/src/libubootenv.pc.in	2022-08-26 12:36:07.000000000 
 @@ -10,5 +10,5 @@

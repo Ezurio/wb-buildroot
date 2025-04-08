@@ -1,6 +1,5 @@
 config BR2_PACKAGE_LIBUBOOTENV
 	bool "libubootenv"
-	select BR2_PACKAGE_LIBYAML
 	help
 	  libubootenv is a library that provides a hardware independent
 	  way to access to U-Boot environment.
@@ -9,3 +8,13 @@ config BR2_PACKAGE_LIBUBOOTENV
 	  new tools build from the library and not from U-Boot.
 
 	  https://github.com/sbabic/libubootenv/
+
+if BR2_PACKAGE_LIBUBOOTENV
+
+config BR2_PACKAGE_LIBUBOOTENV_YAML_CONFIG
+	bool "YAML configuration support"
+	select BR2_PACKAGE_LIBYAML
+	help
+	  YAML configuration support for libubootenv.
+
+endif

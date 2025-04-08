@@ -1,6 +1,6 @@
---- a/src/uboot_env.c
-+++ b/src/uboot_env.c
-@@ -41,6 +41,7 @@
+--- a/src/uboot_private.h
++++ b/src/uboot_private.h
+@@ -16,6 +16,7 @@
  #define UBI_MAX_VOLUME			128
  
  #define DEVICE_MTD_NAME 		"/dev/mtd"
@@ -8,7 +8,10 @@
  #define DEVICE_UBI_NAME 		"/dev/ubi"
  #define DEVICE_UBI_CTRL 		"/dev/ubi_ctrl"
  #define SYS_UBI				"/sys/class/ubi"
-@@ -200,6 +201,8 @@ static enum device_type get_device_type(
+
+--- a/src/common.c
++++ b/src/common.c
+@@ -36,6 +36,8 @@ static enum device_type get_device_type(
  	if (!strncmp(device, DEVICE_MTD_NAME, strlen(DEVICE_MTD_NAME)))
  		if (strchr(device, DEVNAME_SEPARATOR)) {
  			type = DEVICE_UBI;
@@ -17,8 +20,8 @@
  		} else {
  			type = DEVICE_MTD;
  		}
-@@ -453,6 +456,81 @@ out:
- 	return ret;
+@@ -47,6 +49,81 @@ out:
+ 	return type;
  }
  
 +static int mtd_get_volume_name(int vol_id, char vol_name[DEVNAME_MAX_LENGTH])
@@ -96,10 +99,10 @@
 +	return ret;
 +}
 +
- static int normalize_device_path(char *path, struct uboot_flash_env *dev)
+ int normalize_device_path(char *path, struct uboot_flash_env *dev)
  {
  	char *sep = NULL, *normalized = NULL;
-@@ -471,6 +549,9 @@ static int normalize_device_path(char *p
+@@ -65,6 +142,9 @@ int normalize_device_path(char *p
  
  	if ((normalized = realpath(path, NULL)) == NULL)
  	{
@@ -109,7 +112,7 @@
  		/* device file didn't exist */
  		return -EINVAL;
  	}
-@@ -515,6 +596,12 @@ static int check_env_device(struct uboot
+@@ -182,6 +262,12 @@ static int check_env_device(struct uboot
  		if (ret)
  			return ret;
  	}
