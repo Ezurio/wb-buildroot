@@ -1,5 +1,5 @@
-# From https://www.python.org/downloads/release/python-31111/
-md5  3e497037b170fe4be5f462c4964596f2  Python-3.11.11.tar.xz
+# From https://www.python.org/downloads/release/python-31112/
+md5  7fc6fee008b0b933052c89946377e319  Python-3.11.12.tar.xz
 # Locally computed
-sha256  2a9920c7a0cd236de33644ed980a13cbbc21058bfdc528febb6081575ed73be3  Python-3.11.11.tar.xz
+sha256  849da87af4df137710c1796e276a955f7a85c9f971081067c8f565d15c352a09  Python-3.11.12.tar.xz
 sha256  3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf  LICENSE
