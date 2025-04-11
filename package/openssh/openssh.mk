@@ -28,8 +28,7 @@ OPENSSH_CONF_OPTS = \
 	--disable-utmpx \
 	--disable-wtmp \
 	--disable-wtmpx \
-	--disable-strip \
-	--disable-dsa-keys
+	--disable-strip
 
 OPENSSH_SELINUX_MODULES = ssh
 
