@@ -5,7 +5,6 @@ Subject: [PATCH 2/2] Revert "remove support for old libcrypto"
 
 This reverts commit 7280401bdd77ca54be6867a154cc01e0d72612e0.
 ---
- .github/workflows/c-cpp.yml          |   7 +
  INSTALL                              |   8 +-
  cipher-aes.c                         |   2 +-
  configure.ac                         |  96 +++--
@@ -13,31 +12,6 @@ This reverts commit 7280401bdd77ca54be6867a154cc01e0d72612e0.
  openbsd-compat/openssl-compat.h      | 151 +++++++-
  6 files changed, 780 insertions(+), 40 deletions(-)
 
-diff --git a/.github/workflows/c-cpp.yml b/.github/workflows/c-cpp.yml
-index 8f624d210..15db82303 100644
---- a/.github/workflows/c-cpp.yml
-+++ b/.github/workflows/c-cpp.yml
-@@ -56,6 +56,9 @@ jobs:
-           - { target: ubuntu-20.04, config: musl }
-           - { target: ubuntu-latest, config: boringssl }
-           - { target: ubuntu-latest, config: libressl-master }
-+          - { target: ubuntu-latest, config: libressl-2.2.9 }
-+          - { target: ubuntu-latest, config: libressl-2.8.3 }
-+          - { target: ubuntu-latest, config: libressl-3.0.2 }
-           - { target: ubuntu-latest, config: libressl-3.2.6 }
-           - { target: ubuntu-latest, config: libressl-3.3.6 }
-           - { target: ubuntu-latest, config: libressl-3.4.3 }
-@@ -66,6 +69,10 @@ jobs:
-           - { target: ubuntu-latest, config: libressl-3.9.0 }
-           - { target: ubuntu-latest, config: openssl-master }
-           - { target: ubuntu-latest, config: openssl-noec }
-+          - { target: ubuntu-latest, config: openssl-1.0.1 }
-+          - { target: ubuntu-latest, config: openssl-1.0.1u }
-+          - { target: ubuntu-latest, config: openssl-1.0.2u }
-+          - { target: ubuntu-latest, config: openssl-1.1.0h }
-           - { target: ubuntu-latest, config: openssl-1.1.1 }
-           - { target: ubuntu-latest, config: openssl-1.1.1t }
-           - { target: ubuntu-latest, config: openssl-1.1.1w }
 diff --git a/INSTALL b/INSTALL
 index f99d1e2a8..68b15e131 100644
 --- a/INSTALL
@@ -74,96 +48,7 @@ diff --git a/configure.ac b/configure.ac
 index 22f6e9bac..ca5c52e77 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -2840,40 +2840,42 @@ if test "x$openssl" = "xyes" ; then
- 	#include <openssl/crypto.h>
- 	#define DATA "conftest.ssllibver"
- 		]], [[
--		FILE *f;
-+		FILE *fd;
-+		int rc;
- 
--		if ((f = fopen(DATA, "w")) == NULL)
--			exit(1);
--		if (fprintf(f, "%08lx (%s)",
--		    (unsigned long)OpenSSL_version_num(),
--		    OpenSSL_version(OPENSSL_VERSION)) < 0)
--			exit(1);
--#ifdef LIBRESSL_VERSION_NUMBER
--		if (fprintf(f, " libressl-%08lx", LIBRESSL_VERSION_NUMBER) < 0)
-+		fd = fopen(DATA,"w");
-+		if(fd == NULL)
- 			exit(1);
-+#ifndef OPENSSL_VERSION
-+# define OPENSSL_VERSION SSLEAY_VERSION
-+#endif
-+#ifndef HAVE_OPENSSL_VERSION
-+# define OpenSSL_version	SSLeay_version
-+#endif
-+#ifndef HAVE_OPENSSL_VERSION_NUM
-+# define OpenSSL_version_num	SSLeay
- #endif
--		if (fputc('\n', f) == EOF || fclose(f) == EOF)
-+		if ((rc = fprintf(fd, "%08lx (%s)\n",
-+		    (unsigned long)OpenSSL_version_num(),
-+		    OpenSSL_version(OPENSSL_VERSION))) < 0)
- 			exit(1);
-+
- 		exit(0);
- 		]])],
- 		[
--			sslver=`cat conftest.ssllibver`
--			ssl_showver=`echo "$sslver" | sed 's/ libressl-.*//'`
-+			ssl_library_ver=`cat conftest.ssllibver`
- 			# Check version is supported.
--			case "$sslver" in
--			100*|10100*) # 1.0.x, 1.1.0x
--				AC_MSG_ERROR([OpenSSL >= 1.1.1 required (have "$ssl_showver")])
-+			case "$ssl_library_ver" in
-+			10000*|0*)
-+				AC_MSG_ERROR([OpenSSL >= 1.0.1 required (have "$ssl_library_ver")])
-+		                ;;
-+			100*)   ;; # 1.0.x
-+			101000[[0123456]]*)
-+				# https://github.com/openssl/openssl/pull/4613
-+				AC_MSG_ERROR([OpenSSL 1.1.x versions prior to 1.1.0g have a bug that breaks their use with OpenSSH (have "$ssl_library_ver")])
- 				;;
- 			101*)   ;; # 1.1.x
--			200*)   # LibreSSL
--				lver=`echo "$sslver" | sed 's/.*libressl-//'`
--				case "$lver" in
--				2*|300*) # 2.x, 3.0.0
--					AC_MSG_ERROR([LibreSSL >= 3.1.0 required (have "$ssl_showver")])
--					;;
--				*) ;;	# Assume all other versions are good.
--				esac
--				;;
-+			200*)   ;; # LibreSSL
- 			300*)
- 				# OpenSSL 3; we use the 1.1x API
- 				CPPFLAGS="$CPPFLAGS -DOPENSSL_API_COMPAT=0x10100000L"
-@@ -2883,10 +2885,10 @@ if test "x$openssl" = "xyes" ; then
- 				CPPFLAGS="$CPPFLAGS -DOPENSSL_API_COMPAT=0x10100000L"
- 				;;
- 		        *)
--				AC_MSG_ERROR([Unknown/unsupported OpenSSL version ("$ssl_showver")])
-+				AC_MSG_ERROR([Unknown/unsupported OpenSSL version ("$ssl_library_ver")])
- 		                ;;
- 			esac
--			AC_MSG_RESULT([$ssl_showver])
-+			AC_MSG_RESULT([$ssl_library_ver])
- 		],
- 		[
- 			AC_MSG_RESULT([not found])
-@@ -2899,7 +2901,7 @@ if test "x$openssl" = "xyes" ; then
- 
- 	case "$host" in
- 	x86_64-*)
--		case "$sslver" in
-+		case "$ssl_library_ver" in
- 		3000004*)
- 			AC_MSG_ERROR([OpenSSL 3.0.4 has a potential RCE in its RSA implementation (CVE-2022-2274)])
- 			;;
-@@ -2915,6 +2917,9 @@ if test "x$openssl" = "xyes" ; then
+@@ -2928,6 +2928,9 @@
  	#include <openssl/opensslv.h>
  	#include <openssl/crypto.h>
  		]], [[
@@ -173,7 +58,7 @@ index 22f6e9bac..ca5c52e77 100644
  		exit(OpenSSL_version_num() == OPENSSL_VERSION_NUMBER ? 0 : 1);
  		]])],
  		[
-@@ -2988,13 +2993,44 @@ if test "x$openssl" = "xyes" ; then
+@@ -3003,13 +3006,46 @@ if test "x$openssl" = "xyes" ; then
  	    )
  	)
  
@@ -212,6 +97,8 @@ index 22f6e9bac..ca5c52e77 100644
 +		RSA_meth_set_priv_enc \
 +		RSA_meth_set_priv_dec \
 +		RSA_meth_set_finish \
++		EVP_PKEY_up_ref \
++		EVP_PKEY_get0_EC_KEY \
 +		EVP_PKEY_get0_RSA \
 +		EVP_MD_CTX_new \
 +		EVP_MD_CTX_free \
@@ -219,13 +106,11 @@ index 22f6e9bac..ca5c52e77 100644
  	])
  
  	if test "x$openssl_engine" = "xyes" ; then
-@@ -3052,8 +3088,8 @@ if test "x$openssl" = "xyes" ; then
- 		]
+@@ -3068,7 +3102,7 @@
  	)
  
--	# Check for various EVP support in OpenSSL
+ 	# Check for various EVP support in OpenSSL
 -	AC_CHECK_FUNCS([EVP_sha256 EVP_sha384 EVP_sha512 EVP_chacha20])
-+	# Check for SHA256, SHA384 and SHA512 support in OpenSSL
 +	AC_CHECK_FUNCS([EVP_sha256 EVP_sha384 EVP_sha512])
  
  	# Check complete ECC support in OpenSSL
@@ -558,7 +443,7 @@ index 59be17397..498180dc8 100644
  
  #ifndef HAVE_EVP_CIPHER_CTX_GET_IV
  int
-@@ -83,4 +392,249 @@ EVP_CIPHER_CTX_set_iv(EVP_CIPHER_CTX *ctx, const unsigned char *iv, size_t len)
+@@ -83,4 +392,256 @@ EVP_CIPHER_CTX_set_iv(EVP_CIPHER_CTX *ctx, const unsigned char *iv, size_t len)
  }
  #endif /* HAVE_EVP_CIPHER_CTX_SET_IV */
  
@@ -590,6 +475,13 @@ index 59be17397..498180dc8 100644
 +#endif /* HAVE_DSA_SIG_SET0 */
 +
 +#ifdef OPENSSL_HAS_ECC
++#ifndef HAVE_EVP_PKEY_GET0_EC_KEY
++EC_KEY *EVP_PKEY_get0_EC_KEY(EVP_PKEY *pkey)
++{
++    return (pkey && pkey->type == EVP_PKEY_EC) ? pkey->pkey.ec : NULL;
++}
++#endif /* HAVE_EVP_PKEY_GET0_EC_KEY */
++
 +#ifndef HAVE_ECDSA_SIG_GET0
 +void
 +ECDSA_SIG_get0(const ECDSA_SIG *sig, const BIGNUM **pr, const BIGNUM **ps)
@@ -871,9 +763,9 @@ index f6796b3ba..b3abd5354 100644
  #ifdef OPENSSL_IS_BORINGSSL
  /*
   * BoringSSL (rightly) got rid of the BN_FLG_CONSTTIME flag, along with
-@@ -78,5 +110,112 @@ int EVP_CIPHER_CTX_set_iv(EVP_CIPHER_CTX *ctx,
-     const unsigned char *iv, size_t len);
- #endif /* HAVE_EVP_CIPHER_CTX_SET_IV */
+@@ -78,5 +110,120 @@
+     const unsigned char *, size_t);
+ #endif
  
 +#ifndef HAVE_RSA_GET0_KEY
 +void RSA_get0_key(const RSA *r, const BIGNUM **n, const BIGNUM **e,
@@ -909,7 +801,15 @@ index f6796b3ba..b3abd5354 100644
 +int DSA_SIG_set0(DSA_SIG *sig, BIGNUM *r, BIGNUM *s);
 +#endif /* DSA_SIG_SET0 */
 +
++#ifndef HAVE_EVP_PKEY_UP_REF
++#define EVP_PKEY_up_ref(pkey) CRYPTO_add(&(pkey)->references, 1, CRYPTO_LOCK_EVP_PKEY)
++#endif /* HAVE_EVP_PKEY_UP_REF */
++
 +#ifdef OPENSSL_HAS_ECC
++#ifndef HAVE_EVP_PKEY_GET0_EC_KEY
++EC_KEY *EVP_PKEY_get0_EC_KEY(EVP_PKEY *pkey);
++#endif /* HAVE_EVP_PKEY_GET0_EC_KEY */
++
 +#ifndef HAVE_ECDSA_SIG_GET0
 +void ECDSA_SIG_get0(const ECDSA_SIG *sig, const BIGNUM **pr, const BIGNUM **ps);
 +#endif /* HAVE_ECDSA_SIG_GET0 */
