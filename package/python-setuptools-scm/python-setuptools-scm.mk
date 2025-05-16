@@ -16,4 +16,6 @@ HOST_PYTHON_SETUPTOOLS_SCM_DEPENDENCIES = \
 	host-python-setuptools \
 	host-python-typing-extensions
 
+HOST_PYTHON_SETUPTOOLS_SCM_ENV += HOST_PYTHON_SETUPTOOLS_VERSION="$(PYTHON_SETUPTOOLS_VERSION)"
+
 $(eval $(host-python-package))
