@@ -36,7 +36,7 @@ stop() {
 	fi
 	while start-stop-daemon --stop --test --quiet --pidfile "$PIDFILE" \
 		--exec "/usr/libexec/bluetooth/$DAEMON"; do
-		sleep 0.1
+		usleep 100000
 	done
 	rm -f "$PIDFILE"
 	return "$status"
