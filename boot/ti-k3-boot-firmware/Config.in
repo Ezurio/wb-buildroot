@@ -4,4 +4,25 @@ config BR2_TARGET_TI_K3_BOOT_FIRMWARE
 	help
 	  This package downloads and installs the TI-specific ti-sysfw
 	  and ti-dm firmware needed to boot TI K3 platforms (which
-	  include AM62x, AM64x, AM65x and more).
+	  include AM62x, AM64x, AM65x, AM67x and more).
+
+if BR2_TARGET_TI_K3_BOOT_FIRMWARE
+
+config BR2_TARGET_TI_K3_BOOT_FIRMWARE_CPU
+	string "cpu type"
+	default "am62xx"
+	help
+	  This package downloads and installs the TI-specific sysfw
+	  firmware needed to boot TI K3 platforms
+
+config BR2_TARGET_TI_K3_BOOT_FIRMWARE_VPU
+	bool "VPU firmware"
+	help
+	  This package downloads and installs the TI-specific VPU firmware
+
+config BR2_TARGET_TI_K3_BOOT_FIRMWARE_MCU_DEMO
+	bool "MCU demo firmware"
+	help
+	  This package downloads and installs the TI-specific MCU demo firmware
+
+endif
