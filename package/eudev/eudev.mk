@@ -15,7 +15,6 @@ EUDEV_CONF_OPTS = \
 	--disable-manpages \
 	--sbindir=/sbin \
 	--libexecdir=/lib \
-	--disable-introspection \
 	--enable-kmod \
 	--enable-blkid
 
@@ -72,7 +71,6 @@ HOST_EUDEV_CONF_OPTS = \
 	--with-rootlibdir=/lib \
 	--sysconfdir=/etc \
 	--disable-blkid \
-	--disable-introspection \
 	--disable-kmod \
 	--disable-manpages \
 	--disable-rule-generator \
