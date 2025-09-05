@@ -662,6 +662,13 @@ else
 GST1_PLUGINS_BAD_CONF_OPTS += -Dneon=disabled
 endif
 
+ifeq ($(BR2_PACKAGE_NVIDIA_DRIVER_CUDA),y)
+GST1_PLUGINS_BAD_CONF_OPTS += -Dnvcodec=enabled
+GST1_PLUGINS_BAD_DEPENDENCIES += nvidia-driver
+else
+GST1_PLUGINS_BAD_CONF_OPTS += -Dnvcodec=disabled
+endif
+
 ifeq ($(BR2_PACKAGE_GST1_PLUGINS_BAD_PLUGIN_OPENAL),y)
 GST1_PLUGINS_BAD_CONF_OPTS += -Dopenal=enabled
 GST1_PLUGINS_BAD_DEPENDENCIES += openal
