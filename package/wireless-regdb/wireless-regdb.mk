@@ -24,8 +24,6 @@ endif
 define WIRELESS_REGDB_INSTALL_TARGET_CMDS
 	$(WIRELESS_REGDB_INSTALL_CRDA_TARGET_CMDS)
 	$(INSTALL) -m 644 -D -T $(@D)/regulatory.db \
-		$(TARGET_DIR)/lib/firmware/regulatory_default.db
-	ln -rfs $(TARGET_DIR)/lib/firmware/regulatory_default.db \
 		$(TARGET_DIR)/lib/firmware/regulatory.db
 	$(INSTALL) -m 644 -D -T $(@D)/regulatory.db.p7s \
 		$(TARGET_DIR)/lib/firmware/regulatory.db.p7s
