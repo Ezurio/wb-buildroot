@@ -1,0 +1,84 @@
+From e3290933ead698742f59e4abc4da694e73191203 Mon Sep 17 00:00:00 2001
+From: Richard Biener <rguenther@suse.de>
+Date: Fri, 28 Feb 2025 14:09:29 +0100
+Subject: [PATCH] lto/91299 - weak definition inlined with LTO
+
+The following fixes a thinko in the handling of interposed weak
+definitions which confused the interposition check in
+get_availability by setting DECL_EXTERNAL too early.
+
+	PR lto/91299
+gcc/lto/
+	* lto-symtab.cc (lto_symtab_merge_symbols): Set DECL_EXTERNAL
+	only after calling get_availability.
+
+gcc/testsuite/
+	* gcc.dg/lto/pr91299_0.c: New testcase.
+	* gcc.dg/lto/pr91299_1.c: Likewise.
+
+(cherry picked from commit bc34db5b12e008f6ec4fdf4ebd22263c8617e5e3)
+---
+ gcc/lto/lto-symtab.cc                |  2 +-
+ gcc/testsuite/gcc.dg/lto/pr91299_0.c | 16 ----------------
+ gcc/testsuite/gcc.dg/lto/pr91299_1.c |  6 ------
+ 3 files changed, 1 insertion(+), 23 deletions(-)
+ delete mode 100644 gcc/testsuite/gcc.dg/lto/pr91299_0.c
+ delete mode 100644 gcc/testsuite/gcc.dg/lto/pr91299_1.c
+
+diff --git b/gcc/lto/lto-symtab.cc a/gcc/lto/lto-symtab.cc
+index 2e2eb4bd814..a40218beac5 100644
+--- b/gcc/lto/lto-symtab.cc
++++ a/gcc/lto/lto-symtab.cc
+@@ -1016,6 +1016,7 @@ lto_symtab_merge_symbols (void)
+ 		  || node->resolution == LDPR_RESOLVED_EXEC
+ 		  || node->resolution == LDPR_RESOLVED_DYN))
+ 	    {
++	      DECL_EXTERNAL (node->decl) = 1;
+ 	      /* If alias to local symbol was preempted by external definition,
+ 		 we know it is not pointing to the local symbol.  Remove it.  */
+ 	      if (node->alias
+@@ -1041,7 +1042,6 @@ lto_symtab_merge_symbols (void)
+ 		      node->remove_all_references ();
+ 		    }
+ 		}
+-	      DECL_EXTERNAL (node->decl) = 1;
+ 	    }
+ 
+ 	  if (!(cnode = dyn_cast <cgraph_node *> (node))
+diff --git b/gcc/testsuite/gcc.dg/lto/pr91299_0.c a/gcc/testsuite/gcc.dg/lto/pr91299_0.c
+deleted file mode 100644
+index d9a8b21d6b8..00000000000
+--- b/gcc/testsuite/gcc.dg/lto/pr91299_0.c
++++ /dev/null
+@@ -1,16 +0,0 @@
+-/* { dg-lto-do run } */
+-/* { dg-lto-options { { -O2 -flto } } } */
+-
+-__attribute__((weak)) int get_t(void)
+-{
+-  return 0;
+-}
+-
+-int a;
+-int main(void)
+-{
+-  a = get_t();
+-  if (a != 1)
+-    __builtin_abort ();
+-  return 0;
+-}
+diff --git b/gcc/testsuite/gcc.dg/lto/pr91299_1.c a/gcc/testsuite/gcc.dg/lto/pr91299_1.c
+deleted file mode 100644
+index 29a28520f7b..00000000000
+--- b/gcc/testsuite/gcc.dg/lto/pr91299_1.c
++++ /dev/null
+@@ -1,6 +0,0 @@
+-/* { dg-options "-fno-lto" } */
+-
+-int get_t(void)
+-{
+-    return 1;
+-}
+-- 
+2.51.0
+
