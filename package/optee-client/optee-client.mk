@@ -49,6 +49,20 @@ define OPTEE_CLIENT_INSTALL_INIT_SYSV
 		$(TARGET_DIR)/etc/init.d/S30tee-supplicant
 endef
 
+define OPTEE_CLIENT_INSTALL_INIT_SYSTEMD
+	$(INSTALL) -m 0644 -D $(@D)/tee-supplicant/tee-supplicant@.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/tee-supplicant@.service
+	$(INSTALL) -m 0644 -D $(@D)/tee-supplicant/optee-udev.rules \
+		$(TARGET_DIR)/etc/udev/rules.d/99-optee-udev.rules
+	$(INSTALL) -m 0700 -d $(TARGET_DIR)/var/lib/tee
+endef
+
+define OPTEE_CLIENT_USERS
+	- - teepriv -1 * - - - -
+	- - tee -1 * - - - -
+	teesuppl -1 teesuppl -1 * /var/lib/tee /sbin/nologin teepriv -
+endef
+
 ifeq ($(BR2_PACKAGE_OPTEE_CLIENT_CUSTOM_TARBALL)$(BR_BUILDING),yy)
 ifeq ($(call qstrip,$(BR2_PACKAGE_OPTEE_CLIENT_CUSTOM_TARBALL_LOCATION)),)
 $(error No tarball location specified. Please check BR2_PACKAGE_OPTEE_CLIENT_CUSTOM_TARBALL_LOCATION)
