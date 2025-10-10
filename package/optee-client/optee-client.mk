@@ -23,7 +23,9 @@ endif
 
 OPTEE_CLIENT_CONF_OPTS = \
 	-DCFG_TEE_FS_PARENT_PATH=$(BR2_PACKAGE_OPTEE_CLIENT_TEE_FS_PATH) \
-	-DCFG_WERROR=OFF
+	-DCFG_WERROR=OFF \
+	-DCFG_TEE_SUPPL_USER=root \
+	-DCFG_TEE_SUPPL_GROUP=root
 
 ifeq ($(BR2_PACKAGE_OPTEE_CLIENT_RPMB_EMU),y)
 OPTEE_CLIENT_CONF_OPTS += -DRPMB_EMU=ON
@@ -60,7 +62,6 @@ endef
 define OPTEE_CLIENT_USERS
 	- - teepriv -1 * - - - -
 	- - tee -1 * - - - -
-	teesuppl -1 teesuppl -1 * /var/lib/tee /sbin/nologin teepriv -
 endef
 
 ifeq ($(BR2_PACKAGE_OPTEE_CLIENT_CUSTOM_TARBALL)$(BR_BUILDING),yy)
