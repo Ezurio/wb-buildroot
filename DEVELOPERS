@@ -2221,6 +2221,7 @@ F:	package/nethogs/
 F:	package/pico-sdk/
 F:	package/picotool/
 F:	package/python-django/
+F:	package/python-gpiod/
 F:	package/python-immutabledict/
 F:	package/python-jc/
 F:	package/python-pydantic/
