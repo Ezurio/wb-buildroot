@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-FIRMWARE_IMX_VERSION = 8.27
-FIRMWARE_IMX_REVISION = 5af0ceb
+FIRMWARE_IMX_VERSION = 8.29
+FIRMWARE_IMX_REVISION = 8741a3b
 FIRMWARE_IMX_SITE = $(FREESCALE_IMX_SITE)
 FIRMWARE_IMX_SOURCE = firmware-imx-$(FIRMWARE_IMX_VERSION)-$(FIRMWARE_IMX_REVISION).bin
 
@@ -41,94 +41,121 @@ define FIRMWARE_IMX_PREPARE_DDR_FW
 		$(FIRMWARE_IMX_DDRFW_DIR)/$(strip $(3)).bin
 endef
 
-FIRMWARE_IMX_DDR_VERSION = $(call qstrip,$(BR2_PACKAGE_FIRMWARE_IMX_DDR_VERSION))
-ifneq ($(FIRMWARE_IMX_DDR_VERSION),)
-FIRMWARE_IMX_DDR_VERSION_SUFFIX = _$(FIRMWARE_IMX_DDR_VERSION)
+ifeq ($(BR2_PACKAGE_HOST_IMX_MKIMAGE),y)
+define FIRMWARE_IMX_MERGED_DDR_FW
+	$(call FIRMWARE_IMX_PREPARE_DDR_FW, \
+		$(1)$(subst XXX,imem,$(2))$(FIRMWARE_IMX_DDR_VERSION_SUFFIX),
+		$(1)$(subst XXX,dmem,$(2))$(FIRMWARE_IMX_DDR_VERSION_SUFFIX),
+		$(1)$(subst _XXX,,$(2))_fw)
+	$(call FIRMWARE_IMX_PREPARE_DDR_FW, \
+		$(1)$(subst XXX,imem,$(3))$(FIRMWARE_IMX_DDR_VERSION_SUFFIX),
+		$(1)$(subst XXX,dmem,$(3))$(FIRMWARE_IMX_DDR_VERSION_SUFFIX),
+		$(1)$(subst _XXX,,$(3))_fw)
+	cat $(FIRMWARE_IMX_DDRFW_DIR)/$(1)$(subst _XXX,,$(2))_fw.bin \
+		$(FIRMWARE_IMX_DDRFW_DIR)/$(1)$(subst _XXX,,$(3))_fw.bin > \
+		$(BINARIES_DIR)/$(1)_fw.bin
+	ln -sf $(1)_fw.bin $(BINARIES_DIR)/ddr_fw.bin
+endef
+else
+define FIRMWARE_IMX_MERGED_DDR_FW
+endef
 endif
 
-ifeq ($(BR2_PACKAGE_FIRMWARE_IMX_NEEDS_DDR_FW_IMX9),y)
+FIRMWARE_IMX_DDR_VERSION = $(call qstrip,$(BR2_PACKAGE_FIRMWARE_IMX_DDR_VERSION))
+
+ifeq ($(BR2_PACKAGE_FIRMWARE_IMX_LPDDR5_IMX95),y)
 FIRMWARE_IMX_DDRFW_DIR = $(@D)/firmware/ddr/synopsys
+FIRMWARE_IMX_DDR_VERSION_SUFFIX = _v$(FIRMWARE_IMX_DDR_VERSION)
+
+define FIRMWARE_IMX_INSTALL_IMAGE_DDR_FW
+	# Create padded versions of lpddr5_{d,i}mem_{qb}_* and generate lpddr5_fw.bin.
+	# lpddr5_fw.bin is needed when generating imx9-boot-sd.bin
+	# which is done in post-image script.
+	$(call FIRMWARE_IMX_MERGED_DDR_FW,lpddr5,_XXX,_XXX_qb)
+
+	# U-Boot supports creation of the combined flash.bin image. To make
+	# sure that U-Boot can access all available files copy them to
+	# the binary dir.
+	$(INSTALL) -D -m 0644 -t $(BINARIES_DIR) \
+		$(FIRMWARE_IMX_DDRFW_DIR)/lpddr5*$(FIRMWARE_IMX_DDR_VERSION_SUFFIX).bin
+endef
+endif
+
+ifeq ($(BR2_PACKAGE_FIRMWARE_IMX_LPDDR4X_IMX95),y)
+FIRMWARE_IMX_DDRFW_DIR = $(@D)/firmware/ddr/synopsys
+FIRMWARE_IMX_DDR_VERSION_SUFFIX = _v$(FIRMWARE_IMX_DDR_VERSION)
+
+define FIRMWARE_IMX_INSTALL_IMAGE_DDR_FW
+	# Create padded versions of lpddr4x_{d,i}mem_{qb}_* and generate lpddr4x_fw.bin.
+	# lpddr4x_fw.bin is needed when generating imx9-boot-sd.bin
+	# which is done in post-image script.
+	$(call FIRMWARE_IMX_MERGED_DDR_FW,lpddr4x,_XXX,_XXX_qb)
+
+	# U-Boot supports creation of the combined flash.bin image. To make
+	# sure that U-Boot can access all available files copy them to
+	# the binary dir.
+	$(INSTALL) -D -m 0644 -t $(BINARIES_DIR) \
+		$(FIRMWARE_IMX_DDRFW_DIR)/lpddr4x*$(FIRMWARE_IMX_DDR_VERSION_SUFFIX).bin
+endef
+endif
+
+ifeq ($(BR2_PACKAGE_FIRMWARE_IMX_LPDDR4_IMX93),y)
+FIRMWARE_IMX_DDRFW_DIR = $(@D)/firmware/ddr/synopsys
+FIRMWARE_IMX_DDR_VERSION_SUFFIX = _v$(FIRMWARE_IMX_DDR_VERSION)
 
 define FIRMWARE_IMX_INSTALL_IMAGE_DDR_FW
 	# Create padded versions of lpddr4_{d,i}mem_{1,2}d_* and generate lpddr4_fw.bin.
 	# lpddr4_fw.bin is needed when generating imx9-boot-sd.bin
 	# which is done in post-image script.
-	$(call FIRMWARE_IMX_PREPARE_DDR_FW, \
-		lpddr4_imem_1d_v202201,
-		lpddr4_dmem_1d_v202201,
-		lpddr4_1d_fw)
-	$(call FIRMWARE_IMX_PREPARE_DDR_FW, \
-		lpddr4_imem_2d_v202201,
-		lpddr4_dmem_2d_v202201,
-		lpddr4_2d_fw)
-	cat $(FIRMWARE_IMX_DDRFW_DIR)/lpddr4_1d_fw.bin \
-		$(FIRMWARE_IMX_DDRFW_DIR)/lpddr4_2d_fw.bin > \
-		$(BINARIES_DIR)/lpddr4_fw.bin
-	ln -sf $(BINARIES_DIR)/lpddr4_fw.bin $(BINARIES_DIR)/ddr_fw.bin
+	$(call FIRMWARE_IMX_MERGED_DDR_FW,lpddr4,_XXX_1d,_XXX_2d)
 
 	# U-Boot supports creation of the combined flash.bin image. To make
 	# sure that U-Boot can access all available files copy them to
 	# the binary dir.
-	cp $(FIRMWARE_IMX_DDRFW_DIR)/lpddr4*.bin $(BINARIES_DIR)/
+	$(INSTALL) -D -m 0644 -t $(BINARIES_DIR) \
+		$(FIRMWARE_IMX_DDRFW_DIR)/lpddr4*d$(FIRMWARE_IMX_DDR_VERSION_SUFFIX).bin
 endef
 endif
 
-ifeq ($(BR2_PACKAGE_FIRMWARE_IMX_LPDDR4),y)
+ifeq ($(BR2_PACKAGE_FIRMWARE_IMX_LPDDR4_IMX8M),y)
 FIRMWARE_IMX_DDRFW_DIR = $(@D)/firmware/ddr/synopsys
+FIRMWARE_IMX_DDR_VERSION_SUFFIX = _$(FIRMWARE_IMX_DDR_VERSION)
 
 define FIRMWARE_IMX_INSTALL_IMAGE_DDR_FW
 	# Create padded versions of lpddr4_pmu_* and generate lpddr4_pmu_train_fw.bin.
 	# lpddr4_pmu_train_fw.bin is needed when generating imx8-boot-sd.bin
 	# which is done in post-image script.
-	$(call FIRMWARE_IMX_PREPARE_DDR_FW, \
-		lpddr4_pmu_train_1d_imem$(FIRMWARE_IMX_DDR_VERSION_SUFFIX),
-		lpddr4_pmu_train_1d_dmem$(FIRMWARE_IMX_DDR_VERSION_SUFFIX),
-		lpddr4_pmu_train_1d_fw)
-	$(call FIRMWARE_IMX_PREPARE_DDR_FW, \
-		lpddr4_pmu_train_2d_imem$(FIRMWARE_IMX_DDR_VERSION_SUFFIX),
-		lpddr4_pmu_train_2d_dmem$(FIRMWARE_IMX_DDR_VERSION_SUFFIX),
-		lpddr4_pmu_train_2d_fw)
-	cat $(FIRMWARE_IMX_DDRFW_DIR)/lpddr4_pmu_train_1d_fw.bin \
-		$(FIRMWARE_IMX_DDRFW_DIR)/lpddr4_pmu_train_2d_fw.bin > \
-		$(BINARIES_DIR)/lpddr4_pmu_train_fw.bin
-	ln -sf $(BINARIES_DIR)/lpddr4_pmu_train_fw.bin $(BINARIES_DIR)/ddr_fw.bin
+	$(call FIRMWARE_IMX_MERGED_DDR_FW,lpddr4_pmu_train,_1d_XXX,_2d_XXX)
 
 	# U-Boot supports creation of the combined flash.bin image. To make
 	# sure that U-Boot can access all available files copy them to
 	# the binary dir.
-	cp $(FIRMWARE_IMX_DDRFW_DIR)/lpddr4*.bin $(BINARIES_DIR)/
+	$(INSTALL) -D -m 0644 -t $(BINARIES_DIR) \
+		$(FIRMWARE_IMX_DDRFW_DIR)/lpddr4*$(FIRMWARE_IMX_DDR_VERSION_SUFFIX).bin
 endef
 endif
 
 ifeq ($(BR2_PACKAGE_FIRMWARE_IMX_DDR4),y)
 FIRMWARE_IMX_DDRFW_DIR = $(@D)/firmware/ddr/synopsys
+FIRMWARE_IMX_DDR_VERSION_SUFFIX = _$(FIRMWARE_IMX_DDR_VERSION)
 
 define FIRMWARE_IMX_INSTALL_IMAGE_DDR_FW
 	# Create padded versions of ddr4_* and generate ddr4_fw.bin.
 	# ddr4_fw.bin is needed when generating imx8-boot-sd.bin
 	# which is done in post-image script.
-	$(call FIRMWARE_IMX_PREPARE_DDR_FW, \
-		ddr4_imem_1d$(FIRMWARE_IMX_DDR_VERSION_SUFFIX),
-		ddr4_dmem_1d$(FIRMWARE_IMX_DDR_VERSION_SUFFIX),
-		ddr4_1d_fw)
-	$(call FIRMWARE_IMX_PREPARE_DDR_FW, \
-		ddr4_imem_2d$(FIRMWARE_IMX_DDR_VERSION_SUFFIX),
-		ddr4_dmem_2d$(FIRMWARE_IMX_DDR_VERSION_SUFFIX),
-		ddr4_2d_fw)
-	cat $(FIRMWARE_IMX_DDRFW_DIR)/ddr4_1d_fw.bin \
-		$(FIRMWARE_IMX_DDRFW_DIR)/ddr4_2d_fw.bin > \
-		$(BINARIES_DIR)/ddr4_fw.bin
-	ln -sf $(BINARIES_DIR)/ddr4_fw.bin $(BINARIES_DIR)/ddr_fw.bin
+	$(call FIRMWARE_IMX_MERGED_DDR_FW,ddr4,_XXX_1d,_XXX_2d)
 
 	# U-Boot supports creation of the combined flash.bin image. To make
 	# sure that U-Boot can access all available files copy them to
 	# the binary dir.
-	cp $(FIRMWARE_IMX_DDRFW_DIR)/ddr4*.bin $(BINARIES_DIR)/
+	$(INSTALL) -D -m 0644 -t $(BINARIES_DIR) \
+		$(FIRMWARE_IMX_DDRFW_DIR)/ddr4*$(FIRMWARE_IMX_DDR_VERSION_SUFFIX).bin
 endef
 endif
 
 ifeq ($(BR2_PACKAGE_FIRMWARE_IMX_DDR3),y)
 FIRMWARE_IMX_DDRFW_DIR = $(@D)/firmware/ddr/synopsys
+FIRMWARE_IMX_DDR_VERSION_SUFFIX = _$(FIRMWARE_IMX_DDR_VERSION)
 
 define FIRMWARE_IMX_INSTALL_IMAGE_DDR_FW
 	# Create padded versions of ddr3_* and generate ddr3_fw.bin.
@@ -140,12 +167,13 @@ define FIRMWARE_IMX_INSTALL_IMAGE_DDR_FW
 		ddr3_1d_fw)
 	cat $(FIRMWARE_IMX_DDRFW_DIR)/ddr3_1d_fw.bin > \
 		$(BINARIES_DIR)/ddr3_fw.bin
-	ln -sf $(BINARIES_DIR)/ddr3_fw.bin $(BINARIES_DIR)/ddr_fw.bin
+	ln -sf ddr3_fw.bin $(BINARIES_DIR)/ddr_fw.bin
 
 	# U-Boot supports creation of the combined flash.bin image. To make
 	# sure that U-Boot can access all available files copy them to
 	# the binary dir.
-	cp $(FIRMWARE_IMX_DDRFW_DIR)/ddr3*.bin $(BINARIES_DIR)/
+	$(INSTALL) -D -m 0644 -t $(BINARIES_DIR) \
+		$(FIRMWARE_IMX_DDRFW_DIR)/ddr3*$(FIRMWARE_IMX_DDR_VERSION_SUFFIX).bin
 endef
 endif
 
