@@ -278,6 +278,7 @@ config BR2_TARGET_UBOOT_NEEDS_OPTEE_TEE
 
 choice
 	prompt "U-Boot OPTEE TEE format"
+	default BR2_TARGET_UBOOT_NEEDS_OPTEE_V2_TEE_BIN if BR2_TARGET_UBOOT_NEEDS_ATF_BL31_BIN
 	default BR2_TARGET_UBOOT_NEEDS_OPTEE_TEE_ELF
 	depends on BR2_TARGET_UBOOT_NEEDS_OPTEE_TEE
 	help
@@ -296,7 +297,13 @@ config BR2_TARGET_UBOOT_NEEDS_OPTEE_TEE_ELF
 config BR2_TARGET_UBOOT_NEEDS_OPTEE_TEE_BIN
 	bool "tee.bin"
 	help
-	  Binary format must be used for OP-TEE versions since 3.8.0.
+	  Binary v1 format must be used for OP-TEE versions since 3.8.0.
+
+config BR2_TARGET_UBOOT_NEEDS_OPTEE_V2_TEE_BIN
+	bool "tee-pager_v2.bin"
+	help
+	  Binary v2 format, required by modern TF-A, but still referred to as
+	  tee.bin in U-Boot.
 
 endchoice
 
@@ -312,6 +319,7 @@ config BR2_TARGET_UBOOT_NEEDS_OPENSBI
 
 config BR2_TARGET_UBOOT_NEEDS_IMX_FIRMWARE
 	bool "U-Boot needs firmware-imx"
+	depends on BR2_TARGET_UBOOT_USE_BINMAN
 	depends on BR2_PACKAGE_FIRMWARE_IMX
 	depends on BR2_PACKAGE_FIRMWARE_IMX_NEEDS_DDR_FW || \
 		BR2_PACKAGE_FIRMWARE_IMX_NEEDS_DDR_FW_IMX9 || \
