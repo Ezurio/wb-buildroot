@@ -9,11 +9,24 @@ P11_KIT_SOURCE = p11-kit-$(P11_KIT_VERSION).tar.xz
 P11_KIT_SITE = https://github.com/p11-glue/p11-kit/releases/download/$(P11_KIT_VERSION)
 P11_KIT_INSTALL_STAGING = YES
 P11_KIT_CONF_OPTS = --disable-static
+HOST_P11_KIT_CONF_OPTS = --disable-static
 P11_KIT_CONF_ENV = ac_cv_have_decl_program_invocation_short_name=yes \
+	ac_cv_have_decl___progname=no
+HOST_P11_KIT_CONF_ENV = ac_cv_have_decl_program_invocation_short_name=yes \
 	ac_cv_have_decl___progname=no
 P11_KIT_LICENSE = BSD-3-Clause
 P11_KIT_LICENSE_FILES = COPYING
 P11_KIT_CPE_ID_VALID = YES
+
+HOST_P11_KIT_DEPENDENCIES += \
+	host-pkgconf \
+	host-libffi \
+	host-libtasn1
+HOST_P11_KIT_CONF_OPTS += \
+	--with-libffi \
+	--enable-trust-module \
+	--with-libtasn1 \
+	--without-trust-paths
 
 ifeq ($(BR2_PACKAGE_LIBFFI),y)
 P11_KIT_DEPENDENCIES += host-pkgconf libffi
@@ -39,3 +52,4 @@ P11_KIT_CONF_OPTS += \
 endif
 
 $(eval $(autotools-package))
+$(eval $(host-autotools-package))
