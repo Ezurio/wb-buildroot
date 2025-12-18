@@ -15,9 +15,5 @@ PYTHON_DBUS_FAST_BUILD_OPTS = --skip-dependency-check
 PYTHON_DBUS_FAST_DEPENDENCIES = \
 	host-python-cython \
 	host-python-setuptools
-HOST_PYTHON_DBUS_FAST_DEPENDENCIES = \
-	host-python-poetry-core \
-	host-python-setuptools
 
 $(eval $(python-package))
-$(eval $(host-python-package))
