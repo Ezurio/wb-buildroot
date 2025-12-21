@@ -1,0 +1,18 @@
+config BR2_PACKAGE_IMX_SM
+    bool "imx-sm"
+    help
+        The i.MX System Manager (SM) firmware provides APIs to configure and
+        manage various system-level features on i.MX processors, such as
+        power management, clock configuration, and security settings.
+
+config BR2_PACKAGE_IMX_SM_CONFIG
+    string "i.MX SM Configuration"
+    depends on BR2_PACKAGE_IMX_SM
+    default "mx95evk"
+    help
+      Select the target board for which the i.MX System Manager firmware
+      should be built. This setting determines the specific configuration
+      and features included in the firmware binary.
+
+      Available options:
+      - mx95evk: i.MX95 Evaluation Kit
