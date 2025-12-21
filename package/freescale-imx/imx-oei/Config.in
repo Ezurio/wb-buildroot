@@ -1,0 +1,27 @@
+config BR2_PACKAGE_IMX_OEI
+    bool "imx-oei"
+    help
+        The Optional Executable Image (OEI) is an optional plugin loaded
+        and executed by Cortex-M processor ROM on many NXP i.MX processors.
+        The Cortex-M is the boot core, runs the boot ROM which loads the OEI,
+        and then branches to the OEI. The OEI then configures some aspects of
+        the hardware such as DDR config, init TCM ECC, etc.
+
+if BR2_PACKAGE_IMX_OEI
+
+config BR2_PACKAGE_IMX_OEI_BOARD_ID
+    string "board-id"
+    default "mx95lp5" if BR2_PACKAGE_FIRMWARE_IMX_LPDDR5_IMX95 && BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX95
+    default "mx95lp4" if BR2_PACKAGE_FIRMWARE_IMX_LPDDR4X_IMX95 && BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX95
+    default "mx943lp5-19" if BR2_PACKAGE_FIRMWARE_IMX_LPDDR5_IMX95 && BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX94
+    default "mx943lp4-19" if BR2_PACKAGE_FIRMWARE_IMX_LPDDR4X_IMX95 && BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX94
+    help
+        Select the board ID for the OEI build. This must match the
+        actual board being used, or the system may fail to boot.
+
+config BR2_PACKAGE_IMX_OEI_DDR_CONFIG_FILE
+    string "DDR configuration file"
+    help
+        Specify the DDR configuration file name for the OEI build.
+
+endif # BR2_PACKAGE_IMX_OEI
