@@ -5,9 +5,9 @@
 ################################################################################
 
 ifeq ($(BR2_aarch64),y)
-IMX_GPU_VIV_VERSION = 6.4.11.p2.6-aarch64-bc7b6a2
+IMX_GPU_VIV_VERSION = 6.4.11.p4.2-aarch64-846e12e
 else
-IMX_GPU_VIV_VERSION = 6.4.11.p2.6-aarch32-bc7b6a2
+IMX_GPU_VIV_VERSION = 6.4.11.p4.2-aarch32-846e12e
 endif
 IMX_GPU_VIV_SITE = $(FREESCALE_IMX_SITE)
 IMX_GPU_VIV_SOURCE = imx-gpu-viv-$(IMX_GPU_VIV_VERSION).bin
@@ -92,7 +92,7 @@ define IMX_GPU_VIV_INSTALL_TARGET_CMDS
 	$(IMX_GPU_VIV_INSTALL_EXAMPLES)
 	$(IMX_GPU_VIV_INSTALL_GMEM_INFO)
 	cp -a $(@D)/gpu-core/usr/lib $(TARGET_DIR)/usr
-	$(INSTALL) -D -m 0644 $(@D)/gpu-core/etc/Vivante.icd $(TARGET_DIR)/etc/OpenCL/vendors/Vivante.icd
+	cp -a $(@D)/gpu-core/etc $(TARGET_DIR)/etc
 endef
 
 $(eval $(generic-package))
