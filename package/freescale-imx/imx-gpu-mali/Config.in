@@ -1,9 +1,9 @@
-comment "imx-gpu-viv needs a glibc toolchain"
+comment "imx-gpu-mali needs a glibc toolchain"
 	depends on BR2_aarch64
 	depends on !BR2_TOOLCHAIN_USES_GLIBC
 
 config BR2_PACKAGE_IMX_GPU_MALI
-	bool "imx-gpu-viv"
+	bool "imx-gpu-mali"
 	# Pre-built binaries only available for AArch64
 	depends on BR2_aarch64
 	# Library binaries are linked against libc.so.6
