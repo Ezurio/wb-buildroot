@@ -97,7 +97,11 @@ LINUX_KCONFIG_DEPENDENCIES = \
 # Starting with 4.18, the kconfig in the kernel calls the
 # cross-compiler to check its capabilities. So we need the
 # toolchain before we can call the configurators.
+ifeq ($(BR2_SUMMIT_FIPS_11),y)
+LINUX_KCONFIG_DEPENDENCIES = host-summit-fips-toolchain
+else
 LINUX_KCONFIG_DEPENDENCIES += toolchain
+endif
 
 # host tools needed for kernel compression
 ifeq ($(BR2_LINUX_KERNEL_LZ4),y)
@@ -165,9 +169,17 @@ LINUX_MAKE_FLAGS = \
 	ARCH=$(KERNEL_ARCH) \
 	KCFLAGS="$(LINUX_CFLAGS)" \
 	INSTALL_MOD_PATH=$(TARGET_DIR) \
-	CROSS_COMPILE="$(TARGET_CROSS)" \
 	REGENERATE_PARSERS=1 \
 	DEPMOD=$(HOST_DIR)/sbin/depmod
+
+ifeq ($(BR2_SUMMIT_FIPS_11),y)
+LINUX_DEPENDENCIES += host-summit-fips-toolchain
+LINUX_MAKE_FLAGS += \
+    CROSS_COMPILE="$(HOST_SUMMIT_FIPS_TOOLCHAIN_INSTALL_DIR)/bin/arm-linux-"
+else
+LINUX_MAKE_FLAGS += \
+	CROSS_COMPILE="$(TARGET_CROSS)"
+endif
 
 ifeq ($(BR2_REPRODUCIBLE),y)
 LINUX_MAKE_ENV += \
