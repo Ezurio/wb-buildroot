@@ -144,6 +144,93 @@ endif
 
 ###############################################################################
 
+comment "Legacy options removed in 2025.02.10"
+
+config BR2_PACKAGE_RPI_FIRMWARE_INSTALL_VCDBG
+	bool "rpi-firmware vcdbg option removed"
+	select BR2_LEGACY
+	help
+	  rpi-firmware upstream has dropped the vcdbg tool
+
+config BR2_PACKAGE_OPENCV3_WITH_FFMPEG
+	bool "opencv3 ffmpeg support removed"
+	select BR2_LEGACY
+	help
+	  Support for OpenCV 3 ffmpeg support has been removed as it
+	  was no longer compatible with recent versions of ffmpeg.
+
+config BR2_PACKAGE_OPENCV3_WITH_PROTOBUF
+	bool "opencv3 protobuf support removed"
+	select BR2_LEGACY
+	help
+	  Support for OpenCV 3 protobuf support has been removed as it
+	  was no longer compatible with recent versions of protobuf.
+
+comment "Legacy options removed in 2025.02.9"
+
+config BR2_PACKAGE_MONGREL2
+	bool "mongrel2 has been removed"
+	select BR2_LEGACY
+	help
+	  mongrel2 is incompatible with MbedTLS 3.6 and has been removed
+
+config BR2_PACKAGE_BCTOOLBOX
+	bool "bctoolbox has been removed"
+	select BR2_LEGACY
+	help
+	  This package has been removed as part of the linphone
+	  removal. In addition, newer version of linphone directly
+	  bundle bctoolbox making a separate package unnecessary.
+
+config BR2_PACKAGE_ORTP
+	bool "ortp has been removed"
+	select BR2_LEGACY
+	help
+	  This package has been removed as part of the linphone
+	  removal. In addition, newer version of linphone directly
+	  bundle ortp making a separate package unnecessary.
+
+config BR2_PACKAGE_MEDIASTREAMER
+	bool "mediastreamer has been removed"
+	select BR2_LEGACY
+	help
+	  This package has been removed as part of the linphone
+	  removal. In addition, newer version of linphone directly
+	  bundle mediastreamer making a separate package unnecessary.
+
+config BR2_PACKAGE_BELR
+	bool "belr has been removed"
+	select BR2_LEGACY
+	help
+	  This package has been removed as part of the linphone
+	  removal. In addition, newer version of linphone directly
+	  bundle belr making a separate package unnecessary.
+
+config BR2_PACKAGE_BELLE_SIP
+	bool "belle-sip has been removed"
+	select BR2_LEGACY
+	help
+	  This package has been removed as part of the linphone
+	  removal. In addition, newer version of linphone directly
+	  bundle belle-sip making a separate package unnecessary.
+
+config BR2_PACKAGE_LINPHONE
+	bool "linphone has been removed"
+	select BR2_LEGACY
+	help
+	  This package was no longer maintained in Buildroot and was
+	  no longer building. It can be re-added if someone volunteers
+	  to fix the issues, update the package and maintain it.
+
+comment "Legacy options removed in 2025.02.8"
+
+config BR2_PACKAGE_RAMSPEED
+	bool "ramspeed has been removed"
+	select BR2_LEGACY
+	help
+	  The ramspeed package was removed as it is not maintained
+	  anymore and the upstream repo is gone.
+
 comment "Legacy options removed in 2025.02.7"
 
 config BR2_PACKAGE_NETSTAT_NAT
