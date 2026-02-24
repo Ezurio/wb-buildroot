@@ -1,0 +1,2 @@
+SUBSYSTEM=="misc", KERNEL=="mali*", GROUP="render", MODE="0660"
+SUBSYSTEM=="dma_heap", KERNEL=="linux,cma", GROUP="render", MODE="0660"

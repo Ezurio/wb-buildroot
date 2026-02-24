@@ -1,0 +1,1 @@
+SUBSYSTEM=="gpu_class", KERNEL=="galcore", GROUP="render", MODE="0660"
