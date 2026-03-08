@@ -155,8 +155,7 @@ config BR2_PACKAGE_WESTON_SHELL_DESKTOP
 	default y
 
 config BR2_PACKAGE_WESTON_SHELL_FULLSCREEN
-	bool "fullscreen shell"
-	default y
+	bool "fullscreen shell (deprecated)"
 	select BR2_PACKAGE_WESTON_HAS_SHELL
 
 config BR2_PACKAGE_WESTON_SHELL_IVI
@@ -169,9 +168,18 @@ config BR2_PACKAGE_WESTON_SHELL_KIOSK
 	default y
 	select BR2_PACKAGE_WESTON_HAS_SHELL
 
-config BR2_PACKAGE_WESTON_SCREENSHARE
-	bool "screenshare"
+config BR2_PACKAGE_WESTON_SHELL_LUA
+	bool "lua shell"
 	default y
+	depends on BR2_PACKAGE_LUA_5_4
+	select BR2_PACKAGE_WESTON_HAS_SHELL
+
+comment "LUA shell depends on Lua 5.4 or later"
+	depends on !BR2_PACKAGE_LUA_5_4
+
+config BR2_PACKAGE_WESTON_SCREENSHARE
+	bool "screenshare (deprecated)"
+	depends on BR2_PACKAGE_WESTON_SHELL_FULLSCREEN
 
 config BR2_PACKAGE_WESTON_SIMPLE_CLIENTS
 	bool "simple clients"
