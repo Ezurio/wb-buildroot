@@ -92,7 +92,7 @@ define IMX_GPU_VIV_INSTALL_TARGET_CMDS
 	$(IMX_GPU_VIV_INSTALL_EXAMPLES)
 	$(IMX_GPU_VIV_INSTALL_GMEM_INFO)
 	cp -a $(@D)/gpu-core/usr/lib $(TARGET_DIR)/usr
-	cp -a $(@D)/gpu-core/etc $(TARGET_DIR)/etc
+	cp -a $(@D)/gpu-core/etc/* $(TARGET_DIR)/etc
 	$(INSTALL) -D -m 644 -t $(TARGET_DIR)/usr/lib/udev/rules.d \
 		$(IMX_GPU_VIV_PKGDIR)/51-viv.rules 
 endef
