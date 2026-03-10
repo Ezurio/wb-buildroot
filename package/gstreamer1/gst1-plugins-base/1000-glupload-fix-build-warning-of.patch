@@ -1,0 +1,26 @@
+From c1a9b77a1a29763b025abbdfa0e9175d87114183 Mon Sep 17 00:00:00 2001
+From: Chao Guo <chao.guo@nxp.com>
+Date: Thu, 11 Jan 2024 17:46:01 +0900
+Subject: [PATCH] glupload: fix build warning of [-Wincompatible-pointer-types]
+
+Part-of: <https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/5913>
+---
+ gst-libs/gst/gl/gstglupload.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/gst-libs/gst/gl/gstglupload.c b/gst-libs/gst/gl/gstglupload.c
+index c8d1c3c0345..246e6c6168e 100644
+--- a/gst-libs/gst/gl/gstglupload.c
++++ b/gst-libs/gst/gl/gstglupload.c
+@@ -2569,7 +2569,8 @@ _directviv_upload_perform_gl_thread (GstGLContext * context,
+ 
+   gl->BindTexture (GL_TEXTURE_2D, out_gl_mem->tex_id);
+   directviv->TexDirectVIVMap (GL_TEXTURE_2D, width, height,
+-      gl_format, (void **) &unmap_data->map.data, &unmap_data->phys_addr);
++      gl_format, (void **) &unmap_data->map.data,
++      (GLuint *) & unmap_data->phys_addr);
+   directviv->TexDirectInvalidateVIV (GL_TEXTURE_2D);
+ }
+ 
+-- 
+GitLab
