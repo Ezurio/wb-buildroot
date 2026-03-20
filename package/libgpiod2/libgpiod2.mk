@@ -6,7 +6,7 @@
 
 # Be careful when bumping versions.
 # Dependency on kernel header versions may change.
-LIBGPIOD2_VERSION = 2.2
+LIBGPIOD2_VERSION = 2.2.2
 LIBGPIOD2_SOURCE = libgpiod-$(LIBGPIOD2_VERSION).tar.xz
 LIBGPIOD2_SITE = https://www.kernel.org/pub/software/libs/libgpiod
 LIBGPIOD2_LICENSE = LGPL-2.1+
@@ -22,6 +22,13 @@ ifeq ($(BR2_PACKAGE_LIBGPIOD2_TOOLS),y)
 LIBGPIOD2_CONF_OPTS += --enable-tools
 else
 LIBGPIOD2_CONF_OPTS += --disable-tools
+endif
+
+ifeq ($(BR2_PACKAGE_LIBEDIT),y)
+LIBGPIOD2_DEPENDENCIES += libedit
+LIBGPIOD2_CONF_OPTS += --enable-gpioset-interactive
+else
+LIBGPIOD2_CONF_OPTS += --disable-gpioset-interactive
 endif
 
 ifeq ($(BR2_INSTALL_LIBSTDCPP),y)

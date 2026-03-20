@@ -8,15 +8,26 @@ for more details about the board and the QorIQ Layerscape SoC, see the following
   - https://www.nxp.com/design/design-center/development-boards-and-designs/LS1046A-RDB
   - https://www.nxp.com/products/LS1046A
 
-for the NXP LDP (Linux Distribution POC), see
-  - https://www.nxp.com/design/design-center/software/embedded-software/linux-software-and-development-tools/layerscape-linux-distribution-poc:LAYERSCAPE-SDK
+Layerscape platforms are officially supported by NXP under the Layerscape
+Debian Linux SDK (LDLSDK). This uses components from Linux Factory (project
+common with i.MX), but has a slower release cadence than LF. The currently used
+tag is lf-6.12.34-2.1.0, which is in line with the latest LF tag. Generally, in
+Buildroot, the latest Linux Factory release tag is always used, which may be
+considered pre-release software, as it may contain features which are not yet
+documented, and it generally undergoes less testing.
 
-the components provided by NXP are:
-  - rcw, lf-6.6.52-2.2.0
-  - atf (fork), lf-6.6.52-2.2.0
-  - uboot (fork), lf-6.6.52-2.2.0
-  - qoriq-fm-ucode (blob), lf-6.6.52-2.2.0
-  - linux (fork), lf-6.6.52-2.2.0
+For the software Layerscape Debian Linux SDK User Guide, see:
+  - https://docs.nxp.com/bundle/UG10143/page/topics/about_this_document.html
+  - https://www.nxp.com/docs/en/user-guide/UG10143.pdf
+
+The components from NXP are:
+  - rcw, lf-6.12.34-2.1.0
+  - atf (fork), lf-6.12.34-2.1.0
+  - uboot (fork), lf-6.12.34-2.1.0
+  - qoriq-fm-ucode (blob), lf-6.12.34-2.1.0
+  - linux (fork), lf-6.12.34-2.1.0
+  - fmlib, lf-6.12.34-2.1.0
+  - fmc, lf-6.12.34-2.1.0
 
 Build
 =====

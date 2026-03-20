@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-STRONGSWAN_VERSION = 5.9.14
+STRONGSWAN_VERSION = 6.0.4
 STRONGSWAN_SOURCE = strongswan-$(STRONGSWAN_VERSION).tar.bz2
 STRONGSWAN_SITE = http://download.strongswan.org
 STRONGSWAN_LICENSE = GPL-2.0+
@@ -62,6 +62,23 @@ STRONGSWAN_CONF_OPTS += \
 	--with-imcvdir=/usr/lib/ipsec/imcvs \
 	--with-dev-headers=/usr/include
 
+ifeq ($(BR2_PACKAGE_STRONGSWAN_DROP_CAPS),y)
+STRONGSWAN_CONF_OPTS += --with-capabilities=libcap
+endif
+
+# setup piddir if BR2_PACKAGE_STRONGSWAN_PIDDIR is not empty
+STRONGSWAN_CONF_OPTS += $(if $(call qstrip,$(BR2_PACKAGE_STRONGSWAN_PIDDIR)),--with-piddir=$(BR2_PACKAGE_STRONGSWAN_PIDDIR))
+
+ifeq ($(BR2_PACKAGE_STRONGSWAN_NONROOT),y)
+STRONGSWAN_CONF_OPTS += \
+	--with-user=charon \
+	--with-group=charon
+
+define STRONGSWAN_USERS
+	charon -1 charon -1 * - - -
+endef
+endif
+
 ifeq ($(BR2_TOOLCHAIN_HAS_LIBATOMIC),y)
 STRONGSWAN_CONF_ENV += LIBS='-latomic'
 endif
@@ -75,7 +92,8 @@ STRONGSWAN_DEPENDENCIES += \
 	$(if $(BR2_PACKAGE_STRONGSWAN_CURL),libcurl) \
 	$(if $(BR2_PACKAGE_STRONGSWAN_TNCCS_11),libxml2) \
 	$(if $(BR2_PACKAGE_STRONGSWAN_EAP_SIM_PCSC),pcsc-lite) \
-	$(if $(BR2_PACKAGE_STRONGSWAN_WOLFSSL),wolfssl)
+	$(if $(BR2_PACKAGE_STRONGSWAN_WOLFSSL),wolfssl) \
+	$(if $(BR2_PACKAGE_STRONGSWAN_DROP_CAPS),libcap)
 
 ifeq ($(BR2_PACKAGE_STRONGSWAN_SQL),y)
 STRONGSWAN_DEPENDENCIES += \
@@ -93,5 +111,17 @@ endif
 STRONGSWAN_CONF_OPTS += \
 	--disable-connmark \
 	--disable-forecast
+
+# bare minimum to start charon
+define STRONGSWAN_LINUX_CONFIG_FIXUPS
+	$(call KCONFIG_ENABLE_OPT,CONFIG_INET)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_NET)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_NETLINK)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_INET_AH)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_INET_ESP)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_XFRM)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_XFRM_USER)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_XFRM_INTERFACE)
+endef
 
 $(eval $(autotools-package))

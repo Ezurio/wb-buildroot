@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-FFMPEG_VERSION = 6.1.2
+FFMPEG_VERSION = 6.1.4
 FFMPEG_SOURCE = ffmpeg-$(FFMPEG_VERSION).tar.xz
 FFMPEG_SITE = https://ffmpeg.org/releases
 FFMPEG_INSTALL_STAGING = YES
@@ -52,7 +52,10 @@ FFMPEG_CONF_OPTS = \
 	--disable-libilbc \
 	--disable-libvo-amrwbenc \
 	--disable-symver \
-	--disable-doc
+	--disable-doc \
+	--disable-mmal \
+	--disable-omx \
+	--disable-omx-rpi
 
 FFMPEG_DEPENDENCIES += host-pkgconf
 
@@ -90,6 +93,13 @@ FFMPEG_CONF_OPTS += --enable-libjack
 FFMPEG_DEPENDENCIES += jack2
 else
 FFMPEG_CONF_OPTS += --disable-libjack
+endif
+
+ifeq ($(BR2_PACKAGE_PULSEAUDIO),y)
+FFMPEG_DEPENDENCIES += pulseaudio
+FFMPEG_CONF_OPTS += --enable-libpulse
+else
+FFMPEG_CONF_OPTS += --disable-libpulse
 endif
 
 ifeq ($(BR2_PACKAGE_LIBV4L),y)
@@ -241,10 +251,6 @@ FFMPEG_CONF_OPTS += --disable-openssl
 endif
 endif
 
-ifeq ($(BR2_PACKAGE_FFMPEG_GPL)$(BR2_PACKAGE_LIBEBUR128),yy)
-FFMPEG_DEPENDENCIES += libebur128
-endif
-
 ifeq ($(BR2_PACKAGE_LIBDRM),y)
 FFMPEG_CONF_OPTS += --enable-libdrm
 FFMPEG_DEPENDENCIES += libdrm
@@ -281,24 +287,12 @@ else
 FFMPEG_CONF_OPTS += --disable-vdpau
 endif
 
-ifeq ($(BR2_PACKAGE_RPI_USERLAND),y)
-FFMPEG_CONF_OPTS += --enable-omx --enable-omx-rpi \
-	--extra-cflags=-I$(STAGING_DIR)/usr/include/IL
-FFMPEG_DEPENDENCIES += rpi-userland
-ifeq ($(BR2_arm),y)
-FFMPEG_CONF_OPTS += --enable-mmal
-else
-FFMPEG_CONF_OPTS += --disable-mmal
-endif
-else
-FFMPEG_CONF_OPTS += --disable-mmal --disable-omx --disable-omx-rpi
-endif
-
 # To avoid a circular dependency only use opencv if opencv itself does
 # not depend on ffmpeg.
-ifeq ($(BR2_PACKAGE_OPENCV3_LIB_IMGPROC)x$(BR2_PACKAGE_OPENCV3_WITH_FFMPEG),yx)
-FFMPEG_CONF_OPTS += --enable-libopencv
-FFMPEG_DEPENDENCIES += opencv3
+ifeq ($(BR2_PACKAGE_OPENCV4_LIB_IMGPROC)x$(BR2_PACKAGE_OPENCV4_WITH_FFMPEG),yx)
+FFMPEG_CONF_OPTS += --enable-libopencv \
+	--extra-cflags=-I$(STAGING_DIR)/usr/include/opencv4
+FFMPEG_DEPENDENCIES += opencv4
 else
 FFMPEG_CONF_OPTS += --disable-libopencv
 endif
@@ -360,6 +354,20 @@ FFMPEG_CONF_OPTS += --enable-libmodplug
 FFMPEG_DEPENDENCIES += libmodplug
 else
 FFMPEG_CONF_OPTS += --disable-libmodplug
+endif
+
+ifeq ($(BR2_PACKAGE_LIBOPENMPT),y)
+FFMPEG_CONF_OPTS += --enable-libopenmpt
+FFMPEG_DEPENDENCIES += libopenmpt
+else
+FFMPEG_CONF_OPTS += --disable-libopenmpt
+endif
+
+ifeq ($(BR2_PACKAGE_LIBSOXR),y)
+FFMPEG_CONF_OPTS += --enable-libsoxr
+FFMPEG_DEPENDENCIES += libsoxr
+else
+FFMPEG_CONF_OPTS += --disable-libsoxr
 endif
 
 ifeq ($(BR2_PACKAGE_SPEEX),y)

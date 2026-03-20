@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-GCC_BARE_METAL_VERSION = 14.2.0
+GCC_BARE_METAL_VERSION = 15.2.0
 GCC_BARE_METAL_SITE = $(BR2_GNU_MIRROR)/gcc/gcc-$(GCC_BARE_METAL_VERSION)
 GCC_BARE_METAL_SOURCE = gcc-$(GCC_BARE_METAL_VERSION).tar.xz
 
@@ -31,6 +31,12 @@ HOST_GCC_BARE_METAL_MAKE_OPTS = \
 
 HOST_GCC_BARE_METAL_INSTALL_OPTS = install-gcc install-target-libgcc
 
+ifeq ($(BR2_TOOLCHAIN_BARE_METAL_BUILDROOT_MULTILIB),y)
+HOST_GCC_BARE_METAL_MULTILIB = "--enable-multilib"
+else
+HOST_GCC_BARE_METAL_MULTILIB = "--disable-multilib"
+endif
+
 HOST_GCC_BARE_METAL_CONF_OPTS = \
 	--prefix=$(HOST_DIR) \
 	--sysconfdir=$(HOST_DIR)/etc \
@@ -49,7 +55,7 @@ HOST_GCC_BARE_METAL_CONF_OPTS = \
 	--without-long-double-128 \
 	--without-headers \
 	--enable-languages=c \
-	--disable-multilib \
+	$(HOST_GCC_BARE_METAL_MULTILIB) \
 	--with-gmp=$(HOST_DIR) \
 	--with-mpc=$(HOST_DIR) \
 	--with-mpfr=$(HOST_DIR) \

@@ -1,4 +1,4 @@
-config BR2_TARGET_TI_K3_R5_LOADER
+menuconfig BR2_TARGET_TI_K3_R5_LOADER
 	bool "ti-k3-r5-loader"
 	depends on BR2_aarch64
 	depends on BR2_PACKAGE_HOST_ARM_GNU_TOOLCHAIN_SUPPORTS
@@ -99,7 +99,7 @@ config BR2_TARGET_TI_K3_R5_LOADER_CONFIG_FRAGMENT_FILES
 	string "Additional configuration fragment files"
 	help
 	  A space-separated list of configuration fragment files,
-	  that will be merged to the main TI K3 R5 Loader configuration file.
+	  that will be merged to the tiboot3.bin configuration file.
 
 config BR2_TARGET_TI_K3_R5_LOADER_CUSTOM_DTS_PATH
 	string "Device Tree Source file paths"

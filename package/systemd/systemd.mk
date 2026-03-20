@@ -19,7 +19,7 @@
 # - Diff sysusers.d with the previous version
 # - Diff factory/etc/nsswitch.conf with the previous version
 #   (details are often sprinkled around in README and manpages)
-SYSTEMD_VERSION = 256.7
+SYSTEMD_VERSION = 258.4
 SYSTEMD_SITE = $(call github,systemd,systemd,v$(SYSTEMD_VERSION))
 SYSTEMD_LICENSE = \
 	LGPL-2.1+, \
@@ -35,6 +35,7 @@ SYSTEMD_LICENSE = \
 SYSTEMD_LICENSE_FILES = \
 	LICENSE.GPL2 \
 	LICENSE.LGPL2.1 \
+	LICENSES/alg-sha1-public-domain.txt \
 	LICENSES/BSD-2-Clause.txt \
 	LICENSES/BSD-3-Clause.txt \
 	LICENSES/CC0-1.0.txt \
@@ -73,6 +74,7 @@ SYSTEMD_CONF_OPTS += \
 	-Dfirst-boot-full-preset=false \
 	-Didn=true \
 	-Dima=false \
+	-Dipe=false \
 	-Dkexec-path=/usr/sbin/kexec \
 	-Dkmod-path=/usr/bin/kmod \
 	-Dldconfig=false \
@@ -99,12 +101,14 @@ SYSTEMD_CONF_OPTS += \
 	-Dfuzz-tests=false \
 	-Dinstall-tests=false \
 	-Dlog-message-verification=disabled \
+	-Dsysupdated=disabled \
 	-Dtmpfiles=true \
 	-Dukify=disabled \
 	-Dbpf-framework=disabled \
 	-Dvmlinux-h=disabled \
 	-Dumount-path=/usr/bin/umount \
-	-Dxenctrl=disabled
+	-Dxenctrl=disabled \
+	-Dlibmount=enabled
 
 SYSTEMD_CFLAGS = $(TARGET_CFLAGS)
 ifeq ($(BR2_OPTIMIZE_FAST),y)
@@ -557,6 +561,12 @@ else
 SYSTEMD_CONF_OPTS += -Dsysupdate=disabled
 endif
 
+ifeq ($(BR2_PACKAGE_SYSTEMD_NSPAWN),y)
+SYSTEMD_CONF_OPTS += -Dnspawn=enabled
+else
+SYSTEMD_CONF_OPTS += -Dnspawn=disabled
+endif
+
 ifeq ($(BR2_PACKAGE_SYSTEMD_NETWORKD),y)
 SYSTEMD_CONF_OPTS += -Dnetworkd=true
 SYSTEMD_NETWORKD_USER = systemd-network -1 systemd-network -1 * - - - systemd Network Management
@@ -583,49 +593,15 @@ else
 SYSTEMD_CONF_OPTS += -Dnss-resolve=disabled -Dresolve=false
 endif
 
-ifneq ($(BR2_PACKAGE_SYSTEMD_HOMED)$(BR2_PACKAGE_SYSTEMD_RESOLVED)$(BR2_PACKAGE_SYSTEMD_REPART),)
-
-ifeq ($(BR2_PACKAGE_OPENSSL),y)
+ifeq ($(BR2_PACKAGE_LIBOPENSSL),y)
 SYSTEMD_CONF_OPTS += \
-	-Dgnutls=disabled \
-	-Dopenssl=enabled \
 	-Ddns-over-tls=openssl \
-	-Ddefault-dns-over-tls=opportunistic \
-	-Dcryptolib=openssl \
-	-Dgcrypt=disabled \
-	-Ddefault-dnssec=allow-downgrade
+	-Ddefault-dns-over-tls=opportunistic
 SYSTEMD_DEPENDENCIES += openssl
 else
-
-ifeq ($(BR2_PACKAGE_LIBGCRYPT),y)
-SYSTEMD_DEPENDENCIES += libgcrypt
-SYSTEMD_CONF_OPTS += -Ddefault-dnssec=allow-downgrade -Dgcrypt=enabled
-else
-SYSTEMD_CONF_OPTS += -Ddefault-dnssec=no -Dgcrypt=disabled
-endif
-
-ifeq ($(BR2_PACKAGE_GNUTLS),y)
 SYSTEMD_CONF_OPTS += \
-	-Dgnutls=enabled \
-	-Dopenssl=disabled \
-	-Ddns-over-tls=gnutls \
-	-Ddefault-dns-over-tls=opportunistic
-SYSTEMD_DEPENDENCIES += gnutls
-else
-SYSTEMD_CONF_OPTS += \
-	-Dgnutls=disabled \
-	-Dopenssl=disabled \
 	-Ddns-over-tls=false \
 	-Ddefault-dns-over-tls=no
-endif
-
-endif
-
-else
-SYSTEMD_CONF_OPTS += \
-	-Dgnutls=disabled \
-	-Dopenssl=disabled \
-	-Dgcrypt=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_TIMESYNCD),y)
@@ -662,7 +638,7 @@ SYSTEMD_CONF_OPTS += -Dbootloader=enabled
 
 SYSTEMD_BOOT_EFI_ARCH = $(call qstrip,$(BR2_PACKAGE_SYSTEMD_BOOT_EFI_ARCH))
 define SYSTEMD_INSTALL_BOOT_FILES
-	$(INSTALL) -D -m 0644 $(@D)/build/src/boot/efi/systemd-boot$(SYSTEMD_BOOT_EFI_ARCH).efi \
+	$(INSTALL) -D -m 0644 $(@D)/buildroot-build/src/boot/systemd-boot$(SYSTEMD_BOOT_EFI_ARCH).efi \
 		$(BINARIES_DIR)/efi-part/EFI/BOOT/boot$(SYSTEMD_BOOT_EFI_ARCH).efi
 	$(INSTALL) -D -m 0644 $(SYSTEMD_PKGDIR)/boot-files/loader.conf \
 		$(BINARIES_DIR)/efi-part/loader/loader.conf
@@ -1000,7 +976,7 @@ HOST_SYSTEMD_CONF_OPTS = \
 	-Dinitrd=false \
 	-Dxdg-autostart=false \
 	-Dkernel-install=false \
-	-Dukify=disabled \
+	-Dukify=enabled \
 	-Danalyze=false \
 	-Dbpf-framework=disabled \
 	-Dvmlinux-h=disabled \
@@ -1032,7 +1008,10 @@ HOST_SYSTEMD_CONF_OPTS = \
 	-Dopenssl=disabled \
 	-Dp11kit=disabled \
 	-Dlibfido2=disabled \
-	-Dpcre2=disabled
+	-Dpcre2=disabled \
+	-Dsysupdated=disabled \
+	-Dnspawn=disabled \
+	-Dlibmount=enabled
 
 HOST_SYSTEMD_DEPENDENCIES = \
 	$(BR2_COREUTILS_HOST_DEPENDENCY) \
@@ -1041,7 +1020,8 @@ HOST_SYSTEMD_DEPENDENCIES = \
 	host-libcap \
 	host-libxcrypt \
 	host-gperf \
-	host-python-jinja2
+	host-python-jinja2 \
+	host-python-pefile
 
 HOST_SYSTEMD_NINJA_ENV = DESTDIR=$(HOST_DIR)
 

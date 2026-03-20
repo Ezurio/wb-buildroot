@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-FETCHMAIL_VERSION_MAJOR = 6.5
+FETCHMAIL_VERSION_MAJOR = 6.6
 FETCHMAIL_VERSION = $(FETCHMAIL_VERSION_MAJOR).2
 FETCHMAIL_SOURCE = fetchmail-$(FETCHMAIL_VERSION).tar.xz
 FETCHMAIL_SITE = https://downloads.sourceforge.net/project/fetchmail/branch_$(FETCHMAIL_VERSION_MAJOR)

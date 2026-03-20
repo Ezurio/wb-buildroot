@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-SDL2_VERSION = 2.30.12
+SDL2_VERSION = 2.32.10
 SDL2_SOURCE = SDL2-$(SDL2_VERSION).tar.gz
 SDL2_SITE = http://www.libsdl.org/release
 SDL2_LICENSE = Zlib
@@ -23,11 +23,11 @@ SDL2_CONF_OPTS += \
 	--disable-video-vivante \
 	--disable-video-cocoa \
 	--disable-video-metal \
-	--disable-video-wayland \
 	--disable-video-dummy \
 	--disable-video-offscreen \
 	--disable-video-vulkan \
 	--disable-video-directfb \
+	--disable-video-rpi \
 	--disable-ime \
 	--disable-ibus \
 	--disable-fcitx \
@@ -78,13 +78,6 @@ else
 SDL2_CONF_OPTS += --disable-3dnow
 endif
 
-ifeq ($(BR2_PACKAGE_SDL2_OPENGLES)$(BR2_PACKAGE_RPI_USERLAND),yy)
-SDL2_DEPENDENCIES += rpi-userland
-SDL2_CONF_OPTS += --enable-video-rpi
-else
-SDL2_CONF_OPTS += --disable-video-rpi
-endif
-
 # x-includes and x-libraries must be set for cross-compiling
 # By default x_includes and x_libraries contains unsafe paths.
 # (/usr/X11R6/include and /usr/X11R6/lib)
@@ -128,6 +121,13 @@ endif
 
 else
 SDL2_CONF_OPTS += --disable-video-x11 --without-x
+endif
+
+ifeq ($(BR2_PACKAGE_SDL2_WAYLAND),y)
+SDL2_DEPENDENCIES += libegl libxkbcommon wayland wayland-protocols
+SDL2_CONF_OPTS += --enable-video-wayland
+else
+SDL2_CONF_OPTS += --disable-video-wayland
 endif
 
 ifeq ($(BR2_PACKAGE_SDL2_OPENGL),y)

@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-PYTHON3_VERSION_MAJOR = 3.12
-PYTHON3_VERSION = $(PYTHON3_VERSION_MAJOR).9
+PYTHON3_VERSION_MAJOR = 3.14
+PYTHON3_VERSION = $(PYTHON3_VERSION_MAJOR).3
 PYTHON3_SOURCE = Python-$(PYTHON3_VERSION).tar.xz
 PYTHON3_SITE = https://python.org/ftp/python/$(PYTHON3_VERSION)
 PYTHON3_LICENSE = Python-2.0, others
@@ -170,12 +170,19 @@ else
 PYTHON3_CONF_ENV += py_cv_module_zlib=n/a
 endif
 
+ifeq ($(BR2_PACKAGE_PYTHON3_ZSTD),y)
+PYTHON3_DEPENDENCIES += zstd
+else
+PYTHON3_CONF_ENV += py_cv_module__zstd=n/a
+endif
+
 ifneq ($(BR2_PACKAGE_PYTHON3_OSSAUDIODEV),y)
 PYTHON3_CONF_ENV += py_cv_module_ossaudiodev=n/a
 endif
 
 PYTHON3_CONF_ENV += \
 	ac_cv_have_long_long_format=yes \
+	ac_cv_buggy_getaddrinfo=no \
 	ac_cv_file__dev_ptmx=yes \
 	ac_cv_file__dev_ptc=yes \
 	ac_cv_working_tzset=yes \
@@ -188,6 +195,15 @@ else
 PYTHON3_CONF_ENV += ac_cv_big_endian_double=yes
 endif
 
+PYTHON3_CFLAGS = $(TARGET_CFLAGS)
+
+ifeq ($(BR2_TOOLCHAIN_HAS_GCC_BUG_81426),y)
+PYTHON3_CFLAGS += -O0
+endif
+
+PYTHON3_CONF_ENV += \
+	CFLAGS="$(PYTHON3_CFLAGS)"
+
 ifeq ($(BR2_PACKAGE_GETTEXT_PROVIDES_LIBINTL),y)
 PYTHON3_DEPENDENCIES += gettext
 endif
@@ -196,7 +212,6 @@ PYTHON3_CONF_OPTS += \
 	--without-ensurepip \
 	--without-cxx-main \
 	--with-build-python=$(HOST_DIR)/bin/python3 \
-	--with-system-ffi \
 	--disable-pydoc \
 	--disable-test-modules \
 	--disable-tk \
@@ -305,3 +320,11 @@ define PYTHON3_REMOVE_OPTIMIZED_PYC_FILES
 		xargs -0 --no-run-if-empty rm -f
 endef
 PYTHON3_TARGET_FINALIZE_HOOKS += PYTHON3_REMOVE_OPTIMIZED_PYC_FILES
+
+# uClibc without time64 support (i.e. when linux headers < 5.1) causes
+# a runtime assertion in Python. Encoding this as a dependency in Config.in
+# causes too many problems for propagating reverse dependencies. Therefore
+# instead we do a build time check.
+ifeq ($(BR_BUILDING)$(BR2_PACKAGE_PYTHON3)$(BR2_TOOLCHAIN_USES_UCLIBC)-$(BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_1),yyy-)
+$(error Python3 doesn't work with uClibc and kernel headers < 5.1. Please use a different toolchain or unselect Python3.)
+endif
