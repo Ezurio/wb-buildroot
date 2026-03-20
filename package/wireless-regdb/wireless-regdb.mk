@@ -13,8 +13,6 @@ WIRELESS_REGDB_LICENSE_FILES = LICENSE
 ifeq ($(BR2_PACKAGE_CRDA),y)
 define WIRELESS_REGDB_INSTALL_CRDA_TARGET_CMDS
 	$(INSTALL) -m 644 -D -T $(@D)/regulatory.bin \
-		$(TARGET_DIR)/usr/lib/crda/regulatory_default.bin
-	ln -rfs $(TARGET_DIR)/usr/lib/crda/regulatory_default.bin \
 		$(TARGET_DIR)/usr/lib/crda/regulatory.bin
 	$(INSTALL) -m 644 -D -T $(@D)/wens.key.pub.pem \
 		$(TARGET_DIR)/etc/wireless-regdb/pubkeys/wens.key.pub.pem

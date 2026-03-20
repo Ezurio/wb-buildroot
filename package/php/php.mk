@@ -78,11 +78,6 @@ PHP_CONFIG_SCRIPTS = php-config
 PHP_CFLAGS = $(TARGET_CFLAGS)
 PHP_CXXFLAGS = $(TARGET_CXXFLAGS)
 
-ifeq ($(BR2_ARM_INSTRUCTIONS_THUMB),y)
-PHP_CFLAGS += -marm
-PHP_CXXFLAGS += -marm
-endif
-
 # The OPcache extension isn't cross-compile friendly
 # Throw some defines here to avoid patching heavily
 PHP_CFLAGS += \
@@ -380,15 +375,13 @@ HOST_PHP_CONF_OPTS = \
 	--enable-filter \
 	--enable-mbstring \
 	--enable-tokenizer \
-	--with-openssl=$(HOST_DIR) \
-	--with-zlib=$(HOST_DIR)
+	--with-openssl=$(HOST_DIR)
 
 HOST_PHP_DEPENDENCIES = \
 	host-oniguruma \
 	host-openssl \
 	host-pcre2 \
-	host-pkgconf \
-	host-zlib
+	host-pkgconf
 
 # PHP can't be AUTORECONFed the standard way unfortunately
 HOST_PHP_DEPENDENCIES += host-autoconf host-automake host-libtool

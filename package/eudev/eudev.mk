@@ -9,7 +9,6 @@ EUDEV_SITE = https://github.com/eudev-project/eudev/releases/download/v$(EUDEV_V
 EUDEV_LICENSE = GPL-2.0+ (programs), LGPL-2.1+ (libraries)
 EUDEV_LICENSE_FILES = COPYING
 EUDEV_INSTALL_STAGING = YES
-EUDEV_AUTORECONF = YES
 
 EUDEV_CONF_OPTS = \
 	--disable-manpages \
