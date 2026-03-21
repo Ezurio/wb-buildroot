@@ -46,7 +46,7 @@ index dc829bab02..02e0c43937 100644
  static inline int mtd_error(int mtdnum, const char *func, int eb)
  {
  	int code = errno;
-@@ -128,6 +138,199 @@ static void erase_buffer(void *buffer, size_t size)
+@@ -128,6 +138,193 @@
  	unsigned char *readout_buf; /* a buffer to read erase block into */
  };
  
@@ -199,12 +199,10 @@ index dc829bab02..02e0c43937 100644
 +	start_eb = (int)(img->seek / priv->mtd->eb_size);
 +
 +	/* Read the first erase block */
-+	ret = mtd_read(priv->libmtd, priv->mtd, priv->fdout, start_eb, 0,
++	ret = mtd_read(priv->mtd, priv->fdout, start_eb, 0,
 +	               block_buf, priv->mtd->eb_size);
-+	if (ret) {
-+		ERROR("Failed to read erase block %d for header update", start_eb);
-+		return MTD_ERROR("read");
-+	}
++	if (ret)
++		return mtd_error(priv->mtdnum, "read", start_eb);
 +
 +	/* Backup current header */
 +	memcpy(header_backup, block_buf, sizeof(header_backup));
@@ -221,19 +219,15 @@ index dc829bab02..02e0c43937 100644
 +
 +		/* Erase the block */
 +		ret = mtd_erase(priv->libmtd, priv->mtd, priv->fdout, start_eb);
-+		if (ret) {
-+			ERROR("Failed to erase block %d during header update", start_eb);
-+			return MTD_ERROR("erase");
-+		}
++		if (ret)
++			return mtd_error(priv->mtdnum, "erase", start_eb);
 +
 +		/* Write the block back with updated header */
 +		ret = mtd_write(priv->libmtd, priv->mtd, priv->fdout,
 +		                start_eb, 0, block_buf,
 +		                priv->mtd->eb_size, NULL, 0, MTD_OPS_PLACE_OOB);
-+		if (ret) {
-+			ERROR("Failed to write block %d with updated header", start_eb);
-+			return MTD_ERROR("write");
-+		}
++		if (ret)
++			return mtd_error(priv->mtdnum, "write", start_eb);
 +
 +		TRACE("Successfully updated Atmel PMECC header in block %d", start_eb);
 +	} else {
@@ -246,17 +240,14 @@ index dc829bab02..02e0c43937 100644
  static int erase_block(struct flash_priv *priv)
  {
  	int ret;
-@@ -505,6 +708,14 @@ static int install_flash_image(struct img_type *img,
+@@ -505,6 +702,11 @@
  		priv.readout_buf = priv.filebuf + priv.mtd->eb_size;
  
  	ret = copyimage(&priv, img, flash_write);
 +
 +	/* Post-processing based on transform type */
-+	if (img->transform) {
-+		if (!strcmp(img->transform, "atmel_pmecc_header") && ret == 0) {
-+			ret = update_atmel_pmecc_header_post_write(&priv, img, priv.filebuf);
-+		}
-+	}
++	if (!strcmp(img->transform, "atmel_pmecc_header") && ret == 0)
++		ret = update_atmel_pmecc_header_post_write(&priv, img, priv.filebuf);
 +
  	free(priv.filebuf);
  
