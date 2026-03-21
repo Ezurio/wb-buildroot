@@ -1,6 +1,10 @@
---- a/Makefile	2021-12-08 08:17:17.000000000 
-+++ b/Makefile	2022-03-18 12:43:15.000000000 
-@@ -211,6 +211,7 @@
+Improve Makefile install target to support staging directory installation.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+--- a/Makefile
++++ b/Makefile
+@@ -209,6 +209,7 @@ export MAKEFLAGS
  BINDIR ?= /usr/bin
  LIBDIR ?= /usr/lib
  INCLUDEDIR ?= /usr/include
@@ -8,7 +12,7 @@
  
  # Use LINUXINCLUDE when you must reference the include/ directory.
  # Needed to be compatible with the O= option
-@@ -467,23 +468,17 @@
+@@ -474,23 +475,17 @@ swupdate_unstrip: lua_swupdate
  	$(call cmd,strip)
  
  install: all

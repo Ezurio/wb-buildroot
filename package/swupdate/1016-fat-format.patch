@@ -1,5 +1,7 @@
-diff --git a/fs/ff.c b/fs/ff.c
-index 9281ec8..ddd899a 100644
+Fix FAT filesystem signature to correctly identify FAT12 vs FAT16.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
 --- a/fs/ff.c
 +++ b/fs/ff.c
 @@ -6260,7 +6260,11 @@ FRESULT f_mkfs (

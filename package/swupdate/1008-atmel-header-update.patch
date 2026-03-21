@@ -1,4 +1,7 @@
-diff --git a/include/swupdate.h b/include/swupdate.h
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+diff --git a/include/swupdate_image.h b/include/swupdate_image.h
 index fb54ace55c..d1d3517daf 100644
 --- a/include/swupdate_image.h
 +++ b/include/swupdate_image.h
@@ -14,7 +17,7 @@ diff --git a/parser/parser.c b/parser/parser.c
 index f9da567a0c..d934a3678e 100644
 --- a/parser/parser.c
 +++ b/parser/parser.c
-@@ -417,6 +417,7 @@ static int parse_common_attributes(parsertype p, void *elem, struct img_type *im
+@@ -415,6 +415,7 @@ static int parse_common_attributes(parsertype p, void *elem, struct img_type *im
  	GET_FIELD_STRING(p, elem, "volume", image->volname);
  	GET_FIELD_STRING(p, elem, "device", image->device);
  	GET_FIELD_STRING(p, elem, "mtdname", image->mtdname);
@@ -23,10 +26,10 @@ index f9da567a0c..d934a3678e 100644
  	GET_FIELD_STRING(p, elem, "type", image->type);
  	GET_FIELD_STRING(p, elem, "data", image->type_data);
 diff --git a/handlers/flash_handler.c b/handlers/flash_handler.c
-index dc829bab02..2f65c905f2 100644
+index dc829bab02..02e0c43937 100644
 --- a/handlers/flash_handler.c
 +++ b/handlers/flash_handler.c
-@@ -34,6 +34,16 @@
+@@ -35,6 +35,16 @@
  #define PROCMTD	"/proc/mtd"
  #define LINESIZE	80
  
@@ -40,11 +43,11 @@ index dc829bab02..2f65c905f2 100644
 +#define ATMEL_HEADER_SECTOR_PER_PAGE_OFFSET	1
 +#define ATMEL_HEADER_USE_PMECC_OFFSET		0
 +
- void flash_handler(void);
- 
- /* Check whether buffer is filled with character 'pattern' */
-@@ -78,6 +88,138 @@ static void erase_buffer(void *buffer, size_t size)
- 		memset(buffer, kEraseByte, size);
+ static inline int mtd_error(int mtdnum, const char *func, int eb)
+ {
+ 	int code = errno;
+@@ -100,6 +110,199 @@ static void erase_buffer(void *buffer, size_t size)
+ 		memset(buffer, FLASH_EMPTY_BYTE, size);
  }
  
 +static int read_sysfs(const char * name, int mtdnum)
@@ -84,9 +87,9 @@ index dc829bab02..2f65c905f2 100644
 +static int create_atmel_header_word(int use_pmecc, int sector_per_page,
 +		int sector_size, int spare_size, int ecc_bits, int ecc_offset)
 +{
-+	uint32_t sector_size_code;
-+	uint32_t sector_per_page_code;
-+	uint32_t ecc_bits_req;
++	__u32 sector_size_code;
++	__u32 sector_per_page_code;
++	__u32 ecc_bits_req;
 +
 +	sector_per_page_code = ffs(sector_per_page) - 1;
 +	if ((1 << sector_per_page_code) != sector_per_page)	{
@@ -144,7 +147,7 @@ index dc829bab02..2f65c905f2 100644
 +
 +static bool atmel_pmecc_header_update(struct mtd_dev_info *mtd, unsigned char *writebuf)
 +{
-+	uint32_t atmel_nand_parameter_header_word = 0;
++	__u32 atmel_nand_parameter_header_word = 0;
 +	int ecc_bits = 8;
 +	int sector_size = 0;
 +	int sector_per_page = 0;
@@ -166,7 +169,7 @@ index dc829bab02..2f65c905f2 100644
 +	}
 +	if (atmel_nand_parameter_header_word)
 +	{
-+		uint32_t* rewrite = (uint32_t*) writebuf;
++		__u32* rewrite = (__u32*) writebuf;
 +		/* "The header is made of 52 times the same 32-bit word (for redundancy reasons)" */
 +		for (int i = 0; i < 52; i++)
 +			*rewrite++ = atmel_nand_parameter_header_word;
@@ -179,19 +182,82 @@ index dc829bab02..2f65c905f2 100644
 +	return true;
 +}
 +
- static int flash_write_nand(int mtdnum, struct img_type *img)
- {
- 	char mtd_device[LINESIZE];
-@@ -230,6 +367,12 @@ static int flash_write_nand(int mtdnum, struct img_type *img)
- 
- 		}
- 
-+		if (mtdoffset == 0 && !strcmp(img->transform, "atmel_pmecc_header")) {
-+			TRACE("Modifying Atmel header in-place for %s", img->mtdname);
-+			if(!atmel_pmecc_header_update(mtd, writebuf))
-+				goto closeall;
++/*
++ * Post-processing function to update Atmel PMECC header after flash write.
++ * Reads first erase block, updates header if changed, and writes back.
++ */
++static int update_atmel_pmecc_header_post_write(struct flash_priv *priv,
++		struct img_type *img, unsigned char *block_buf)
++{
++	unsigned char header_backup[208]; /* 52 * 4 bytes */
++	int start_eb;
++	int ret;
++
++	TRACE("Post-processing: Updating Atmel PMECC header for %s", img->mtdname);
++
++	/* Calculate starting erase block */
++	start_eb = (int)(img->seek / priv->mtd->eb_size);
++
++	/* Read the first erase block */
++	ret = mtd_read(priv->libmtd, priv->mtd, priv->fdout, start_eb, 0,
++	               block_buf, priv->mtd->eb_size);
++	if (ret) {
++		ERROR("Failed to read erase block %d for header update", start_eb);
++		return MTD_ERROR("read");
++	}
++
++	/* Backup current header */
++	memcpy(header_backup, block_buf, sizeof(header_backup));
++
++	/* Update header with generated Atmel PMECC header */
++	if (!atmel_pmecc_header_update(priv->mtd, block_buf)) {
++		ERROR("Failed to generate Atmel PMECC header");
++		return -EINVAL;
++	}
++
++	/* Check if header changed */
++	if (memcmp(header_backup, block_buf, sizeof(header_backup)) != 0) {
++		TRACE("Header changed, erasing and rewriting block %d", start_eb);
++
++		/* Erase the block */
++		ret = mtd_erase(priv->libmtd, priv->mtd, priv->fdout, start_eb);
++		if (ret) {
++			ERROR("Failed to erase block %d during header update", start_eb);
++			return MTD_ERROR("erase");
 +		}
 +
- 		ret =0;
- 		if (!buffer_check_pattern(writebuf, mtd->min_io_size, 0xff)) {
- 			/* Write out data */
++		/* Write the block back with updated header */
++		ret = mtd_write(priv->libmtd, priv->mtd, priv->fdout,
++		                start_eb, 0, block_buf,
++		                priv->mtd->eb_size, NULL, 0, MTD_OPS_PLACE_OOB);
++		if (ret) {
++			ERROR("Failed to write block %d with updated header", start_eb);
++			return MTD_ERROR("write");
++		}
++
++		TRACE("Successfully updated Atmel PMECC header in block %d", start_eb);
++	} else {
++		TRACE("Header unchanged, no rewrite needed");
++	}
++
++	return 0;
++}
++
+ struct flash_priv {
+ 	/* File descriptor of a flash device (/dev/mtdX) to write into: */
+ 	int fdout;
+@@ -505,6 +708,14 @@ static int install_flash_image(struct img_type *img,
+ 		priv.readout_buf = priv.filebuf + priv.mtd->eb_size;
+ 
+ 	ret = copyimage(&priv, img, flash_write);
++
++	/* Post-processing based on transform type */
++	if (img->transform) {
++		if (!strcmp(img->transform, "atmel_pmecc_header") && ret == 0) {
++			ret = update_atmel_pmecc_header_post_write(&priv, img, priv.filebuf);
++		}
++	}
++
+ 	free(priv.filebuf);
+ 
+ end:

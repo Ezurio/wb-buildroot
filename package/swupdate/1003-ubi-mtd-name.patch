@@ -1,8 +1,10 @@
-diff --git a/parser/parser.c b/parser/parser.c
-index acac406..9ae9448 100644
+Allow using mtdname as device name for UBI partitions when device field is not set.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
 --- a/parser/parser.c
 +++ b/parser/parser.c
-@@ -530,6 +530,9 @@ static int parse_partitions(parsertype p, void *cfg, struct swupdate_cfg *swcfg)
+@@ -528,6 +528,9 @@ static int parse_partitions(parsertype p, void *cfg, struct swupdate_cfg *swcfg)
  			continue;
  		}
 
@@ -12,6 +14,3 @@ index acac406..9ae9448 100644
  		if ((!strlen(partition->volname) && !strcmp(partition->type, "ubipartition")) ||
  				!strlen(partition->device)) {
  			ERROR("Partition incompleted in description file");
---
-2.7.4
-

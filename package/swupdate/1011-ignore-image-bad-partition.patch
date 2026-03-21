@@ -1,10 +1,16 @@
---- a/handlers/flash_handler.c	2023-05-26 15:45:12.000000000 
-+++ b/handlers/flash_handler.c	2023-05-26 15:24:27.000000000 
-@@ -319,6 +319,7 @@
- 				ret = mtd_is_bad(mtd, fd, offs / mtd->eb_size);
- 				if (ret < 0) {
- 					ERROR("mtd%d: MTD get bad block failed", mtdnum);
-+					failed = !!strcmp(img->transform, "ignore_bad");
- 					goto closeall;
- 				} else if (ret == 1) {
- 					baderaseblock = true;
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+diff --git a/handlers/flash_handler.c b/handlers/flash_handler.c
+index 02e0c43937..ce9f01bb68 100644
+--- a/handlers/flash_handler.c
++++ b/handlers/flash_handler.c
+@@ -713,6 +713,8 @@ static int install_flash_image(struct img_type *img,
+ 	if (img->transform) {
+ 		if (!strcmp(img->transform, "atmel_pmecc_header") && ret == 0) {
+ 			ret = update_atmel_pmecc_header_post_write(&priv, img, priv.filebuf);
++		} else if (!strcmp(img->transform, "ignore_bad")) {
++			ret = 0; /* Ignore errors related to bad blocks. */
+ 		}
+ 	}
+ 

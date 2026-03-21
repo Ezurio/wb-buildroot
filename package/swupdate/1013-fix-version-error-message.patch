@@ -1,6 +1,10 @@
---- a/core/artifacts_versions.c	2023-05-23 15:06:34.000000000 
-+++ b/core/artifacts_versions.c	2023-06-03 05:42:52.000000000 
-@@ -174,7 +174,7 @@
+Fix version parsing to avoid false error messages when version is valid.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+--- a/core/artifacts_versions.c
++++ b/core/artifacts_versions.c
+@@ -174,7 +174,7 @@ int64_t parse_version(const char *version_string)
  		}
  		version = (version << 16) | fld;
  	}

@@ -1,6 +1,10 @@
+Change offset type from unsigned long to long long to support large file offsets.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
 --- a/parser/parser.c
 +++ b/parser/parser.c
-@@ -402,7 +402,7 @@
+@@ -400,7 +400,7 @@ static int parse_common_attributes(parsertype p, void *elem, struct img_type *i
  {
  	char seek_str[MAX_SEEK_STRING_SIZE];
  	const char* compressed;

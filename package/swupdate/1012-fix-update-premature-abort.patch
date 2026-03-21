@@ -1,6 +1,10 @@
---- a/ipc/network_ipc-if.c	2022-12-13 12:36:58.000000000 
-+++ b/ipc/network_ipc-if.c	2023-06-02 20:44:42.000000000 
-@@ -191,9 +191,7 @@
+Prevent premature abort on write errors, allow recovery mechanisms to handle failures.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
+--- a/ipc/network_ipc-if.c
++++ b/ipc/network_ipc-if.c
+@@ -192,9 +192,7 @@ int ipc_send_data(int connfd, swupdate_request *rq)
  		rq->wr(&pbuf, &size);
  		if (size) {
  			if (swupdate_image_write(pbuf, size) != size) {

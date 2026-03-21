@@ -1,6 +1,10 @@
+Support raw file paths that may or may not start with leading slash.
+
+Upstream-Status: Inappropriate No time for upstreaming
+
 --- a/handlers/raw_handler.c
 +++ b/handlers/raw_handler.c
-@@ -170,8 +170,8 @@
+@@ -162,8 +162,8 @@ static int install_raw_file(struct img_type *img,
  			return -1;
  		}
  
