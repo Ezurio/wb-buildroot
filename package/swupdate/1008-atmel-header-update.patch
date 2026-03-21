@@ -46,9 +46,9 @@ index dc829bab02..02e0c43937 100644
  static inline int mtd_error(int mtdnum, const char *func, int eb)
  {
  	int code = errno;
-@@ -100,6 +110,199 @@ static void erase_buffer(void *buffer, size_t size)
- 		memset(buffer, FLASH_EMPTY_BYTE, size);
- }
+@@ -128,6 +138,199 @@ static void erase_buffer(void *buffer, size_t size)
+ 	unsigned char *readout_buf; /* a buffer to read erase block into */
+ };
  
 +static int read_sysfs(const char * name, int mtdnum)
 +{
@@ -243,9 +243,9 @@ index dc829bab02..02e0c43937 100644
 +	return 0;
 +}
 +
- struct flash_priv {
- 	/* File descriptor of a flash device (/dev/mtdX) to write into: */
- 	int fdout;
+ static int erase_block(struct flash_priv *priv)
+ {
+ 	int ret;
 @@ -505,6 +708,14 @@ static int install_flash_image(struct img_type *img,
  		priv.readout_buf = priv.filebuf + priv.mtd->eb_size;
  
