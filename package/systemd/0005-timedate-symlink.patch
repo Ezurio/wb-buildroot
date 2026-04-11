@@ -3,7 +3,7 @@ Upstream-Status: Inappropriate No time for upstreaming
 
 --- a/src/basic/time-util.c	2022-07-13 07:30:45.000000000 
 +++ a/src/basic/time-util.c	2022-10-18 18:44:26.000000000 
-@@ -1610,7 +1610,9 @@
+@@ -1622,7 +162,9 @@
  
          assert(ret);
  
@@ -14,7 +14,7 @@ Upstream-Status: Inappropriate No time for upstreaming
          if (r == -ENOENT)
                  /* If the symlink does not exist, assume "UTC", like glibc does */
                  return strdup_to(ret, "UTC");
-@@ -1618,8 +1620,11 @@
+@@ -1630,8 +1632,11 @@
                  return r; /* Return EINVAL if not a symlink */
  
          const char *e = PATH_STARTSWITH_SET(t, "/usr/share/zoneinfo/", "../usr/share/zoneinfo/");
