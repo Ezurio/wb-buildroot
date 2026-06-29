@@ -55,8 +55,13 @@ config BR2_PACKAGE_SWUPDATE_CONFIG
 	help
 	  Path to the swupdate configuration file.
 
-	  I you wish to use your own modified swupdate configuration
+	  If you wish to use your own modified swupdate configuration
 	  file specify the config file location with this option.
+
+config BR2_PACKAGE_SWUPDATE_CONFIG_FRAGMENT_FILES
+	string "swupdate configuration fragment files"
+	help
+	  List of swupdate configuration fragment files to be applied.
 
 config BR2_PACKAGE_SWUPDATE_USB
 	bool "swupdate usb"
