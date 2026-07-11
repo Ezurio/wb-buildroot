@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-IMX_SM_VERSION = 2025q4
+IMX_SM_VERSION = 2026q2
 IMX_SM_SITE = $(call github,nxp-imx,imx-sm,rel_imx_sm_$(IMX_SM_VERSION))
 IMX_SM_LICENSE = BSD-3-Clause
 IMX_SM_LICENSE_FILES = LICENSE.txt

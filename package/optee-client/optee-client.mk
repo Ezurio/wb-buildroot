@@ -54,8 +54,8 @@ endef
 define OPTEE_CLIENT_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -m 0644 -D $(@D)/tee-supplicant/tee-supplicant@.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/tee-supplicant@.service
-	$(INSTALL) -m 0644 -D $(@D)/tee-supplicant/optee-udev.rules \
-		$(TARGET_DIR)/etc/udev/rules.d/99-optee-udev.rules
+	$(INSTALL) -m 0644 -D $(@D)/tee-supplicant/60-optee-udev.rules \
+		$(TARGET_DIR)/etc/udev/rules.d/60-optee-udev.rules
 	$(INSTALL) -m 0700 -d $(TARGET_DIR)/var/lib/tee
 endef
 

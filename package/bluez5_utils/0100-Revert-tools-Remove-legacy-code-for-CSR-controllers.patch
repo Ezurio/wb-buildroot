@@ -35,7 +35,7 @@ diff --git a/Makefile.tools b/Makefile.tools
 index b7d893248..8b32a57f1 100644
 --- a/Makefile.tools
 +++ b/Makefile.tools
-@@ -229,7 +229,7 @@ endif
+@@ -225,7 +225,7 @@ endif
  
  if TOOLS
  bin_PROGRAMS += tools/rctest tools/l2test tools/l2ping tools/bluemoon \
@@ -44,7 +44,7 @@ index b7d893248..8b32a57f1 100644
  
  noinst_PROGRAMS += tools/bdaddr tools/avinfo tools/avtest \
  			tools/scotest tools/amptest tools/hwdb \
-@@ -329,6 +329,12 @@ tools_l2test_LDADD = lib/libbluetooth-internal.la
+@@ -325,6 +325,12 @@ tools_l2test_LDADD = lib/libbluetooth-internal.la
  
  tools_l2ping_LDADD = lib/libbluetooth-internal.la
  
@@ -57,7 +57,7 @@ index b7d893248..8b32a57f1 100644
  tools_bluemoon_SOURCES = tools/bluemoon.c monitor/bt.h
  tools_bluemoon_LDADD = src/libshared-mainloop.la
  
-@@ -347,7 +353,7 @@ profiles_iap_iapd_SOURCES = profiles/iap/main.c
+@@ -346,7 +352,7 @@ profiles_iap_iapd_SOURCES = profiles/iap/main.c
  profiles_iap_iapd_LDADD = gdbus/libgdbus-internal.la $(GLIB_LIBS) $(DBUS_LIBS)
  
  if MANPAGES
@@ -7335,4 +7335,3 @@ index 000000000..6a74e9a16
 +#endif
 -- 
 2.36.0
-

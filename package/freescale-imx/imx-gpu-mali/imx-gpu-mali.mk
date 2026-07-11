@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-IMX_GPU_MALI_VERSION = r54p1.2
-IMX_GPU_MALI_REVISION = 1fd73cb
+IMX_GPU_MALI_VERSION = r54p1.6
+IMX_GPU_MALI_REVISION = 753ba30
 IMX_GPU_MALI_SITE = $(FREESCALE_IMX_SITE)
 IMX_GPU_MALI_SOURCE = mali-imx-$(IMX_GPU_MALI_VERSION)-$(IMX_GPU_MALI_REVISION).bin
 IMX_GPU_MALI_LICENSE = NXP Semiconductor Software License Agreement

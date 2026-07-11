@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-IMX_OEI_VERSION = 6.12.49-2.2.0
+IMX_OEI_VERSION = 6.18.20-2.0.0
 IMX_OEI_SITE = $(call github,nxp-imx,imx-oei,lf-$(IMX_OEI_VERSION))
 IMX_OEI_LICENSE = BSD-3-Clause
 IMX_OEI_LICENSE_FILES = LICENSE.txt

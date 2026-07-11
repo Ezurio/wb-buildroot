@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-FIRMWARE_IMX_VERSION = 8.30
-FIRMWARE_IMX_REVISION = 3fa84fd
+FIRMWARE_IMX_VERSION = 8.32
+FIRMWARE_IMX_REVISION = 1991416
 FIRMWARE_IMX_SITE = $(FREESCALE_IMX_SITE)
 FIRMWARE_IMX_SOURCE = firmware-imx-$(FIRMWARE_IMX_VERSION)-$(FIRMWARE_IMX_REVISION).bin
 
