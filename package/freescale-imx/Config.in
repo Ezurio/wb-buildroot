@@ -212,6 +212,10 @@ config BR2_PACKAGE_FREESCALE_IMX_HAS_UPOWER
 	bool
 	default y if BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8ULP
 
+config BR2_PACKAGE_FREESCALE_IMX_HAS_ISP
+	bool
+	default y if BR2_PACKAGE_FREESCALE_IMX_PLATFORM_IMX8MP
+
 source "package/freescale-imx/imx-alsa-plugins/Config.in"
 source "package/freescale-imx/imx-codec/Config.in"
 source "package/freescale-imx/imx-kobs/Config.in"
@@ -240,6 +244,9 @@ if BR2_PACKAGE_FREESCALE_IMX_HAS_VIV_GPU
 source "package/freescale-imx/imx-gpu-g2d/Config.in"
 source "package/freescale-imx/imx-gpu-viv/Config.in"
 source "package/freescale-imx/kernel-module-imx-gpu-viv/Config.in"
+endif
+if BR2_PACKAGE_FREESCALE_IMX_HAS_ISP
+source "package/freescale-imx/imx-isp-vvcam/Config.in"
 endif
 
 endif

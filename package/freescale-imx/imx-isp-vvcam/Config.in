@@ -1,0 +1,14 @@
+config BR2_PACKAGE_IMX_ISP_VVCAM
+	bool "imx-isp-vvcam"
+	depends on BR2_LINUX_KERNEL
+	depends on BR2_PACKAGE_FREESCALE_IMX_HAS_ISP
+	select BR2_LINUX_NEEDS_MODULES
+	help
+	  Kernel loadable modules for the NXP i.MX8MP ISP (Image Signal
+	  Processor), based on the Verisilicon vvcam driver stack: the
+	  dewarp engine (dwe), ISP core, video buffer helper, image
+	  sensor and lens/VCM focus drivers.
+
+	  This module is only meant for the i.MX8MP NXP-BSP kernel.
+
+	  https://github.com/nxp-imx/isp-vvcam
