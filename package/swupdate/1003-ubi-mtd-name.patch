@@ -4,7 +4,7 @@ Upstream-Status: Inappropriate No time for upstreaming
 
 --- a/parser/parser.c
 +++ b/parser/parser.c
-@@ -528,6 +528,9 @@ static int parse_partitions(parsertype p, void *cfg, struct swupdate_cfg *swcfg)
+@@ -602,6 +602,9 @@ static int parse_partitions(parsertype p, void *cfg, struct swupdate_cfg *swcfg)
  			continue;
  		}
 

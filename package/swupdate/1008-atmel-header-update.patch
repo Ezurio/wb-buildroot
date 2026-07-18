@@ -5,7 +5,7 @@ diff --git a/include/swupdate_image.h b/include/swupdate_image.h
 index fb54ace55c..d1d3517daf 100644
 --- a/include/swupdate_image.h
 +++ b/include/swupdate_image.h
-@@ -47,6 +47,7 @@ struct img_type {
+@@ -48,6 +48,7 @@ struct img_type {
  	char device[MAX_VOLNAME];	/* device associated with image if any */
  	char path[MAX_IMAGE_FNAME];	/* Path where image must be installed */
  	char mtdname[MAX_IMAGE_FNAME];	/* MTD device where image must be installed */
@@ -17,7 +17,7 @@ diff --git a/parser/parser.c b/parser/parser.c
 index f9da567a0c..d934a3678e 100644
 --- a/parser/parser.c
 +++ b/parser/parser.c
-@@ -415,6 +415,7 @@ static int parse_common_attributes(parsertype p, void *elem, struct img_type *im
+@@ -479,6 +479,7 @@ static int parse_common_attributes(parsertype p, void *elem, struct img_type *im
  	GET_FIELD_STRING(p, elem, "volume", image->volname);
  	GET_FIELD_STRING(p, elem, "device", image->device);
  	GET_FIELD_STRING(p, elem, "mtdname", image->mtdname);
@@ -46,7 +46,7 @@ index dc829bab02..02e0c43937 100644
  static inline int mtd_error(int mtdnum, const char *func, int eb)
  {
  	int code = errno;
-@@ -128,6 +138,193 @@
+@@ -137,6 +147,193 @@
  	unsigned char *readout_buf; /* a buffer to read erase block into */
  };
  
@@ -240,8 +240,8 @@ index dc829bab02..02e0c43937 100644
  static int erase_block(struct flash_priv *priv)
  {
  	int ret;
-@@ -505,6 +702,11 @@
- 		priv.readout_buf = priv.filebuf + priv.mtd->eb_size;
+@@ -825,6 +1012,11 @@
+ 		priv.readout_buf = priv.filebuf + priv.filebuf_size;
  
  	ret = copyimage(&priv, img, flash_write);
 +

@@ -12,7 +12,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  
  # Use LINUXINCLUDE when you must reference the include/ directory.
  # Needed to be compatible with the O= option
-@@ -474,23 +475,17 @@ swupdate_unstrip: lua_swupdate
+@@ -475,23 +476,17 @@ swupdate_unstrip: lua_swupdate
  	$(call cmd,strip)
  
  install: all

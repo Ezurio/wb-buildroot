@@ -13,7 +13,7 @@ Upstream-Status: Inappropriate No time for upstreaming
  static int check_hash_absent(struct imglist *list)
  {
  	struct img_type *image;
-@@ -208,7 +208,7 @@ int check_hw_compatibility(struct swupdate_cfg *cfg)
+@@ -221,7 +221,7 @@ int check_hw_compatibility(struct swupdate_cfg *cfg)
  		check_missing_hash(&sw->scripts))
  		ret = -EINVAL;
  #else

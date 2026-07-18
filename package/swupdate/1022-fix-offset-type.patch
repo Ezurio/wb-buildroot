@@ -4,10 +4,10 @@ Upstream-Status: Inappropriate No time for upstreaming
 
 --- a/parser/parser.c
 +++ b/parser/parser.c
-@@ -400,7 +400,7 @@ static int parse_common_attributes(parsertype p, void *elem, struct img_type *i
+@@ -464,7 +464,7 @@ static int parse_common_attributes(parsertype p, void *elem, struct img_type *i
  {
  	char seek_str[MAX_SEEK_STRING_SIZE];
- 	const char* compressed;
+ 	const char *compressed, *encrypted;
 -	unsigned long offset = 0;
 +	long long offset = 0;
  

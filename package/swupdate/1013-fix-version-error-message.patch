@@ -4,7 +4,7 @@ Upstream-Status: Inappropriate No time for upstreaming
 
 --- a/core/artifacts_versions.c
 +++ b/core/artifacts_versions.c
-@@ -174,7 +174,7 @@ int64_t parse_version(const char *version_string)
+@@ -165,7 +165,7 @@ int64_t parse_version(const char *version_string)
  		}
  		version = (version << 16) | fld;
  	}
