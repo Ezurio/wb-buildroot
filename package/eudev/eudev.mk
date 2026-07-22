@@ -19,6 +19,7 @@ EUDEV_CONF_OPTS = \
 # eudev requires only the util-linux libraries at build time
 EUDEV_DEPENDENCIES = host-gperf host-pkgconf util-linux-libs
 EUDEV_PROVIDES = udev
+EUDEV_AUTORECONF = YES
 
 ifeq ($(BR2_ROOTFS_MERGED_USR),y)
 ifeq ($(BR2_ROOTFS_MERGED_BIN),y)
@@ -67,6 +68,7 @@ define EUDEV_INSTALL_INIT_OPENRC
 endef
 
 HOST_EUDEV_DEPENDENCIES = host-gperf host-pkgconf
+HOST_EUDEV_AUTORECONF = YES
 
 HOST_EUDEV_CONF_OPTS = \
 	--prefix=/usr \
