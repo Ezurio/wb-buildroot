@@ -397,7 +397,6 @@ package/ffmpeg/0001-swscale-x86-yuv2rgb-Fix-build-without-SSSE3.patch lib_patch.
 package/ffmpeg/0002-avcodec-vaapi_h264-skip-decode-if-pic-has-no-slices.patch lib_patch.Upstream
 package/ffmpeg/0003-libavutil-Fix-mips-build.patch lib_patch.Upstream
 package/ffmpeg/0004-configure-add-extralibs-to-extralibs_xxx.patch lib_patch.Upstream
-package/ficl/0001-fix-Makefile.patch lib_patch.Upstream
 package/flatbuffers/0001-include-flatbuffers-base.h-fix-build-on-musl.patch lib_patch.Upstream
 package/flex/0001-build-AC_USE_SYSTEM_EXTENSIONS-in-configure.ac.patch lib_patch.Upstream
 package/flex/0002-build-make-it-possible-to-disable-the-build-of-the-f.patch lib_patch.Upstream
@@ -419,9 +418,9 @@ package/ftop/0001-overflow.patch lib_patch.Upstream
 package/fwts/0001-build-do-not-use-Werror.patch lib_patch.Upstream
 package/fxdiv/0001-CMake-don-t-enable-CXX-unless-building-tests-benchma.patch lib_patch.Upstream
 package/fxload/0001-fix-static-build.patch lib_patch.Upstream
-package/gcc/12.4.0/0001-disable-split-stack-for-non-thread-builds.patch lib_patch.Upstream
+package/gcc/12.5.0/0001-disable-split-stack-for-non-thread-builds.patch lib_patch.Upstream
 package/gcc/13.4.0/0001-disable-split-stack-for-non-thread-builds.patch lib_patch.Upstream
-package/gcc/14.3.0/0001-disable-split-stack-for-non-thread-builds.patch lib_patch.Upstream
+package/gcc/14.4.0/0001-disable-split-stack-for-non-thread-builds.patch lib_patch.Upstream
 package/gcc/8.4.0/0001-xtensa-fix-PR-target-91880.patch lib_patch.Upstream
 package/gcc/8.4.0/0002-Revert-re-PR-target-92095-internal-error-with-O1-mcp.patch lib_patch.Upstream
 package/gcc/8.4.0/0003-libsanitizer-Remove-cyclades-from-libsanitizer.patch lib_patch.Upstream
@@ -481,7 +480,6 @@ package/gvfs/0001-build-Remove-incorrect-i18n.merge_file-argument.patch lib_patc
 package/harfbuzz/0001-meson.build-check-for-pthread.h.patch lib_patch.Upstream
 package/haserl/0001-add-haserl_lualib.inc.patch lib_patch.Upstream
 package/haveged/S21haveged Shellcheck lib_sysv.Variables
-package/heirloom-mailx/0001-fix-libressl-support.patch lib_patch.Upstream
 package/hplip/0001-build-use-pkg-config-to-discover-libusb.patch lib_patch.Upstream
 package/hplip/0002-configure.in-fix-AM_INIT_AUTOMAKE-call.patch lib_patch.Upstream
 package/i2pd/S99i2pd Shellcheck lib_sysv.Indent lib_sysv.Variables
@@ -510,8 +508,6 @@ package/ifupdown/0001-dont-use-dpkg-architecture.patch lib_patch.Upstream
 package/igd2-for-linux/S99upnpd Shellcheck lib_sysv.Indent lib_sysv.Variables
 package/imx-mkimage/0001-Add-unused-fake-version.patch lib_patch.Upstream
 package/inadyn/S70inadyn NotExecutable lib_sysv.Indent
-package/initscripts/init.d/rcK Shellcheck lib_shellscript.ConsecutiveEmptyLines lib_shellscript.EmptyLastLine
-package/initscripts/init.d/rcS Shellcheck lib_shellscript.ConsecutiveEmptyLines lib_shellscript.EmptyLastLine
 package/input-event-daemon/S99input-event-daemon lib_sysv.ConsecutiveEmptyLines lib_sysv.Indent lib_sysv.Variables
 package/intel-gmmlib/0001-Drop-hardening-related-flags.patch lib_patch.Upstream
 package/intel-mediasdk/0001-Don-t-force-fstack-protector.patch lib_patch.Upstream
@@ -937,11 +933,7 @@ package/qextserialport/0001-Create-a-main-include-file-QExtSerialPort.patch lib_
 package/qextserialport/0002-Tell-qmake-to-add-a-pkgconfig-file-to-ease-usage-wit.patch lib_patch.Upstream
 package/qt5/qt5base/0001-qtbase-Fix-build-error-when-using-EGL.patch lib_patch.Upstream
 package/qt5/qt5base/0002-double-conversion-enable-for-microblaze.patch lib_patch.Upstream
-package/qt5/qt5base/0003-double-conversion-enable-for-nios2.patch lib_patch.Upstream
-package/qt5/qt5base/0004-double-conversion-enable-for-xtensa.patch lib_patch.Upstream
 package/qt5/qt5base/0005-eglfs-avoid-breaking-compilation-for-obscure-EGLNativeDisplayType-types.patch lib_patch.Upstream
-package/qt5/qt5base/0006-Fix-build-on-riscv32.patch lib_patch.Upstream
-package/qt5/qt5base/0007-src-corelib-configure.json-fix-atomicfptr-detection.patch lib_patch.Upstream
 package/qt5/qt5base/0008-eglconvenience-add-missing-QList-include.patch lib_patch.Upstream
 package/qt5/qt5declarative/0001-qsgtexture-fix-debug-build-with-uclibc.patch lib_patch.Upstream
 package/qt5/qt5declarative/0002-qv4regexp_p-needs-c-limits-include-instead-of-plain-.patch lib_patch.Upstream
@@ -949,10 +941,8 @@ package/qt5/qt5enginio/0001-Do-not-use-deprecated-QLinkedList.patch lib_patch.Up
 package/qt5/qt5location/0001-3rdparty-mapbox-gl-native-fix-musl-compile-pthread_g.patch lib_patch.Upstream
 package/qt5/qt5script/0001-Detect-32-bits-armv8-a-architecture.patch lib_patch.Upstream
 package/qt5/qt5tools/0001-Disable-designer-tool-fixes-configure-error.patch lib_patch.Upstream
-package/qt5/qt5webengine-chromium/0001-Add-python3-build-support.patch lib_patch.Upstream
-package/qt5/qt5webengine-chromium/0002-Don-t-rebase-sysroot-path.patch lib_patch.Upstream
+package/qt5/qt5webengine-chromium/0001-Don-t-rebase-sysroot-path.patch lib_patch.Upstream
 package/qt5/qt5webengine/0001-gn.pro-don-t-link-statically-with-libstc.patch lib_patch.Upstream
-package/qt5/qt5webengine/0002-Add-python3-build-support.patch lib_patch.Upstream
 package/qt5/qt5webkit/0001-WinCairo-PlayStation-ICU-68.1-no-longer-exposes-FALS.patch lib_patch.Upstream
 package/qt5/qt5webkit/0002-Fix-compilation-with-Python-3.9-avoid-passing-encodi.patch lib_patch.Upstream
 package/qt5/qt5webkit/0003-Let-Bison-generate-the-header-directly-to-fix-build-.patch lib_patch.Upstream
@@ -1107,7 +1097,6 @@ package/uhttpd/0002-Fix-TCP_FASTOPEN-related-compile-error.patch lib_patch.Upstr
 package/unbound/S70unbound Shellcheck
 package/unifdef/0001-Makefile-fix-error-on-install.patch lib_patch.Upstream
 package/unscd/S46unscd Shellcheck lib_sysv.Indent lib_sysv.Variables
-package/unzip/0001-Add-a-CMakeFile.txt-to-ease-cross-compilation.patch lib_patch.Upstream
 package/upmpdcli/S99upmpdcli Shellcheck lib_sysv.Indent lib_sysv.Variables
 package/uqmi/0001-uqmi-avoid-gcc-12.x-false-error-reporting-storing-th.patch lib_patch.Upstream
 package/urg/0001-select-h.patch lib_patch.Upstream
@@ -1129,13 +1118,8 @@ package/vdr/0001-getloadavg.patch lib_patch.Upstream
 package/vlc/0001-Disable-building-of-statically-linked-vlc-binary.patch lib_patch.Upstream
 package/vlc/0002-automake-add-subdir-objects-option.patch lib_patch.Upstream
 package/vlc/0003-build-use-pkg-config-to-get-tremor-libs.patch lib_patch.Upstream
-package/vlc/0004-Fix-build-error-using-uClibc-by-adding-sys-types.h.patch lib_patch.Upstream
 package/vlc/0005-Don-t-assume-strerror_l-is-available.patch lib_patch.Upstream
 package/vlc/0006-posix-remove-ancient-run-time-fallback-to-real-time-.patch lib_patch.Upstream
-package/vlc/0007-Add-support-for-freerdp2.patch lib_patch.Upstream
-package/vlc/0008-configure.ac-also-use-AC_PATH_PROG-to-check-for-wayl.patch lib_patch.Upstream
-package/vlc/0009-modules-video_filter-opencv_example.cpp-fix-build-wi.patch lib_patch.Upstream
-package/vlc/0010-opengl-missing-library-check.patch lib_patch.Upstream
 package/vpnc/0001-Makefile-allow-to-override-the-PREFIX-variable.patch lib_patch.Upstream
 package/vpnc/0002-Makefile-allow-to-override-the-version.patch lib_patch.Upstream
 package/vpnc/0003-Makefile-allow-passing-custom-CFLAGS-CPPFLAGS.patch lib_patch.Upstream
@@ -1243,7 +1227,6 @@ support/libtool/buildroot-libtool-v2.4.4.patch lib_patch.ApplyOrder lib_patch.Up
 support/libtool/buildroot-libtool-v2.4.patch lib_patch.ApplyOrder lib_patch.Sob lib_patch.Upstream
 support/misc/relocate-sdk.sh Shellcheck
 support/scripts/apply-patches.sh Shellcheck
-support/scripts/br2-external Shellcheck
 support/scripts/check-bin-arch Shellcheck
 support/scripts/check-host-rpath Shellcheck
 support/scripts/expunge-gconv-modules Shellcheck

@@ -676,19 +676,6 @@ F:	package/perl-sys-mmap/
 F:	package/perl-time-parsedate/
 F:	package/perl-x10/
 
-N:	Clayton Shotwell <clayton.shotwell@collins.com>
-F:	package/audit/
-F:	package/checkpolicy/
-F:	package/cpio/
-F:	package/libcgroup/
-F:	package/libee/
-F:	package/libestr/
-F:	package/liblogging/
-F:	package/libselinux/
-F:	package/libsemanage/
-F:	package/libsepol/
-F:	package/policycoreutils/
-
 N:	Colin Foster <colin.foster@in-advantage.com>
 F:	package/python-tftpy/
 F:	package/rauc-hawkbit-updater/
@@ -940,7 +927,7 @@ F:	package/optee-client/
 F:	package/optee-examples/
 F:	package/optee-test/
 
-N:	Eugen Hristev <eugen.hristev@microchip.com>
+N:	Eugen Hristev <ehristev@kernel.org>
 F:	board/atmel/readme.txt
 F:	board/microchip/sama7g5ek/
 F:	configs/microchip_sama7g5ek*
@@ -1121,6 +1108,9 @@ F:	package/tbb/
 N:	Francisco Gonzalez <gzmorell@gmail.com>
 F:	package/ser2net/
 
+N:	Franciszek Stachura <fbstachura@gmail.com>
+F:	support/testing/tests/package/test_memcached.py
+
 N:	Francois Dugast <francois.dugast.foss@gmail.com>
 F:	board/sipeed/licheepi_nano/
 F:	board/visionfive2/
@@ -1299,6 +1289,7 @@ F:	package/udisks/
 F:	package/util-linux/
 F:	package/vim/
 F:	package/wilc-driver/
+F:	package/wireshark/
 F:	package/zlib-ng/
 F:	toolchain/
 
@@ -1669,10 +1660,6 @@ F:	package/vuejs/
 N:	John Stile <johns@msli.com>
 F:	package/dhcpcd/
 
-N:	John Faith <jfaith@impinj.com>
-F:	package/python-inflection/
-F:	package/sdbusplus/
-
 N:	Jon Ringle <jringle@gridpoint.com>
 F:	package/mbpoll/
 
@@ -1826,6 +1813,7 @@ F:	support/testing/tests/package/test_btrfs_progs.py
 F:	support/testing/tests/package/test_btrfs_progs/
 F:	support/testing/tests/package/test_bzip2.py
 F:	support/testing/tests/package/test_compressor_base.py
+F:	support/testing/tests/package/test_connman.py
 F:	support/testing/tests/package/test_coremark.py
 F:	support/testing/tests/package/test_cryptsetup.py
 F:	support/testing/tests/package/test_cryptsetup/
@@ -2155,6 +2143,17 @@ F:	package/mpv/
 F:	package/rpi-firmware/
 F:	package/rpi-userland/
 
+N:	Manuel Diener <manuel.diener@oss.othermo.de>
+F:	package/pico-sdk/
+F:	package/picotool/
+F:	package/python-django/
+F:	package/python-immutabledict/
+F:	package/python-jc/
+F:	package/python-pydantic/
+F:	package/python-pydantic-core/
+F:	package/python-pydantic-settings/
+F:	package/python-waitress/
+
 N:	Marcin Bis <marcin@bis.org.pl>
 F:	package/bluez5_utils/
 F:	package/cc-tool/
@@ -2214,30 +2213,15 @@ F:	utils/diffconfig
 
 N:	Marcus Hoffmann <bubu@bubu1.eu>
 F:	package/nethogs/
-F:	package/pico-sdk/
-F:	package/picotool/
 F:	package/python-django/
 F:	package/python-gpiod/
-F:	package/python-immutabledict/
 F:	package/python-jc/
-F:	package/python-pydantic/
-F:	package/python-pydantic-core/
-F:	package/python-pydantic-settings/
-F:	package/python-ruamel-yaml-clib/
 F:	package/python-waitress/
 F:	support/testing/tests/package/test_python_django.py
-F:	support/testing/tests/package/test_python_fastapi.py
-F:	support/testing/tests/package/test_python_pydantic.py
-F:	support/testing/tests/package/test_python_pydantic_settings.py
 F:	support/testing/tests/package/test_python_requests.py
-F:	support/testing/tests/package/test_python_ruamel_yaml.py
 F:	support/testing/tests/package/test_python_waitress.py
 F:	support/testing/tests/package/sample_python_django.py
-F:	support/testing/tests/package/sample_python_fastapi.py
-F:	support/testing/tests/package/sample_python_pydantic.py
-F:	support/testing/tests/package/sample_python_pydantic_settings.py
 F:	support/testing/tests/package/sample_python_requests.py
-F:	support/testing/tests/package/sample_python_ruamel_yaml.py
 
 N:	Marek Belisko <marek.belisko@open-nandra.com>
 F:	package/libatasmart/
@@ -2287,7 +2271,6 @@ F:	package/python-webargs/
 N:	Martin Kepplinger <martink@posteo.de>
 F:	package/tslib/
 F:	package/x11r7/xdriver_xf86-input-tslib/
-F:	package/x11vnc/
 
 N:	Martin Povišer <povik+lin@cutebit.org>
 F:	package/python-construct/
@@ -2303,26 +2286,6 @@ F:	package/gtkiostream/
 
 N:	Matt Silva <dev@matt-silva.com>
 F:	package/rlwrap/
-
-N:	Mauro Condarelli <mc5686@mclink.it>
-F:	package/mc/
-F:	package/python-autobahn/
-F:	package/python-cbor/
-F:	package/python-characteristic/
-F:	package/python-click/
-F:	package/python-lmdb/
-F:	package/python-mistune/
-F:	package/python-netaddr/
-F:	package/python-pygments/
-F:	package/python-pynacl/
-F:	package/python-pytrie/
-F:	package/python-service-identity/
-F:	package/python-setproctitle/
-F:	package/python-shutilwhich/
-F:	package/python-treq/
-F:	package/python-txaio/
-F:	package/python-ujson/
-F:	package/python-wsaccel/
 
 N:	Maksim Kiselev <bigunclemax@gmail.com>
 F:	package/ledmon/
@@ -2970,6 +2933,14 @@ F:	package/tunctl/
 F:	package/ubus/
 F:	package/wolfssl/
 
+N:	Shubham Chakraborty <chakrabortyshubham66@gmail.com>
+F:	package/ccache/
+F:	package/dos2unix/
+F:	package/htop/
+F:	package/pv/
+F:	package/unrar/
+F:	package/xterm/
+
 N:	Simon Dawson <spdawson@gmail.com>
 F:	boot/at91bootstrap3/
 F:	package/cppzmq/
@@ -3254,7 +3225,8 @@ F:	package/llvm-project/llvm/
 N:	Vanya Sergeev <vsergeev@gmail.com>
 F:	package/lua-periphery/
 
-N:	Viacheslav Bocharov <adeep@lexina.in>
+N:	Viacheslav Bocharov <v@baodeep.com>
+F:	package/amlogic-boot-fip/
 F:	package/rtl8822cs/
 
 N:	Victor Huesca <victor.huesca@bootlin.com>
@@ -3272,9 +3244,11 @@ F:	package/nss-myhostname/
 F:	package/utp_com/
 
 N:	Vincent Stehlé <vincent.stehle@arm.com>
+F:	board/aarch64-efi/
 F:	board/arm/fvp-ebbr/
 F:	board/qemu/aarch64-ebbr/
 F:	board/qemu/arm-ebbr/
+F:	configs/aarch64_efi_defconfig
 F:	configs/arm_fvp_ebbr_defconfig
 F:	configs/qemu_aarch64_ebbr_defconfig
 F:	configs/qemu_arm_ebbr_defconfig
@@ -3325,7 +3299,6 @@ F:	package/mksh/
 F:	package/ruby/
 F:	package/uclibc/
 F:	package/uclibc-ng-test/
-F:	package/zabbix/
 F:	support/testing/tests/package/test_ruby.py
 
 N:	Will Newton <will.newton@gmail.com>
