@@ -18,7 +18,7 @@ SWUPDATE_LICENSE_FILES = LICENSES/BSD-1-Clause.txt \
 	LICENSES/MIT.txt \
 	LICENSES/OFL-1.1.txt
 SWUPDATE_INSTALL_STAGING = YES
-SWUPDATE_DEPENDENCIES = json-c libconfig libubootenv
+SWUPDATE_DEPENDENCIES = json-c libubootenv
 
 # swupdate uses $CROSS-cc instead of $CROSS-gcc, which is not
 # available in all external toolchains, and use CC for linking. Ensure
@@ -49,6 +49,13 @@ SWUPDATE_DEPENDENCIES += util-linux
 SWUPDATE_MAKE_ENV += HAVE_LIBBLKID=y
 else
 SWUPDATE_MAKE_ENV += HAVE_LIBBLKID=n
+endif
+
+ifeq ($(BR2_PACKAGE_LIBCONFIG),y)
+SWUPDATE_DEPENDENCIES += libconfig
+SWUPDATE_MAKE_ENV += HAVE_LIBCONFIG=y
+else
+SWUPDATE_MAKE_ENV += HAVE_LIBCONFIG=n
 endif
 
 ifeq ($(BR2_PACKAGE_LIBCURL),y)
@@ -126,8 +133,10 @@ endif
 ifeq ($(BR2_PACKAGE_OPENSSL),y)
 SWUPDATE_DEPENDENCIES += openssl
 SWUPDATE_MAKE_ENV += HAVE_LIBSSL=y
+SWUPDATE_MAKE_ENV += HAVE_LIBCRYPTO=y
 else
 SWUPDATE_MAKE_ENV += HAVE_LIBSSL=n
+SWUPDATE_MAKE_ENV += HAVE_LIBCRYPTO=n
 endif
 
 ifeq ($(BR2_PACKAGE_P11_KIT),y)
@@ -230,7 +239,7 @@ endef
 
 define SWUPDATE_INSTALL_TARGET_CMDS
 	$(TARGET_MAKE_ENV) $(SWUPDATE_MAKE_ENV) $(MAKE) -C $(@D) \
-		$(SWUPDATE_MAKE_OPTS) DESTDIR=$(TARGET_DIR) DESTSRCDIR=$(STAGING_DIR) install
+		$(SWUPDATE_MAKE_OPTS) DESTDIR=$(TARGET_DIR) install
 	$(if $(BR2_PACKAGE_SWUPDATE_INSTALL_WEBSITE), \
 		mkdir -p $(TARGET_DIR)/var/www/swupdate; \
 		cp -dpfr $(@D)/examples/www/v2/* $(TARGET_DIR)/var/www/swupdate)

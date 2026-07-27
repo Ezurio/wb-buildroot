@@ -5,7 +5,6 @@ config BR2_PACKAGE_SWUPDATE
 	depends on BR2_USE_MMU # fork()
 	depends on BR2_TOOLCHAIN_HAS_SYNC_4 # json-c
 	select BR2_PACKAGE_JSON_C
-	select BR2_PACKAGE_LIBCONFIG
 	select BR2_PACKAGE_LIBUBOOTENV
 	help
 	  swupdate provides a reliable way to update the software on
