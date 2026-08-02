@@ -10,6 +10,8 @@ if BR2_PACKAGE_UBOOT_TOOLS
 config BR2_PACKAGE_UBOOT_TOOLS_FIT_SUPPORT
 	bool "Flattened Image Tree (FIT) support"
 	depends on !BR2_STATIC_LIBS
+	select BR2_PACKAGE_DTC
+	select BR2_PACKAGE_DTC_PROGRAMS
 	help
 	  Enables support for Flattened Image Tree (FIT).
 
@@ -58,8 +60,6 @@ endif
 
 config BR2_PACKAGE_UBOOT_TOOLS_MKIMAGE
 	bool "mkimage"
-	select BR2_PACKAGE_DTC
-	select BR2_PACKAGE_DTC_PROGRAMS
 	help
 	  Install the mkimage tool on the target system
 
