@@ -12,8 +12,7 @@ XKEYBOARD_CONFIG_LICENSE_FILES = COPYING
 
 XKEYBOARD_CONFIG_DEPENDENCIES = \
 	$(BR2_PYTHON3_HOST_DEPENDENCY) \
-	host-gettext \
-	host-xapp_xkbcomp
+	host-gettext
 
 # xkeyboard-config.pc
 XKEYBOARD_CONFIG_INSTALL_STAGING = YES
