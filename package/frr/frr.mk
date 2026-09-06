@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-FRR_VERSION = 10.5.1
+FRR_VERSION = 10.7.0
 FRR_SITE = $(call github,FRRouting,frr,frr-$(FRR_VERSION))
 FRR_LICENSE = GPL-2.0+
 FRR_LICENSE_FILES = \
@@ -129,6 +129,13 @@ endef
 define FRR_INSTALL_INIT_SYSV
 	$(INSTALL) -D -m 755 $(FRR_PKGDIR)/S50frr \
 		$(TARGET_DIR)/etc/init.d/S50frr
+endef
+
+define FRR_INSTALL_INIT_SYSTEMD
+	$(INSTALL) -D -m 644 $(@D)/tools/frr.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/frr.service
+	$(INSTALL) -D -m 644 $(@D)/tools/frr@.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/frr@.service
 endef
 
 $(eval $(autotools-package))

@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-DPDK_VERSION = 25.11
+DPDK_VERSION = 25.11.2
 DPDK_SOURCE = dpdk-$(DPDK_VERSION).tar.xz
 DPDK_SITE = https://fast.dpdk.org/rel
 DPDK_LICENSE = \
@@ -110,6 +110,10 @@ endif
 
 ifeq ($(BR2_PACKAGE_LIBBPF),y)
 DPDK_DEPENDENCIES += libbpf
+endif
+
+ifeq ($(BR2_PACKAGE_LIBVIRT),y)
+DPDK_DEPENDENCIES += libvirt
 endif
 
 ifeq ($(BR2_PACKAGE_RDMA_CORE),y)

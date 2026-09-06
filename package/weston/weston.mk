@@ -70,9 +70,9 @@ WESTON_CONF_OPTS += \
 	-Dbackend-pipewire=false
 endif
 
-ifeq ($(BR2_PACKAGE_VULKAN_LOADER),y)
+ifeq ($(BR2_PACKAGE_WESTON_VULKAN),y)
 WESTON_CONF_OPTS += -Drenderer-vulkan=true
-WESTON_DEPENDENCIES += vulkan-loader host-python-glslang
+WESTON_DEPENDENCIES += host-python-glslang libgbm vulkan-loader
 else
 WESTON_CONF_OPTS += -Drenderer-vulkan=false
 endif
@@ -174,8 +174,8 @@ WESTON_CONF_OPTS += -Dshell-kiosk=false
 endif
 
 ifeq ($(BR2_PACKAGE_WESTON_SHELL_LUA),y)
-WESTON_CONF_OPTS += -Dshell-lua=true
 WESTON_DEPENDENCIES += lua
+WESTON_CONF_OPTS += -Dshell-lua=true
 else
 WESTON_CONF_OPTS += -Dshell-lua=false
 endif
