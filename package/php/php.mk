@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PHP_VERSION = 8.5.3
+PHP_VERSION = 8.5.10
 PHP_SITE = https://www.php.net/distributions
 PHP_SOURCE = php-$(PHP_VERSION).tar.xz
 PHP_INSTALL_STAGING = YES
@@ -77,15 +77,6 @@ PHP_CONFIG_SCRIPTS = php-config
 
 PHP_CFLAGS = $(TARGET_CFLAGS)
 PHP_CXXFLAGS = $(TARGET_CXXFLAGS)
-
-# The OPcache extension isn't cross-compile friendly
-# Throw some defines here to avoid patching heavily
-PHP_CFLAGS += \
-	-DHAVE_SHM_IPC \
-	-DHAVE_SHM_MMAP_ANON \
-	-DHAVE_SHM_MMAP_ZERO \
-	-DHAVE_SHM_MMAP_POSIX \
-	-DHAVE_SHM_MMAP_FILE
 
 # We need to force dl "detection"
 ifeq ($(BR2_STATIC_LIBS),)

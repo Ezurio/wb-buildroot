@@ -41,7 +41,7 @@ choice
 	  Select the specific U-Boot version you want to use
 
 config BR2_TARGET_UBOOT_LATEST_VERSION
-	bool "2026.01"
+	bool "2026.07"
 
 config BR2_TARGET_UBOOT_CUSTOM_VERSION
 	bool "Custom version"
@@ -85,7 +85,7 @@ endif
 
 config BR2_TARGET_UBOOT_VERSION
 	string
-	default "2026.01"	if BR2_TARGET_UBOOT_LATEST_VERSION
+	default "2026.07"	if BR2_TARGET_UBOOT_LATEST_VERSION
 	default BR2_TARGET_UBOOT_CUSTOM_VERSION_VALUE \
 		if BR2_TARGET_UBOOT_CUSTOM_VERSION
 	default "custom"	if BR2_TARGET_UBOOT_CUSTOM_TARBALL
@@ -286,7 +286,6 @@ config BR2_TARGET_UBOOT_NEEDS_OPTEE_TEE
 
 choice
 	prompt "U-Boot OPTEE TEE format"
-	default BR2_TARGET_UBOOT_NEEDS_OPTEE_V2_TEE_BIN if BR2_TARGET_UBOOT_NEEDS_ATF_BL31_BIN
 	default BR2_TARGET_UBOOT_NEEDS_OPTEE_TEE_ELF
 	depends on BR2_TARGET_UBOOT_NEEDS_OPTEE_TEE
 	help
@@ -296,22 +295,36 @@ choice
 	  Since this version, the TEE in binary format must be used as
 	  it contains important meta-data.
 
+	  https://optee.readthedocs.io/en/4.9.0/architecture/porting_guidelines.html#binaries
+
 config BR2_TARGET_UBOOT_NEEDS_OPTEE_TEE_ELF
 	bool "tee.elf"
 	help
+	  The main OP-TEE ELF file. All other OP-TEE binaries are
+	  created with this as input.
+
 	  ELF format may be used only for OP-TEE versions before
 	  3.8.0.
 
 config BR2_TARGET_UBOOT_NEEDS_OPTEE_TEE_BIN
 	bool "tee.bin"
 	help
-	  Binary v1 format must be used for OP-TEE versions since 3.8.0.
+	  The original OP-TEE binary with a header (v1) and combined
+	  init, paged, and unpaged parts.
 
-config BR2_TARGET_UBOOT_NEEDS_OPTEE_V2_TEE_BIN
-	bool "tee-pager_v2.bin"
+	  Binary format must be used for OP-TEE versions since 3.8.0.
+
+config BR2_TARGET_UBOOT_NEEDS_OPTEE_TEE_RAW_BIN
+	bool "tee-raw.bin"
 	help
-	  Binary v2 format, required by modern TF-A, but still referred to as
-	  tee.bin in U-Boot.
+	  Raw binary suitable to copy into physical memory where OP-TEE
+	  be can executed from.
+
+	  OP-TEE since 3.21 suggests to use tee-raw.bin instead of (the
+	  still identical) tee-pager_v2.bin.
+
+	  Texas Instrument’s K3 family of SoCs embed tee-raw.bin in
+	  U-Boot (using Binman tool) to support their boot flow.
 
 endchoice
 
@@ -356,7 +369,7 @@ config BR2_TARGET_UBOOT_USE_BINMAN
 	help
 	  Use binman tool for generation and signing of boot images.
 
-	  https://docs.u-boot.org/en/v2026.01/develop/package/binman.html
+	  https://docs.u-boot.org/en/v2026.07/develop/package/binman.html
 
 menu "U-Boot binary format"
 
