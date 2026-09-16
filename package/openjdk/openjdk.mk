@@ -128,7 +128,11 @@ endif
 # Autogen and configure are performed in a single step.
 define OPENJDK_CONFIGURE_CMDS
 	chmod +x $(@D)/configure
-	cd $(@D); $(OPENJDK_CONF_ENV) ./configure autogen $(OPENJDK_CONF_OPTS)
+	cd $(@D); $(OPENJDK_CONF_ENV) ./configure autogen \
+		BUILD_CC="$(HOSTCC_NOCCACHE)" \
+		BUILD_CXX="$(HOSTCXX_NOCCACHE)" \
+		--build=$(GNU_HOST_NAME) \
+		$(OPENJDK_CONF_OPTS)
 endef
 
 # Make -jn is unsupported. Instead, set the "--with-jobs=" configure option,
