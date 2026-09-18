@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Buildroot
+Date: Fri, 18 Sep 2026 00:00:00 +0000
+Subject: [PATCH] gdbserver: do not build bundled readline
+
+The gdbserver-only configuration does not use readline. Skip the bundled
+readline subdirectory when the full GDB debugger is disabled.
+
+Signed-off-by: Buildroot
+---
+ configure   | 2 +-
+ configure.ac | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+--- a/configure.ac
++++ b/configure.ac
+@@ -252,7 +252,7 @@
+ 
+ # Don't compile the bundled readline/libreadline.a if --with-system-readline
+ # is provided.
+-if test x$with_system_readline = xyes ; then
++if test x$with_system_readline = xyes || test x$enable_gdb = xno ; then
+   noconfigdirs="$noconfigdirs readline"
+ fi
+ 
+
+diff --git a/configure b/configure
+--- a/configure
++++ b/configure
+@@ -2976,7 +2976,7 @@
+ 
+ # Don't compile the bundled readline/libreadline.a if --with-system-readline
+ # is provided.
+-if test x$with_system_readline = xyes ; then
++if test x$with_system_readline = xyes || test x$enable_gdb = xno ; then
+   noconfigdirs="$noconfigdirs readline"
+ fi
+ 
+-- 
+2.39.5

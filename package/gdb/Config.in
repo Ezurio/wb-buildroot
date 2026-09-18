@@ -50,7 +50,6 @@ if BR2_PACKAGE_GDB
 config BR2_PACKAGE_GDB_SERVER
 	bool "gdbserver"
 	depends on !BR2_TOOLCHAIN_EXTERNAL_GDB_SERVER_COPY
-	select BR2_PACKAGE_READLINE
 	help
 	  Build the gdbserver stub to run on the target.
 	  A full gdb is needed to debug the program.
