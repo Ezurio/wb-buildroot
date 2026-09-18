@@ -33,6 +33,14 @@ BLUEZ5_UTILS_CONF_OPTS = \
 	--disable-pie \
 	--with-dbusconfdir=/usr/share
 
+# Select the backend explicitly. Prefer GNU readline when both backends are
+# enabled; otherwise use libedit.
+ifeq ($(BR2_PACKAGE_READLINE),y)
+BLUEZ5_UTILS_CONF_OPTS += --with-readline=readline
+else ifeq ($(BR2_PACKAGE_LIBEDIT),y)
+BLUEZ5_UTILS_CONF_OPTS += --with-readline=libedit
+endif
+
 ifeq ($(BR2_PACKAGE_BLUEZ5_UTILS_OBEX),y)
 BLUEZ5_UTILS_CONF_OPTS += --enable-obex
 BLUEZ5_UTILS_DEPENDENCIES += libical
@@ -42,7 +50,13 @@ endif
 
 ifeq ($(BR2_PACKAGE_BLUEZ5_UTILS_CLIENT),y)
 BLUEZ5_UTILS_CONF_OPTS += --enable-client
+
+ifeq ($(BR2_PACKAGE_READLINE),y)
 BLUEZ5_UTILS_DEPENDENCIES += readline
+endif
+ifeq ($(BR2_PACKAGE_LIBEDIT),y)
+BLUEZ5_UTILS_DEPENDENCIES += libedit
+endif
 else
 BLUEZ5_UTILS_CONF_OPTS += --disable-client
 endif
@@ -104,7 +118,13 @@ endif
 # enable mesh profile
 ifeq ($(BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_MESH),y)
 BLUEZ5_UTILS_CONF_OPTS += --enable-external-ell --enable-mesh
-BLUEZ5_UTILS_DEPENDENCIES += ell json-c readline
+BLUEZ5_UTILS_DEPENDENCIES += ell json-c
+ifeq ($(BR2_PACKAGE_READLINE),y)
+BLUEZ5_UTILS_DEPENDENCIES += readline
+endif
+ifeq ($(BR2_PACKAGE_LIBEDIT),y)
+BLUEZ5_UTILS_DEPENDENCIES += libedit
+endif
 else
 BLUEZ5_UTILS_CONF_OPTS += --disable-external-ell --disable-mesh
 endif
