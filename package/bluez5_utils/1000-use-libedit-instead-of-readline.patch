@@ -1,0 +1,220 @@
+# Note: Using libedit as the readline backend requires libedit compatibility
+# patches (package/libedit/1000 through 1003) to support callback mode, prompt
+# literal escapes (COLOR_OFF), and rl_clear_visible_line / rl_reset_line_state.
+# Upstream-Status: Inappropriate [Buildroot-specific]
+#
+diff -ruN a/attrib/interactive.c b/attrib/interactive.c
+--- a/attrib/interactive.c	2026-09-17 17:49:23.353457153 -0400
++++ b/attrib/interactive.c	2026-09-17 16:21:42.500990987 -0400
+@@ -23,8 +23,12 @@
+ #include <sys/signalfd.h>
+ #include <glib.h>
+ 
++#ifdef HAVE_LIBEDIT_BACKEND
++#include <editline/readline.h>
++#else
+ #include <readline/readline.h>
+ #include <readline/history.h>
++#endif
+ 
+ #include "bluetooth/bluetooth.h"
+ #include "bluetooth/sdp.h"
+diff -ruN a/client/display.c b/client/display.c
+--- a/client/display.c	2026-09-17 17:49:23.361663811 -0400
++++ b/client/display.c	2026-09-17 16:21:42.508457052 -0400
+@@ -19,7 +19,11 @@
+ #include <stdbool.h>
+ #include <string.h>
+ #include <ctype.h>
++#ifdef HAVE_LIBEDIT_BACKEND
++#include <editline/readline.h>
++#else
+ #include <readline/readline.h>
++#endif
+ 
+ #include "display.h"
+ 
+diff -ruN a/configure.ac b/configure.ac
+--- a/configure.ac	2026-09-17 17:49:23.363681979 -0400
++++ b/configure.ac	2026-09-17 16:21:42.512280804 -0400
+@@ -340,8 +340,39 @@
+ AM_CONDITIONAL(CLIENT, test "${enable_client}" != "no")
+ 
+ if (test "${enable_client}" != "no" || test "${enable_mesh}" = "yes"); then
+-        AC_CHECK_HEADERS(readline/readline.h, enable_readline=yes,
+-                AC_MSG_ERROR(readline header files are required))
++        AC_ARG_WITH([readline],
++                AS_HELP_STRING([--with-readline=BACKEND],
++                        [use auto, readline, or libedit (default: auto)]),
++                [readline_backend=${withval}], [readline_backend=auto])
++
++        case "${readline_backend}" in
++        auto|readline|libedit) ;;
++        *) AC_MSG_ERROR([invalid readline backend: ${readline_backend}]) ;;
++        esac
++
++        if test "${readline_backend}" = "readline" ||
++                test "${readline_backend}" = "auto"; then
++                AC_CHECK_HEADERS([readline/readline.h], [
++                        AC_CHECK_LIB([readline], [readline], [
++                                READLINE_LIBS=-lreadline
++                                enable_readline=yes
++                                AC_DEFINE([HAVE_READLINE_BACKEND], [1],
++                                        [Define if GNU readline is used])
++                        ], [readline_backend=libedit])
++                ], [readline_backend=libedit])
++        fi
++
++        if test "${readline_backend}" = "libedit"; then
++                AC_CHECK_HEADERS([editline/readline.h], [
++                        AC_CHECK_LIB([edit], [readline], [
++                                READLINE_LIBS=-ledit
++                                enable_readline=yes
++                                AC_DEFINE([HAVE_LIBEDIT_BACKEND], [1],
++                                        [Define if libedit is used])
++                        ], [AC_MSG_ERROR([libedit library is required])])
++                ], [AC_MSG_ERROR([libedit headers are required])])
++        fi
++        AC_SUBST([READLINE_LIBS])
+ fi
+ AM_CONDITIONAL(READLINE, test "${enable_readline}" = "yes")
+ 
+diff -ruN a/Makefile.tools b/Makefile.tools
+--- a/Makefile.tools	2026-09-17 17:49:23.364846214 -0400
++++ b/Makefile.tools	2026-09-17 16:21:42.513540865 -0400
+@@ -19,7 +19,7 @@
+ 					client/telephony.h client/telephony.c
+ client_bluetoothctl_LDADD = lib/libbluetooth-internal.la \
+ 			gdbus/libgdbus-internal.la src/libshared-glib.la \
+-			$(GLIB_LIBS) $(DBUS_LIBS) -lreadline
++			$(GLIB_LIBS) $(DBUS_LIBS) $(READLINE_LIBS)
+ endif
+ 
+ if ZSH_COMPLETIONS
+@@ -394,7 +394,7 @@
+ 				tools/mesh-gatt/onoff-model.c
+ tools_meshctl_LDADD = gdbus/libgdbus-internal.la src/libshared-glib.la \
+ 				lib/libbluetooth-internal.la \
+-				$(GLIB_LIBS) $(DBUS_LIBS) -ljson-c -lreadline
++				$(GLIB_LIBS) $(DBUS_LIBS) -ljson-c $(READLINE_LIBS)
+ endif
+ 
+ bin_PROGRAMS +=  tools/mesh-cfgclient
+@@ -411,7 +411,7 @@
+ 				mesh/crypto.h mesh/crypto.c
+ 
+ tools_mesh_cfgclient_LDADD = lib/libbluetooth-internal.la src/libshared-ell.la \
+-						$(ell_ldadd) -ljson-c -lreadline
++						$(ell_ldadd) -ljson-c $(READLINE_LIBS)
+ 
+ bin_PROGRAMS +=  tools/mesh-cfgtest
+ 
+@@ -493,7 +493,7 @@
+ tools_obex_client_tool_SOURCES = $(gobex_sources) $(btio_sources) \
+ 						tools/obex-client-tool.c
+ tools_obex_client_tool_LDADD = lib/libbluetooth-internal.la \
+-			       src/libshared-glib.la $(GLIB_LIBS) -lreadline
++			       src/libshared-glib.la $(GLIB_LIBS) $(READLINE_LIBS)
+ 
+ tools_obex_server_tool_SOURCES = $(gobex_sources) $(btio_sources) \
+ 						tools/obex-server-tool.c
+@@ -504,16 +504,16 @@
+ 				client/player.c
+ tools_bluetooth_player_LDADD = gdbus/libgdbus-internal.la \
+ 				src/libshared-glib.la \
+-				$(GLIB_LIBS) $(DBUS_LIBS) -lreadline
++				$(GLIB_LIBS) $(DBUS_LIBS) $(READLINE_LIBS)
+ 
+ tools_obexctl_SOURCES = tools/obexctl.c
+ tools_obexctl_LDADD = gdbus/libgdbus-internal.la src/libshared-glib.la \
+-			$(GLIB_LIBS) $(DBUS_LIBS) -lreadline
++			$(GLIB_LIBS) $(DBUS_LIBS) $(READLINE_LIBS)
+ 
+ tools_btmgmt_SOURCES = tools/btmgmt.c src/uuid-helper.c client/display.c \
+ 			client/mgmt.c
+ tools_btmgmt_LDADD = lib/libbluetooth-internal.la src/libshared-glib.la \
+-				$(GLIB_LIBS) -lreadline
++				$(GLIB_LIBS) $(READLINE_LIBS)
+ if DEPRECATED
+ noinst_PROGRAMS += attrib/gatttool
+ 
+@@ -523,7 +523,7 @@
+ 				attrib/utils.c src/log.c client/display.c \
+ 				client/display.h
+ attrib_gatttool_LDADD = lib/libbluetooth-internal.la \
+-			src/libshared-glib.la $(GLIB_LIBS) -lreadline
++			src/libshared-glib.la $(GLIB_LIBS) $(READLINE_LIBS)
+ 
+ endif
+ endif
+@@ -579,5 +579,5 @@
+ 
+ client_btpclient_btpclientctl_SOURCES = client/btpclient/btpclientctl.c client/display.c
+ client_btpclient_btpclientctl_LDADD = src/libshared-mainloop.la src/libshared-glib.la \
+-				lib/libbluetooth-internal.la -lreadline
++				lib/libbluetooth-internal.la $(READLINE_LIBS)
+ endif
+diff -ruN a/src/shared/shell.c b/src/shared/shell.c
+--- a/src/shared/shell.c	2026-09-17 17:49:23.358684969 -0400
++++ b/src/shared/shell.c	2026-09-17 16:21:42.505881881 -0400
+@@ -26,8 +26,12 @@
+ #include <getopt.h>
+ #include <fcntl.h>
+ 
++#ifdef HAVE_LIBEDIT_BACKEND
++#include <editline/readline.h>
++#else
+ #include <readline/readline.h>
+ #include <readline/history.h>
++#endif
+ 
+ #include "src/shared/mainloop.h"
+ #include "src/shared/timeout.h"
+diff -ruN a/tools/mesh-gatt/onoff-model.c b/tools/mesh-gatt/onoff-model.c
+--- a/tools/mesh-gatt/onoff-model.c	2026-09-17 17:49:23.363141266 -0400
++++ b/tools/mesh-gatt/onoff-model.c	2026-09-17 16:21:42.511245938 -0400
+@@ -21,8 +21,12 @@
+ #include <stdbool.h>
+ #include <sys/uio.h>
+ #include <wordexp.h>
++#ifdef HAVE_LIBEDIT_BACKEND
++#include <editline/readline.h>
++#else
+ #include <readline/readline.h>
+ #include <readline/history.h>
++#endif
+ #include <glib.h>
+ 
+ #include "src/shared/shell.h"
+diff -ruN a/tools/mesh-gatt/prov.c b/tools/mesh-gatt/prov.c
+--- a/tools/mesh-gatt/prov.c	2026-09-17 17:49:23.363124886 -0400
++++ b/tools/mesh-gatt/prov.c	2026-09-17 16:21:42.511214182 -0400
+@@ -19,8 +19,12 @@
+ #include <sys/uio.h>
+ #include <wordexp.h>
+ 
++#ifdef HAVE_LIBEDIT_BACKEND
++#include <editline/readline.h>
++#else
+ #include <readline/readline.h>
+ #include <readline/history.h>
++#endif
+ #include <glib.h>
+ 
+ #include "src/shared/util.h"
+diff -ruN a/tools/obex-client-tool.c b/tools/obex-client-tool.c
+--- a/tools/obex-client-tool.c	2026-09-17 17:49:23.363496543 -0400
++++ b/tools/obex-client-tool.c	2026-09-17 16:21:42.511913559 -0400
+@@ -22,8 +22,12 @@
+ #include <errno.h>
+ #include <stdio.h>
+ 
++#ifdef HAVE_LIBEDIT_BACKEND
++#include <editline/readline.h>
++#else
+ #include <readline/readline.h>
+ #include <readline/history.h>
++#endif
+ 
+ #include "gobex/gobex.h"
+ #include "btio/btio.h"
