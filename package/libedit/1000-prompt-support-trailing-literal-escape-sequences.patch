@@ -1,0 +1,226 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Thu, 17 Sep 2026 00:00:00 +0000
+Subject: [PATCH] prompt: support trailing literal escape sequences
+
+In prompt_print(), when a literal escape sequence occurs at the very end
+of the prompt (!p[1]), libedit previously discarded it with
+"// XXX: We lose the last literal" and broke out of the loop.
+
+This breaks prompts whose trailing sequence is a terminal reset code like
+SGR 0 (\033[0m) to reset prompt attributes. Dropping the closing escape
+sequence leaves the terminal in the active attribute/color mode, causing
+subsequent output to inherit the prompt's styling.
+
+Implement literal_append() to attach the trailing literal sequence to
+the preceding character cell in the virtual display buffer, ensuring the
+terminal escape sequence is output.
+
+Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Upstream-Status: Pending
+diff -ruN a/src/literal.c b/src/literal.c
+--- a/src/literal.c	2026-05-08 15:38:20.000000000 -0400
++++ b/src/literal.c	2026-09-17 20:42:25.239441298 -0400
+@@ -45,6 +45,43 @@
+ #include <string.h>
+ #include "el.h"
+ 
++static size_t
++literal_encoded_len(const wchar_t *buf, const wchar_t *end)
++{
++	size_t w = 0;
++	while (buf < end)
++		w += (size_t)ct_enc_width(*buf++);
++	return w;
++}
++
++static size_t
++literal_encode(char *dst, size_t max, const wchar_t *buf, const wchar_t *end)
++{
++	size_t n = 0;
++	while (buf < end)
++		n += (size_t)ct_encode_char(dst + n, max - n, *buf++);
++	return n;
++}
++
++static wint_t
++literal_store(el_literal_t *l, char *b)
++{
++	if (l->l_idx == l->l_len) {
++		char **bp;
++
++		l->l_len += 4;
++		bp = el_realloc(l->l_buf, sizeof(*l->l_buf) * l->l_len);
++		if (bp == NULL) {
++			free(b);
++			l->l_len -= 4;
++			return 0;
++		}
++		l->l_buf = bp;
++	}
++	l->l_buf[l->l_idx++] = b;
++	return EL_LITERAL | (wint_t)(l->l_idx - 1);
++}
++
+ libedit_private void
+ literal_init(EditLine *el)
+ {
+@@ -80,50 +117,22 @@
+ literal_add(EditLine *el, const wchar_t *buf, const wchar_t *end, int *wp)
+ {
+ 	el_literal_t *l = &el->el_literal;
+-	size_t i, len;
+-	ssize_t w, n;
++	size_t total, n;
+ 	char *b;
+ 
+-	w = wcwidth(end[1]);	/* column width of the visible char */
+-	*wp = (int)w;
+-
+-	if (w < 0)		/* non-printable characters are negative */
++	*wp = wcwidth(end[1]);	/* column width of the visible char */
++	if (*wp < 0)		/* non-printable characters are negative */
+ 		return 0;
+ 
+-	len = (size_t)(end - buf);
+-	for (w = 0, i = 0; i < len; i++)
+-		w += ct_enc_width(buf[i]);
+-	w += ct_enc_width(end[1]);
+-
+-	b = el_malloc((size_t)(w + 1));
+-	if (b == NULL)
++	total = literal_encoded_len(buf, end) + (size_t)ct_enc_width(end[1]);
++	if ((b = el_malloc(total + 1)) == NULL)
+ 		return 0;
+ 
+-	for (n = 0, i = 0; i < len; i++)
+-		n += ct_encode_char(b + n, (size_t)(w - n), buf[i]);
+-	n += ct_encode_char(b + n, (size_t)(w - n), end[1]);
++	n = literal_encode(b, total + 1, buf, end);
++	n += (size_t)ct_encode_char(b + n, total + 1 - n, end[1]);
+ 	b[n] = '\0';
+ 
+-	/*
+-	 * Then save this literal string in the list of such strings,
+-	 * and return a "magic character" to put into the terminal buffer.
+-	 * When that magic char is 'printed' the saved string (which includes
+-	 * the char that belongs in that position) gets sent instead.
+-	 */
+-	if (l->l_idx == l->l_len) {
+-		char **bp;
+-
+-		l->l_len += 4;
+-		bp = el_realloc(l->l_buf, sizeof(*l->l_buf) * l->l_len);
+-		if (bp == NULL) {
+-			free(b);
+-			l->l_len -= 4;
+-			return 0;
+-		}
+-		l->l_buf = bp;
+-	}
+-	l->l_buf[l->l_idx++] = b;
+-	return EL_LITERAL | (wint_t)(l->l_idx - 1);
++	return literal_store(l, b);
+ }
+ 
+ libedit_private const char *
+@@ -136,3 +145,72 @@
+ 	assert(l->l_idx > (size_t)idx);
+ 	return l->l_buf[idx];
+ }
++
++/*
++ * literal_append():
++ *	Append a trailing literal sequence to the preceding character cell in
++ *	the virtual display buffer so trailing escapes (e.g. COLOR_OFF) are not
++ *	lost when there is no subsequent visible character.
++ */
++libedit_private void
++literal_append(EditLine *el, const wchar_t *buf, const wchar_t *end)
++{
++	el_literal_t *l = &el->el_literal;
++	coord_t *cur = &el->el_refresh.r_cursor;
++	int v = cur->v, h = cur->h - 1;
++	size_t extra_len;
++	wint_t c, lit;
++
++	/* Find preceding character cell (wrapping to previous row(s) if needed) */
++	while (h < 0 && v > 0) {
++		v--;
++		h = (int)wcslen((const wchar_t *)el->el_vdisplay[v]) - 1;
++	}
++
++	if (h < 0) {
++		/* No preceding character in entire prompt display: store at (0, 0) */
++		extra_len = literal_encoded_len(buf, end);
++		char *b = el_malloc(extra_len + 1);
++		if (b == NULL)
++			return;
++		(void)literal_encode(b, extra_len + 1, buf, end);
++		b[extra_len] = '\0';
++		lit = literal_store(l, b);
++		if (lit != 0)
++			el->el_vdisplay[0][0] = lit;
++		return;
++	}
++
++	while (h > 0 && el->el_vdisplay[v][h] == MB_FILL_CHAR)
++		h--;
++
++	extra_len = literal_encoded_len(buf, end);
++	c = el->el_vdisplay[v][h];
++
++	if (c & EL_LITERAL) {
++		/* Preceding cell is already a literal: append to its buffer */
++		size_t idx = c & ~EL_LITERAL;
++		size_t old_len = strlen(l->l_buf[idx]);
++		char *b = el_realloc(l->l_buf[idx], old_len + extra_len + 1);
++
++		if (b == NULL)
++			return;
++		l->l_buf[idx] = b;
++		old_len += literal_encode(b + old_len, extra_len + 1, buf, end);
++		b[old_len] = '\0';
++	} else {
++		/* Preceding cell is a normal character: promote it to a literal */
++		size_t char_len = (size_t)ct_enc_width(c);
++		char *b = el_malloc(char_len + extra_len + 1);
++		size_t n;
++
++		if (b == NULL)
++			return;
++		n = (size_t)ct_encode_char(b, char_len + 1, c);
++		n += literal_encode(b + n, extra_len + 1, buf, end);
++		b[n] = '\0';
++		lit = literal_store(l, b);
++		if (lit != 0)
++			el->el_vdisplay[v][h] = lit;
++	}
++}
+diff -ruN a/src/literal.h b/src/literal.h
+--- a/src/literal.h	2018-05-25 14:09:38.000000000 -0400
++++ b/src/literal.h	2026-09-17 20:42:30.355633703 -0400
+@@ -49,5 +49,7 @@
+ libedit_private wint_t literal_add(EditLine *, const wchar_t *,
+     const wchar_t *, int *);
+ libedit_private const char *literal_get(EditLine *, wint_t);
++libedit_private void literal_append(EditLine *, const wchar_t *,
++    const wchar_t *);
+ 
+ #endif /* _h_el_literal */
+diff -ruN a/src/prompt.c b/src/prompt.c
+--- a/src/prompt.c	2018-05-25 14:09:38.000000000 -0400
++++ b/src/prompt.c	2026-09-17 20:42:36.002846078 -0400
+@@ -101,8 +101,10 @@
+ 			wchar_t *litstart = ++p;
+ 			while (*p && *p != elp->p_ignore)
+ 				p++;
+-			if (!*p || !p[1]) {
+-				// XXX: We lose the last literal
++			if (!*p)
++				break;
++			if (!p[1]) {
++				literal_append(el, litstart, p);
+ 				break;
+ 			}
+ 			re_putliteral(el, litstart, p++);
