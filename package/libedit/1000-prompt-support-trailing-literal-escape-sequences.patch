@@ -21,7 +21,7 @@ Upstream-Status: Pending
 diff -ruN a/src/literal.c b/src/literal.c
 --- a/src/literal.c	2026-05-08 15:38:20.000000000 -0400
 +++ b/src/literal.c	2026-09-17 20:42:25.239441298 -0400
-@@ -45,6 +45,43 @@
+@@ -50,6 +50,67 @@
  #include <string.h>
  #include "el.h"
  
@@ -62,21 +62,44 @@ diff -ruN a/src/literal.c b/src/literal.c
 +	return EL_LITERAL | (wint_t)(l->l_idx - 1);
 +}
 +
++static wint_t
++literal_create(el_literal_t *l, wchar_t c, int post,
++    const wchar_t *buf, const wchar_t *end)
++{
++	size_t char_len = c ? (size_t)ct_enc_width(c) : 0;
++	size_t extra_len = literal_encoded_len(buf, end);
++	char *b = el_malloc(char_len + extra_len + 1);
++	size_t n = 0;
++
++	if (b == NULL)
++		return 0;
++
++	if (post && c) {
++		n += (size_t)ct_encode_char(b, char_len + 1, c);
++		n += literal_encode(b + n, extra_len + 1, buf, end);
++	} else {
++		n += literal_encode(b, extra_len + 1, buf, end);
++		if (c)
++			n += (size_t)ct_encode_char(b + n, char_len + 1, c);
++	}
++	b[n] = '\0';
++	return literal_store(l, b);
++}
++
  libedit_private void
  literal_init(EditLine *el)
  {
-@@ -80,50 +117,22 @@
+@@ -85,50 +146,12 @@
  literal_add(EditLine *el, const wchar_t *buf, const wchar_t *end, int *wp)
  {
  	el_literal_t *l = &el->el_literal;
 -	size_t i, len;
 -	ssize_t w, n;
-+	size_t total, n;
- 	char *b;
- 
+-	char *b;
+-
 -	w = wcwidth(end[1]);	/* column width of the visible char */
 -	*wp = (int)w;
--
+ 
 -	if (w < 0)		/* non-printable characters are negative */
 +	*wp = wcwidth(end[1]);	/* column width of the visible char */
 +	if (*wp < 0)		/* non-printable characters are negative */
@@ -89,17 +112,13 @@ diff -ruN a/src/literal.c b/src/literal.c
 -
 -	b = el_malloc((size_t)(w + 1));
 -	if (b == NULL)
-+	total = literal_encoded_len(buf, end) + (size_t)ct_enc_width(end[1]);
-+	if ((b = el_malloc(total + 1)) == NULL)
- 		return 0;
- 
+-		return 0;
+-
 -	for (n = 0, i = 0; i < len; i++)
 -		n += ct_encode_char(b + n, (size_t)(w - n), buf[i]);
 -	n += ct_encode_char(b + n, (size_t)(w - n), end[1]);
-+	n = literal_encode(b, total + 1, buf, end);
-+	n += (size_t)ct_encode_char(b + n, total + 1 - n, end[1]);
- 	b[n] = '\0';
- 
+-	b[n] = '\0';
+-
 -	/*
 -	 * Then save this literal string in the list of such strings,
 -	 * and return a "magic character" to put into the terminal buffer.
@@ -120,11 +139,11 @@ diff -ruN a/src/literal.c b/src/literal.c
 -	}
 -	l->l_buf[l->l_idx++] = b;
 -	return EL_LITERAL | (wint_t)(l->l_idx - 1);
-+	return literal_store(l, b);
++	return literal_create(l, end[1], 0, buf, end);
  }
  
  libedit_private const char *
-@@ -136,3 +145,72 @@
+@@ -141,3 +164,57 @@
  	assert(l->l_idx > (size_t)idx);
  	return l->l_buf[idx];
  }
@@ -152,13 +171,7 @@ diff -ruN a/src/literal.c b/src/literal.c
 +
 +	if (h < 0) {
 +		/* No preceding character in entire prompt display: store at (0, 0) */
-+		extra_len = literal_encoded_len(buf, end);
-+		char *b = el_malloc(extra_len + 1);
-+		if (b == NULL)
-+			return;
-+		(void)literal_encode(b, extra_len + 1, buf, end);
-+		b[extra_len] = '\0';
-+		lit = literal_store(l, b);
++		lit = literal_create(l, 0, 0, buf, end);
 +		if (lit != 0)
 +			el->el_vdisplay[0][0] = lit;
 +		return;
@@ -183,16 +196,7 @@ diff -ruN a/src/literal.c b/src/literal.c
 +		b[old_len] = '\0';
 +	} else {
 +		/* Preceding cell is a normal character: promote it to a literal */
-+		size_t char_len = (size_t)ct_enc_width(c);
-+		char *b = el_malloc(char_len + extra_len + 1);
-+		size_t n;
-+
-+		if (b == NULL)
-+			return;
-+		n = (size_t)ct_encode_char(b, char_len + 1, c);
-+		n += literal_encode(b + n, extra_len + 1, buf, end);
-+		b[n] = '\0';
-+		lit = literal_store(l, b);
++		lit = literal_create(l, (wchar_t)c, 1, buf, end);
 +		if (lit != 0)
 +			el->el_vdisplay[v][h] = lit;
 +	}
