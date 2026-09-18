@@ -1,0 +1,58 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Thu, 17 Sep 2026 00:00:00 +0000
+Subject: [PATCH] readline: implement _rl_erase_entire_line, add rl_clear_visible_line and rl_reset_line_state
+
+These GNU Readline (>= 8.1) functions are part of the Readline API to
+erase the current prompt line before printing asynchronous output and to
+reset the line display state.
+
+Implement _rl_erase_entire_line() using libedit's re_clear_lines() and
+re_clear_display(), wrap it in rl_clear_visible_line(), and implement
+rl_reset_line_state() via re_clear_display().
+
+Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Upstream-Status: Pending
+---
+diff -ruN a/src/editline/readline.h b/src/editline/readline.h
+--- a/src/editline/readline.h	2026-05-08 15:40:44.000000000 -0400
++++ b/src/editline/readline.h	2026-09-17 20:36:17.926627708 -0400
+@@ -252,6 +252,8 @@
+     __attribute__((__format__(__printf__, 1, 2)));
+ void		 rl_save_prompt(void);
+ void		 rl_restore_prompt(void);
++void		 rl_clear_visible_line(void);
++int		 rl_reset_line_state(void);
+ 
+ /*
+  * The following are not implemented
+diff -ruN a/src/readline.c b/src/readline.c
+--- a/src/readline.c	2026-05-08 15:40:44.000000000 -0400
++++ b/src/readline.c	2026-09-17 20:36:22.567802249 -0400
+@@ -2628,4 +2628,26 @@
+ void
+ _rl_erase_entire_line(void)
+ {
++	if (h == NULL || e == NULL)
++		rl_initialize();
++
++	re_clear_lines(e);
++	re_clear_display(e);
++	terminal__flush(e);
++}
++
++void
++rl_clear_visible_line(void)
++{
++	_rl_erase_entire_line();
++}
++
++int
++rl_reset_line_state(void)
++{
++	if (h == NULL || e == NULL)
++		rl_initialize();
++
++	re_clear_display(e);
++	return 0;
+ }

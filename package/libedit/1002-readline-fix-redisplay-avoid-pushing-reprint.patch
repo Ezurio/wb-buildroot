@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Date: Thu, 17 Sep 2026 00:00:00 +0000
+Subject: [PATCH] readline: fix redisplay avoid pushing reprint character
+
+In emacs keymap mode, C_REPRINT (^R / 0x12) is mapped to
+em_inc_search_prev (reverse incremental history search).
+
+Previously, rl_redisplay() pushed C_REPRINT into the input queue via
+el_push(). When an application updated the prompt or called rl_redisplay()
+on external events, this inadvertently injected ^R into the input stream,
+triggering reverse history search ("bck:") and corrupting the interactive
+line display.
+
+Fix this by removing the el_push() of C_REPRINT and calling
+rl_forced_update_display() directly.
+
+Signed-off-by: Boris Krasnovskiy <boris.krasnovskiy@ezurio.com>
+Upstream-Status: Pending
+---
+diff -ruN a/src/readline.c b/src/readline.c
+--- a/src/readline.c	2026-05-08 15:40:44.000000000 -0400
++++ b/src/readline.c	2026-09-17 19:52:41.895509983 -0400
+@@ -2179,10 +2179,8 @@
+ void
+ rl_redisplay(void)
+ {
+-	char a[2];
+-	a[0] = (char)e->el_tty.t_c[TS_IO][C_REPRINT];
+-	a[1] = '\0';
+-	el_push(e, a);
++	if (h == NULL || e == NULL)
++		rl_initialize();
+ 	rl_forced_update_display();
+ }
+ 
