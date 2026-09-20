@@ -116,6 +116,7 @@ config BR2_PACKAGE_HOST_RUSTC_ARCH
 	string
 	default "armv5te" if BR2_ARM_CPU_ARMV5
 	default "arm" if BR2_ARM_CPU_ARMV6
+	default "arm" if BR2_ARM_CPU_ARMV7A && (BR2_ARM_FPU_VFPV3D16 || BR2_ARM_FPU_VFPV4D16)
 	default "armv7"  if BR2_ARM_CPU_ARMV7A
 	default "armv7"  if BR2_ARM_CPU_ARMV7A || (BR2_arm && BR2_ARM_CPU_ARMV8A)
 	default "riscv64gc" if BR2_RISCV_64
