@@ -161,10 +161,17 @@ ifeq ($(NORMALIZED_ARCH),arm)
 PKG_CARGO_TARGET_RUSTFLAGS += -Clink-arg=-Wl,--allow-multiple-definition
 endif
 
-HOST_PKG_CARGO_RUSTFLAGS = $(addprefix -C link-args=,$(HOST_LDFLAGS))
+PKG_CARGO_TARGET_RUSTFLAGS += --remap-path-prefix=$($(PKG)_SRCDIR)=.
+
+PKG_CARGO_ENV += \
+	CARGO_TARGET_$(call UPPERCASE,$(RUSTC_TARGET_NAME))_RUSTFLAGS="$(strip $(PKG_CARGO_TARGET_RUSTFLAGS))"
+
+HOST_PKG_CARGO_RUSTFLAGS = $(addprefix -C link-args=,$(HOST_LDFLAGS)) \
+	--remap-path-prefix=$($(PKG)_SRCDIR)=.
 
 HOST_PKG_CARGO_ENV = \
-	$(PKG_COMMON_CARGO_ENV)
+	$(PKG_COMMON_CARGO_ENV) \
+	RUSTFLAGS="$(strip $(HOST_PKG_CARGO_RUSTFLAGS))"
 
 ################################################################################
 # inner-cargo-package -- defines how the configuration, compilation and
@@ -210,14 +217,6 @@ endif
 # so don't append the blurb in that case.
 ifneq ($$($(2)_LICENSE),)
 $(2)_LICENSE += , vendored dependencies licenses probably not listed
-endif
-
-ifeq ($(4),target)
-$(2)_CARGO_ENV += \
-	CARGO_TARGET_$$(call UPPERCASE,$$(RUSTC_TARGET_NAME))_RUSTFLAGS="$$(strip $$(PKG_CARGO_TARGET_RUSTFLAGS) --remap-path-prefix=$$($(2)_SRCDIR)=.)"
-else
-$(2)_CARGO_ENV += \
-	RUSTFLAGS="$$(strip $$(HOST_PKG_CARGO_RUSTFLAGS) --remap-path-prefix=$$($(2)_SRCDIR)=.)"
 endif
 
 # Note: in all the steps below, we "cd" into the build directory to
