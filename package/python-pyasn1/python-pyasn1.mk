@@ -12,3 +12,4 @@ PYTHON_PYASN1_LICENSE = BSD-2-Clause
 PYTHON_PYASN1_LICENSE_FILES = LICENSE.rst
 
 $(eval $(python-package))
+$(eval $(host-python-package))
